@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
@@ -7,6 +9,9 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:simple_sample/Model.dart';
 
 import 'Record.dart';
+
+import 'dart:async';
+import 'dart:io';
 
 ///Class that represents the audio controller, which connects the UI with the Model
 
@@ -86,7 +91,7 @@ class AudioController {
   void record(int index) {
     String path = Model().getNewPath();
     if (_isRecorderInited == true) {
-      _recorder.startRecorder(toFile: path);
+      _recorder.startRecorder(toFile: path, codec: Codec.pcm16WAV);
       Record record = new Record(path);
       record.setPosition(index);
       Model().addRecord(record, index);
@@ -107,6 +112,10 @@ class AudioController {
         if (_recorder.isStopped) {
           Record? toPlay = Model().getRecordAt(index);
           if (toPlay != null) {
+            File file = new File(toPlay.getUrl());
+            print("******************* file ha lunghezza: "+file.lengthSync().toString());
+            print("******************* last mod: "+file.lastModifiedSync().toString());
+            print("******************* path path: "+file.path);
             _players[index]?.play(toPlay.getUrl());
             print("***** ha suonato il player "+index.toString());
           }

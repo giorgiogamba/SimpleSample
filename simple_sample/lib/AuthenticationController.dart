@@ -3,10 +3,31 @@ import 'package:flutter/material.dart';
 import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
+import 'Model.dart';
+
 class AuthenticationController {
+
+  static final AuthenticationController _instance = AuthenticationController()._internal();
+
+  AuthenticationController._internal() {
+    print("Initializing AuthenticationController");
+    initAuthenticationController();
+  }
+
+  bool checkIfAuthorized() {
+    if ( Model().getUser() == null ) {
+      return false;
+
+      //todo codice per eseguire login, il quale deve salvare user nel Model
+
+    }
+    return true;
+  }
 
   void initAuthenticationController() async {
     FirebaseAuth authorizer = FirebaseAuth.instance;
+
+    //todo controllare se questo codice successivo è utile
     authorizer.authStateChanges().listen((User? user) {
       if (user == null) {
         print("User is currently signed out");
@@ -17,9 +38,11 @@ class AuthenticationController {
 
     //Impostazione della persistenza
     await authorizer.setPersistence(Persistence.LOCAL);
+
+    print("End method authentication controller");
   }
 
-  static Future<void> signInWithGoogle() async {
+  static Future<void> signInWithGoogle() async { //todo eseguire collegamento a google
 
     GoogleSignIn googleSignIn = GoogleSignIn();
     GoogleSignInAccount? googleAccount = await googleSignIn.signIn();
@@ -53,7 +76,9 @@ class AuthenticationController {
     }
   }
 
-  static Future<UserCredential?> signInWithFacebook() async {
+  //todo signout google
+
+  /*static Future<UserCredential?> signInWithFacebook() async {
     final LoginResult result = await FacebookAuth.instance.login();
     if (result.status == LoginStatus.success) {
       //User logged in
@@ -78,6 +103,6 @@ class AuthenticationController {
 
   void signOutFromFacebook() async {
     await FacebookAuth.instance.logOut();
-  }
+  }*/
 
 }

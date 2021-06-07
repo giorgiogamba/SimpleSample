@@ -96,7 +96,7 @@ class _SamplerState extends State<Sampler> {
           SizedBox(height: verticalSpacing,),
           createSamplerRow(12),
           SizedBox(height: verticalSpacing,),
-          Text("TIMER")
+          Text("TIMER"),
         ],
       ),
     );
