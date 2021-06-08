@@ -1,7 +1,12 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:simple_sample/AudioController.dart';
+import 'package:simple_sample/GoogleDriveController.dart';
+import 'package:simple_sample/StorageController.dart';
 
 import 'AuthenticationController.dart';
+import 'CloudStorageController.dart';
+import 'Model.dart';
 
 ///Class representing the user Interface
 ///
@@ -15,6 +20,11 @@ class UserPage extends StatefulWidget {
 
 class _UserPageState extends State<UserPage> {
 
+  //TEST
+  CloudStorageController storageController = CloudStorageController();
+  String? test = "";
+  String downloadTest = Model().docPath+"download_ex.wav";
+
   AuthenticationController _controller = AuthenticationController();
   bool auth = false; //la mantengo così cambia la UI a seconda dello stato
 
@@ -26,6 +36,10 @@ class _UserPageState extends State<UserPage> {
 
   @override
   Widget build(BuildContext context) {
+
+    test = Model().getRecordAt(0)?.getUrl();
+    print("Test vale $test");
+
     if (auth) {
       return Center(
         child: Column(
@@ -33,6 +47,11 @@ class _UserPageState extends State<UserPage> {
             Text("User logged in"),
             SizedBox(height: 20,),
             ElevatedButton(onPressed: _controller.signOutGoogle, child: Text("Sign out")),
+            ElevatedButton(onPressed: () => storageController.upload(test), child: Text("Upload test")),
+            ElevatedButton(onPressed: () => storageController.download(), child: Text("Downlaod test")),
+            ElevatedButton(onPressed: () => AudioController().playAtURL(downloadTest), child: Text("playdownload")),
+            ElevatedButton(onPressed: () => GoogleDriveController(), child: Text("test GoogleDrive")),
+            ElevatedButton(onPressed: () => GoogleDriveController().listGoogleDriveFiles(), child: Text("LIsta elementi in drive")),
           ],
         ),
       );
@@ -42,9 +61,6 @@ class _UserPageState extends State<UserPage> {
           elevation: 20,
           content: Column(
             children: [
-              /*ElevatedButton(onPressed: () async {
-                _controller.signInWithGoogle();
-              }, child: Text("Login")),*/
               InkWell(
                 child: Container(
                     width: 200,

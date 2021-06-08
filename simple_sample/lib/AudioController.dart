@@ -130,5 +130,28 @@ class AudioController {
     }
 
   }
+
+
+  void playAtURL(String URL) {
+    print("Richiamaot metodo playAtURL");
+    if (_isPlayerInited[0]) {
+      if (_playbackReady) {
+        if (_recorder.isStopped) {
+            File file = new File(URL);
+            print("******************* file ha lunghezza: "+file.lengthSync().toString());
+            print("******************* last mod: "+file.lastModifiedSync().toString());
+            print("******************* path path: "+file.path);
+            _players[0]?.play(URL);
+        }
+      } else {
+        throw Exception("Recorder o player not stoppati");
+      }
+    } else {
+      throw Exception ("Playback not ready");
+    }
+
+  }
+
+
 }
 

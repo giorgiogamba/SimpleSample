@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:flutter/foundation.dart';
 import 'Record.dart';
@@ -25,6 +26,12 @@ class Model {
 
   //Sequencer
   //static HashMap<int, HashMap<int, bool>>? _sequencerMap = HashMap(); //mappa con 16 righe e 8 colonne. La mappa esterna contiene colonne, la seconda righe
+
+  //Storage
+  String storageUploadPath = "uploads/";
+
+  //Drive
+  GoogleSignInAccount? googleAccount;
 
 
   Model.internal() {
@@ -132,12 +139,12 @@ class Model {
 
   Future<String> getDocFilePath() async {
     Directory appDocumentsDirectory = await getApplicationDocumentsDirectory();
-    return appDocumentsDirectory.path;
+    return appDocumentsDirectory.absolute.path;
   }
 
   Future<String?> getExternalStorageDoc() async {
     Directory? dir = await getExternalStorageDirectory();
-    return dir?.path;
+    return dir?.absolute.path;
   }
 
   Future<void> loadAssets() async {
@@ -168,5 +175,17 @@ class Model {
     }
 
     return res;
+  }
+
+  String getStorageUploadPath() {
+    return storageUploadPath;
+  }
+
+  GoogleSignInAccount? getGoogleSignInAccount() {
+    return this.googleAccount;
+  }
+
+  void setGoogleSignInAccount(GoogleSignInAccount? account) {
+    this.googleAccount = account;
   }
 }

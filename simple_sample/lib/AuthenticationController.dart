@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:googleapis/drive/v3.dart' as drive;
 
 import 'Model.dart';
 
@@ -45,8 +46,16 @@ class AuthenticationController {
   Future<void> signInWithGoogle() async { //todo eseguire collegamento a google
 
     print("****************** Google sing in ******************");
+    /* CODICE CORRETTO
     GoogleSignIn googleSignIn = GoogleSignIn();
     GoogleSignInAccount? googleAccount = await googleSignIn.signIn();
+     */
+
+    //Ptrovo questo codice per accesso a google drive -> SEMBRA FUNZIONARE
+    final GoogleSignIn googleSignIn = GoogleSignIn.standard(scopes: [drive.DriveApi.driveScope]);
+    final GoogleSignInAccount? googleAccount = await googleSignIn.signIn();
+
+    Model().setGoogleSignInAccount(googleAccount);
 
     if (googleAccount != null) { //User correctly logged in
       GoogleSignInAuthentication googleAuthentication = await googleAccount.authentication;

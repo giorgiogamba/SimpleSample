@@ -40,6 +40,7 @@ dependencies:
   #flutter_facebook_auth: ^3.4.0  causa problemi
   path_provider: ^2.0.2
   audioplayers: ^0.19.0
+  googleapis: ^3.0.0
 
 dev_dependencies:
   flutter_test:
