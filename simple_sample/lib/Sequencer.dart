@@ -40,7 +40,7 @@ class _SequencerState extends State<Sequencer> {
 
     calculateTick();
     _controller = AudioController();
-    initSequencerMap();
+    //initSequencerMap();
 
     super.initState();
   }

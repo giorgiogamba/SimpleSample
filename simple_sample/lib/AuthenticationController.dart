@@ -1,25 +1,25 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
 import 'Model.dart';
 
 class AuthenticationController {
 
-  static final AuthenticationController _instance = AuthenticationController()._internal();
+  static final AuthenticationController _instance = AuthenticationController._internal();
 
   AuthenticationController._internal() {
     print("Initializing AuthenticationController");
     initAuthenticationController();
   }
 
+  factory AuthenticationController() {
+    return _instance;
+  }
+
   bool checkIfAuthorized() {
     if ( Model().getUser() == null ) {
       return false;
-
-      //todo codice per eseguire login, il quale deve salvare user nel Model
-
     }
     return true;
   }
@@ -27,28 +27,28 @@ class AuthenticationController {
   void initAuthenticationController() async {
     FirebaseAuth authorizer = FirebaseAuth.instance;
 
-    //todo controllare se questo codice successivo è utile
+    //Checking f there already is a persistence connection to firebase
     authorizer.authStateChanges().listen((User? user) {
       if (user == null) {
         print("User is currently signed out");
       } else {
-        print("User logged in");
+        print("*** User logged in. Infos");
+        print(user.toString());
+        Model().setUser(user); //Model gets initialized at every start so every time we have to write in it
+        //todo trovare un modo di reperire le credenziali
       }
     });
 
-    //Impostazione della persistenza
-    await authorizer.setPersistence(Persistence.LOCAL);
-
-    print("End method authentication controller");
+    print("End method authentication controller initialization");
   }
 
-  static Future<void> signInWithGoogle() async { //todo eseguire collegamento a google
+  Future<void> signInWithGoogle() async { //todo eseguire collegamento a google
 
+    print("****************** Google sing in ******************");
     GoogleSignIn googleSignIn = GoogleSignIn();
     GoogleSignInAccount? googleAccount = await googleSignIn.signIn();
 
-    if (googleAccount != null) {
-      //Utente correttamente collegato
+    if (googleAccount != null) { //User correctly logged in
       GoogleSignInAuthentication googleAuthentication = await googleAccount.authentication;
 
       AuthCredential credential = GoogleAuthProvider.credential(
@@ -57,10 +57,17 @@ class AuthenticationController {
       );
 
       try {
+
         UserCredential _userCredential = await FirebaseAuth.instance.signInWithCredential(credential);
         User? _user = _userCredential.user;
-        //todo settare l'utente dentro il model
-        //todo settare le credenziali dentro il model
+        print("********** !!!!!!! Ricavato user !!!!!!! **************");
+        print(_user!.email.toString());
+        print(_user.toString());
+
+        //Saving infos in model
+        Model().setUser(_user);
+        Model().setUserCredentials(_userCredential);
+
       } on FirebaseAuthException catch (e) {
         if (e.code == "account-exists-woth-different-credential") {
           print("linkGoogle: account exists with different credential");
@@ -70,13 +77,17 @@ class AuthenticationController {
       } catch (e) {
           print("linkGoogle: not firebaseauth error");
       }
-
     } else {
       print("User not connected to google");
     }
   }
 
-  //todo signout google
+  void signOutGoogle() async{
+    GoogleSignIn _googleSignIn = GoogleSignIn(); //NB istanziato di nuovo, veder se da problemi
+    await _googleSignIn.signOut();
+    Model().clearUser();
+    print("************** User Signed Out ************");
+  }
 
   /*static Future<UserCredential?> signInWithFacebook() async {
     final LoginResult result = await FacebookAuth.instance.login();

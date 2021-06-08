@@ -22,9 +22,8 @@ class _SamplerState extends State<Sampler> {
 
   @override
   void initState() {
-    print("********************** CHIAMATO INIT STATE *******************"); //chaimato solo una volta
+    print("********************** INIT STATE SAMPLER *******************"); //chaimato solo una volta
     _controller = AudioController();
-    //_controller?.initAudioController();
     super.initState();
   }
 

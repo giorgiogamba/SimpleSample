@@ -4,7 +4,7 @@ import 'dart:io';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:path_provider/path_provider.dart';
-
+import 'package:flutter/foundation.dart';
 import 'Record.dart';
 
 class Model {
@@ -23,6 +23,10 @@ class Model {
   String? extDocPath;
   int bpm = 1;
 
+  //Sequencer
+  //static HashMap<int, HashMap<int, bool>>? _sequencerMap = HashMap(); //mappa con 16 righe e 8 colonne. La mappa esterna contiene colonne, la seconda righe
+
+
   Model.internal() {
     print("Inizializzazione model");
     initModel();
@@ -40,10 +44,28 @@ class Model {
     docPath = await getDocFilePath();
     extDocPath = await getExternalStorageDoc();
     bpm = 20;
+
+    //initSequencerMap();
+
     print("*************** INIZIALIZZAZIONE MODELLO COMPLETATA ***********");
     print("docPath vale: "+docPath);
     print("extDocPath vale: "+extDocPath!);
   }
+
+  /*void initSequencerMap() {
+    for (int i = 0; i < 8; i ++) {
+      HashMap<int, bool>? newMap = HashMap();
+      for (int j = 0; j < 16; j ++) {
+        newMap.putIfAbsent(j, () => false);
+      }
+      _sequencerMap?.putIfAbsent(i, () => newMap);
+    }
+    //printSequencerMap();
+  }
+
+  static HashMap<int, HashMap<int, bool>>? getSequencerMap() {
+    return _sequencerMap;
+  }*/
 
   void addRecord(Record newRecord, int index) {
     _records[index] = newRecord;
@@ -82,6 +104,17 @@ class Model {
 
   void setUser(User newUser) {
     this._user = newUser;
+  }
+
+  void clearUser() {
+    _user = null;
+    _userCredential = null;
+  }
+
+  void printUserInfos() {
+    print("USER IN MODEL INFOS:");
+    print(_user?.email);
+    print(_user?.displayName);
   }
 
   void setUserCredentials(UserCredential cred) {
