@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:flutter/foundation.dart';
@@ -17,7 +18,8 @@ class Model {
   User? _user; //todo fare in modo che non possa essere cambiato a meno che non si faccia un login
   UserCredential? _userCredential;
 
-  HashMap<int, Record> _records = HashMap(); //It maintains a map representing the sampler buttons
+  HashMap<int,
+      Record> _records = HashMap(); //It maintains a map representing the sampler buttons
   //If a new record is done on a full button, the record is replaced NB the old record should already be saved into filesystem
   int counter = 0;
   String docPath = "";
@@ -55,8 +57,7 @@ class Model {
     //initSequencerMap();
 
     print("*************** INIZIALIZZAZIONE MODELLO COMPLETATA ***********");
-    print("docPath vale: "+docPath);
-    print("extDocPath vale: "+extDocPath!);
+    print("extDocPath: " + extDocPath!);
   }
 
   /*void initSequencerMap() {
@@ -75,8 +76,13 @@ class Model {
   }*/
 
   void addRecord(Record newRecord, int index) {
+    //Adding User's Unique ID
+    User? currentUser = this.getUser();
+    if (currentUser != null) {
+      newRecord.setRecordOwnerID(currentUser.uid);
+    }
     _records[index] = newRecord;
-    print("addRecord: added new record to: "+newRecord.getUrl());
+    print("addRecord: added new record to: " + newRecord.getUrl());
   }
 
   Record? getRecordAt(int index) {
@@ -96,6 +102,10 @@ class Model {
     }
     return null;
   }*/
+
+  String? getExtDocPath() {
+    return this.extDocPath;
+  }
 
   int getBPM() {
     return this.bpm;
@@ -118,6 +128,14 @@ class Model {
     _userCredential = null;
   }
 
+  bool isUserConnected() {
+    if (_user == null) {
+      return false;
+    } else {
+      return true;
+    }
+  }
+
   void printUserInfos() {
     print("USER IN MODEL INFOS:");
     print(_user?.email);
@@ -131,7 +149,7 @@ class Model {
   String getNewPath() {
     counter ++;
     //return docPath+"/"+counter.toString();
-    String path = extDocPath!+"/"+counter.toString()+".wav";
+    String path = extDocPath! + "/" + counter.toString() + ".wav";
     File file = new File(path);
     file.create();
     return path;
@@ -188,4 +206,43 @@ class Model {
   void setGoogleSignInAccount(GoogleSignInAccount? account) {
     this.googleAccount = account;
   }
+
+  String createCloudStoragePath(String recordName) {
+    //Non eseguo un controllo sulll'user perchè se uso questo comando è perchè l'utente è sicuramente connesso
+    return this.getStorageUploadPath() + "/" + this.getUser()!.uid.toString() +
+        "/" + recordName;
+  }
+
+  Record? getRecordWithPath(String path) {
+    for (Record r in _records.values) {
+      if (r.getUrl() == path) {
+        return r;
+      }
+    }
+    return null;
+  }
+
+  String getFilesPath() {
+    return this.extDocPath!+"/files/";
+  }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -4,6 +4,7 @@ import 'package:simple_sample/Sampler.dart';
 import 'package:simple_sample/UserPage.dart';
 
 import 'DirList.dart';
+import 'Explorer.dart';
 import 'Sequencer.dart';
 
 /// Class representing constant app nagivation Bar
@@ -27,16 +28,17 @@ class _MyBottomNavigationBarState extends State<MyBottomNavigationBar> {
   @override
   Widget build(BuildContext context) {
 
-    final List<Widget> children = [Sampler(), Sequencer(), UserPage(), DirList()];
+    final List<Widget> children = [Sampler(), Sequencer(), UserPage(), Explorer()];
 
     return Scaffold(
       body: children[_selectedIndex],
       bottomNavigationBar: BottomNavigationBar(
+        type: BottomNavigationBarType.fixed,
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(icon: Icon(Icons.apps_sharp), label: "Sampler"),
           BottomNavigationBarItem(icon: Icon(Icons.audiotrack), label: "Sequencer"),
           BottomNavigationBarItem(icon: Icon(Icons.accessibility), label: "User"),
-          BottomNavigationBarItem(icon: Icon(Icons.accessibility), label: "DirList"),
+          BottomNavigationBarItem(icon: Icon(Icons.all_inbox), label: "Explorer"),
         ],
         currentIndex: _selectedIndex,
         selectedItemColor: Colors.teal,

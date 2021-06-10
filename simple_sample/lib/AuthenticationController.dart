@@ -29,7 +29,7 @@ class AuthenticationController {
     FirebaseAuth authorizer = FirebaseAuth.instance;
 
     //Checking f there already is a persistence connection to firebase
-    authorizer.authStateChanges().listen((User? user) {
+    authorizer.userChanges().listen((User? user) { //Questo listener rimane connesso su ogni cambiamento dello stato utente
       if (user == null) {
         print("User is currently signed out");
       } else {
@@ -72,6 +72,7 @@ class AuthenticationController {
         print("********** !!!!!!! Ricavato user !!!!!!! **************");
         print(_user!.email.toString());
         print(_user.toString());
+        print(_user.uid);
 
         //Saving infos in model
         Model().setUser(_user);

@@ -5,6 +5,7 @@ import 'package:simple_sample/main.dart';
 import 'package:googleapis/drive/v3.dart' as drive;
 import "dart:io";
 import 'Model.dart';
+import 'Record.dart';
 
 class GoogleDriveController {
 
@@ -54,9 +55,23 @@ class GoogleDriveController {
     }
   }
 
+  void upload(Record record) async {
+    print("GoogleDriveController -- upload method");
+    File file = File(record.getUrl());
+    var mediaStream = Future.value(file.readAsBytesSync()).asStream();
+    print ("Ho calcolato mediastream");
+    int length = await mediaStream.length;
+    var media = new drive.Media(mediaStream, length);
+    var driveFile = new drive.File();
+    driveFile.name = record.getFilename();
+    print("Sto per eseguire result");
+    final result = await driveApi?.files.create(driveFile, uploadMedia: media);
+    print("Upload result: $result");
+  }
 
-  Future<void> download(String fName, String gdID) async {
-    drive.Media file = await driveApi!.files.get(gdID, downloadOptions: drive.DownloadOptions.FullMedia);
+
+  /*Future<void> download(String fName, String gdID) async {
+    drive.Media file = await driveApi!.files.get(gdID, downloadOptions: drive.DownloadOptions.FullMedia); //todo correggere problema qua
     print(file.stream);
 
     final saveFile = File('${Model().extDocPath}/${new DateTime.now().millisecondsSinceEpoch}$fName');
@@ -71,7 +86,7 @@ class GoogleDriveController {
     }, onError: (error) {
       print("Some Error");
     });
-  }
+  }*/
 
 }
 

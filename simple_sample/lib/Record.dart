@@ -1,13 +1,17 @@
 /// Class representing a record made with sampler or downloaded from cloud storage
 class Record {
 
+  //Record URL can be local or external depending on the storage location (filesystem or firebase)
   String _url = "";
   int _ID = 0;
   int? _position;
+  String _ownerID = "";
+  String _filename = "";
 
   //Constructor
   Record(String url) {
     this._url = url;
+    extractFilename();
   }
 
   String getUrl() {
@@ -32,6 +36,32 @@ class Record {
 
   void setPosition(int position) {
     this._position = position;
+  }
+
+  String getRecordOwnerID () {
+    return _ownerID;
+  }
+
+  void setRecordOwnerID(String newID) {
+    this._ownerID = newID;
+  }
+
+  String getFilename() {
+    return this._filename;
+  }
+
+  void setFilename(String newFilename) {
+    this._filename = newFilename;
+  }
+
+  void extractFilename() {
+    String path = this.getUrl();
+    var splitted = path.split("/");
+    this._filename = splitted[splitted.length-1];
+  }
+
+  void printRecordInfo() {
+    print("Record info: url == ${getUrl()} | filename == ${getFilename()} | Owner == ${getRecordOwnerID()}");
   }
 
 }
