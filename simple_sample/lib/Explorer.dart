@@ -56,7 +56,10 @@ class _ExplorerState extends State<Explorer> {
           controller: _controller,
         );
       },
-      separatorBuilder: (BuildContext context, int index) => const Divider(),
+      separatorBuilder: (BuildContext context, int index) => const Divider(
+        color: Colors.black,
+        thickness: 3,
+      ),
     );
   }
 

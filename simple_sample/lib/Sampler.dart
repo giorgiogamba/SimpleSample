@@ -1,7 +1,12 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:googleapis/chat/v1.dart';
+import 'package:googleapis/secretmanager/v1.dart';
 import 'package:simple_sample/AudioController.dart';
+import 'package:simple_sample/ShareDialogController.dart';
 import 'package:simple_sample/ToUpdateListController.dart';
+
+import 'Record.dart';
 
 /// Class representing Sampler UI
 
@@ -84,6 +89,7 @@ class _SamplerState extends State<Sampler> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: true, //to avoid keyboard overflow
       body: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -96,10 +102,26 @@ class _SamplerState extends State<Sampler> {
           SizedBox(height: verticalSpacing,),
           createSamplerRow(12),
           SizedBox(height: verticalSpacing,),
-          ElevatedButton(onPressed: () => showDialog(
-            context: context,
-            builder: (context) => ToUploadList(),
-          ), child: Text("Upload")), //todo on press apre menu con lista dei samples
+          Center(
+            child: Row(
+              children: [
+                ElevatedButton(onPressed: () => showDialog(
+                  context: context,
+                  builder: (context) => ToUploadList(),
+                ), child: Text("Load")), //todo aprire finestra di dialogo che permette di scegliere
+                // suoni dal filesystem e caricarli assegnandoli a un tasto
+                ElevatedButton(onPressed: () => showDialog(
+                  context: context,
+                  builder: (context) => ToUploadList(),
+                ), child: Text("Upload")),
+                ElevatedButton(onPressed: () => showDialog(
+                  context: context,
+                  builder: (context) => SharePage(),
+                ), child: Text("Share")), //todo aprire una finestra di dialogo che permetta di selezionare un
+                //elemento, associargli dei tag e successivamente caricarlo con tutte le info
+              ],
+            ),
+          ),
         ],
       ),
     );
@@ -116,8 +138,8 @@ class ToUploadList extends StatefulWidget {
 
 class _ToUploadListState extends State<ToUploadList> {
 
-  List<String> entries = ToUpdateListController().getElementsList();
-  List<String> selectedEntries = [];
+  List<Record> entries = ToUpdateListController().getElementsList();
+  List<Record> selectedEntries = [];
 
   String parseFilename(String path) {
     var splitted = path.split("/");
@@ -130,17 +152,19 @@ class _ToUploadListState extends State<ToUploadList> {
       content: Column(
         children: [
           Container(
-            width: 100,
+            width: 200,
             height: 500,
             child: ListView.separated(
-              padding: const EdgeInsets.all(8),
+              padding: const EdgeInsets.all(8), //porre a 0 se si vuole che riempa tutto lo spazion padre
+              physics: ClampingScrollPhysics(),
               itemCount: entries.length,
               itemBuilder: (BuildContext context, int index) {
                 return ToUploadItem(
-                    item: parseFilename(entries[index]),
+                    item: /*parseFilename(entries[index])*/ entries[index].getFilename(),
                     isSelected: (bool value) {
                       setState(() {
                         if (value) {
+                          print("Sampler List build: Index to upload "+entries[index].toString());
                           selectedEntries.add(entries[index]);
                           //Aggiunta al controller
                           ToUpdateListController().addElement(entries[index]);
@@ -150,7 +174,7 @@ class _ToUploadListState extends State<ToUploadList> {
                         }
                       });
                     },
-                    key: Key(entries[index].length.toString()));
+                    key: Key(entries.length.toString()));
               },
               separatorBuilder: (BuildContext context, int index) => const Divider(),
             ),
@@ -213,3 +237,293 @@ class _ToUploadItemState extends State<ToUploadItem> {
     );
   }
 }
+
+
+class SharePage extends StatefulWidget {
+  const SharePage({Key? key}) : super(key: key);
+
+  @override
+  _SharePageState createState() => _SharePageState();
+}
+
+class _SharePageState extends State<SharePage> {
+
+  int _currentPage = 0;
+  ShareDialogController _controller = ShareDialogController();
+  TextEditingController _textFieldController = TextEditingController();
+
+  @override
+  void initState() {
+    _controller.initElements();
+    _controller.resetSelectedTags();
+    _textFieldController.text = "";
+    super.initState();
+  }
+
+  void goToNextStep() {
+    print("Method go to next step");
+    if (_controller.getSelectedEntry() != null) {
+      print("Controller is not null");
+      setState(() {
+        _currentPage ++;
+      });
+    } else {
+      print("Non è stato selezionato neitne, non si può procedere");
+      setState(() {
+        _currentPage = 2;
+      });
+    }
+  }
+
+  void backToPageOne() {
+    setState(() {
+      _currentPage = 0;
+    });
+  }
+
+  Widget makeFirstPage() {
+    return AlertDialog(
+      content: Column(
+        children: [
+          Container(
+            width: 200,
+            height: 500,
+            child: ListView.separated(
+              padding: const EdgeInsets.all(0), //porre a 0 se si vuole che riempa tutto lo spazion padre
+              physics: ClampingScrollPhysics(),
+              itemCount: _controller.getEntriesLength(),
+              itemBuilder: (BuildContext context, int index) {
+                return ShareDialogListItem(
+                  itemIndex: index,
+                  key: Key(_controller.getEntriesLength().toString()),
+                  isSelected: (value) {
+                    setState(() {
+                      if (value) { //if selected
+                        _controller.setSelectedEntry(_controller.getEntryAt(index));
+                      } else {
+                        _controller.setSelectedEntry(null);
+                      }
+                    });},
+                  controller: _controller,
+                );
+              },
+              separatorBuilder: (BuildContext context, int index) => const Divider(
+                color: Colors.black,
+                thickness: 3,
+              ),
+            ),
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              ElevatedButton(onPressed: () => Navigator.pop(context), child: Text("Cancel")),
+              ElevatedButton(onPressed: () => goToNextStep(), child: Text("Next")),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget makeSecondPage() {
+    return AlertDialog (
+      content: Column(
+        children: [
+          Text("Insert Sample Infos:"),
+          SizedBox(height: 20,),
+          TextField(
+            controller: _textFieldController,
+            decoration: InputDecoration (
+              border: OutlineInputBorder(),
+              labelText: "Sample Name",
+            ),
+          ),
+          SizedBox(height: 20),
+          Text("Choose one or more tags"),
+          SizedBox(height: 20),
+          makeTagList(),
+          ElevatedButton(onPressed: () => _controller.share(_textFieldController.text).then((value) => Navigator.pop(context)), child: Text("Share")),
+        ],
+      ),
+    );
+  }
+
+  Widget makeTagList() {
+    return Container(
+      width: 120,
+      height: 200,
+      decoration: BoxDecoration(
+        border: Border.all(
+          color: Colors.teal,
+        ),
+      ),
+      child: ListView.separated(
+          itemBuilder: (BuildContext context, int index) {
+            return TagListButton(
+                item: index,
+                isSelected: (value) {
+                  if (value) {
+                    _controller.addToSelectedTags(index);
+                  } else {
+                    _controller.removeFromSelectedTags(index);
+                  }
+                },
+                key: Key(_controller.getTagsListLength().toString()),
+                controller: _controller,
+            );
+          },
+          separatorBuilder: (BuildContext context, int index) => const Divider(
+            color: Colors.black,
+            thickness: 3,
+          ),
+          itemCount: _controller.getTagsListLength(),
+      ),
+    );
+  }
+
+  Widget makeNoSelectionAlertDialog() {
+    return AlertDialog(
+      content: Column(
+        children: [
+          Text("No item selected, come back"),
+          ElevatedButton(onPressed: backToPageOne, child: Text("OK")),
+        ],
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (_currentPage == 0) {
+      return makeFirstPage();
+    } else if (_currentPage == 1) {
+      return makeSecondPage();
+    } else {
+      return makeNoSelectionAlertDialog();
+    }
+  }
+}
+
+
+class ShareDialogListItem extends StatefulWidget {
+
+  final int itemIndex;
+  final Key key;
+  final ValueChanged<bool> isSelected;
+  final ShareDialogController controller;
+
+  const ShareDialogListItem({required this.itemIndex, required this.key, required this.isSelected, required this.controller}) : super(key: key);
+
+  @override
+  _ShareDialogListItemState createState() => _ShareDialogListItemState();
+}
+
+class _ShareDialogListItemState extends State<ShareDialogListItem> {
+
+  bool isSelected = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: () {
+        setState(() {
+          isSelected = !isSelected;
+          widget.isSelected(isSelected);
+        });
+      },
+      child: Row(
+        children: [
+          Text(widget.controller.getEntryAt(widget.itemIndex).getFilename()),
+          SizedBox(width: 10,),
+          ElevatedButton(
+              onPressed: () => widget.controller.playRecord(widget.itemIndex),
+              child: Text("Play")
+          ),
+          SizedBox(width: 20),
+          isSelected ? Container(
+              width: 40,
+              height: 10,
+              child: Align( //se lo seleziono aggiunge il pallino blu
+                alignment: Alignment.centerRight,
+                child: Padding(
+                  padding: const EdgeInsets.all(0.0),
+                  child: Icon(
+                    Icons.check_circle,
+                    color: Colors.blue,
+                  ),
+                ),
+              )
+          ) : Container(width: 40, height: 10),
+        ],
+      ),
+    );
+
+
+  }
+}
+
+
+class TagListButton extends StatefulWidget {
+
+  final int item;
+  final ValueChanged<bool> isSelected;
+  final Key key;
+  final ShareDialogController controller;
+
+  const TagListButton({required this.item, required this.isSelected, required this.key, required this.controller}) : super(key: key);
+
+  @override
+  _TagListButtonState createState() => _TagListButtonState();
+}
+
+class _TagListButtonState extends State<TagListButton> {
+
+  bool isSelected = false;
+
+  Color getColor() {
+    if (isSelected) {
+      return Colors.red;
+    } else {
+      return Colors.white;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      child: Container(
+        decoration: BoxDecoration(
+          color: getColor(),
+        ),
+        child: Text(widget.controller.getTagAt(widget.item)),
+      ),
+      onTap: () {
+        setState(() {
+          isSelected = !isSelected;
+          widget.isSelected(isSelected);
+        });
+      }
+    );
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

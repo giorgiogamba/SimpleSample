@@ -160,6 +160,44 @@ class CloudStorageController {
     }
   }
 
+  Future<bool> shareRecord(Record toUpload, List<String> tags, String newName) async {
+
+    File file = File(toUpload.getUrl());
+
+    String parsedtags = parseTags(tags);
+    String owner = "";
+    if (Model().getUser() != null) {
+      owner = Model().getUser()!.uid;
+    }
+
+    // Create your custom metadata.
+    SettableMetadata metadata = SettableMetadata(
+      customMetadata: <String, String>{
+        "tags" : parsedtags,
+        "owner" : owner,
+      },
+    );
+
+    try {
+      // Pass metadata to any file upload method e.g putFile.
+      await FirebaseStorage.instance.ref('shared/'+newName+".wav").putFile(file, metadata);
+      return true;
+    } on FirebaseException catch (e) {
+      print("share Record exception");
+      print(e.toString());
+    }
+    return false;
+  }
+
+  String parseTags(List<String> tags) {
+    String res = "";
+    for (int i = 0; i < tags.length-2; i ++) {
+      res = res + tags[i] + " | ";
+    }
+    res = res + tags[tags.length-1];
+    return res;
+  }
+
 }
 
 

@@ -35,6 +35,9 @@ class Model {
   //Drive
   GoogleSignInAccount? googleAccount;
 
+  //Tags
+  List<String> _tagsList = ["Dreamy", "HipHop", "SingleShot", "Pop", "Snare", "Kick"];
+
 
   Model.internal() {
     print("Inizializzazione model");
@@ -182,6 +185,7 @@ class Model {
     return res;
   }
 
+  //Takes all the audio files into the externalDir
   List<String> getExtDirElementsList() {
     List<String> res = [];
     var dir = Directory(extDocPath!);
@@ -192,6 +196,15 @@ class Model {
       }
     }
 
+    return res;
+  }
+
+  //Returns all the
+  List<Record> getAllCurrentRecords() {
+    List<Record> res = [];
+    for (Record r in _records.values) {
+      res.add(r);
+    }
     return res;
   }
 
@@ -214,7 +227,9 @@ class Model {
   }
 
   Record? getRecordWithPath(String path) {
+    print("***** URL ANALIZZATI; ********");
     for (Record r in _records.values) {
+      print(r.getUrl());
       if (r.getUrl() == path) {
         return r;
       }
@@ -224,6 +239,14 @@ class Model {
 
   String getFilesPath() {
     return this.extDocPath!+"/files/";
+  }
+
+  List<String> getTagsList() {
+    return this._tagsList;
+  }
+
+  String getTagAt(int index) {
+    return this._tagsList[index];
   }
 }
 

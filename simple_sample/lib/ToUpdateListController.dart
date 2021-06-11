@@ -5,7 +5,7 @@ import 'Record.dart';
 
 class ToUpdateListController{
 
-  List<String> selectedElements = [];
+  List<Record> selectedElements = [];
 
   static final ToUpdateListController _instance = ToUpdateListController._internal();
 
@@ -15,40 +15,32 @@ class ToUpdateListController{
     return _instance;
   }
 
-
-  List<String> getElementsList() {
-    return Model().getExtDirElementsList();
+  //Checks of user is logged in
+  bool checkIfLoggedIn() {
+    return Model().isUserConnected();
   }
 
-  /*List<String> parseFilenames(List<String> paths) {
-    List<String> res = List.filled(paths.length, "");
-    for (int i = 0; i < paths.length; i ++) {
-      var splitted = paths[i].split("/");
-      res[i] = splitted[splitted.length-1];
-      print(res[i]);
-    }
+  List<Record> getElementsList() {
+    //Versione 1; preleva tutte le registrazioni presenti nel filesystem
+    //return Model().getExtDirElementsList(); //preleva tutte le registrazioni presenti nel filesystem
 
-    return res;
-  }*/
+    //Versione2: preleva tutti le registrazioni effettuate dall'avvio
+    return Model().getAllCurrentRecords();
+  }
 
-  void addElement(String elem) {
+  void addElement(Record elem) {
     selectedElements.add(elem);
   }
 
-  void removeElement(String elem) {
+  void removeElement(Record elem) {
     selectedElements.remove(elem);
   }
 
   void uploadSelectedElements() {
     print("Method upoadSelectedElements -- Elements to be uploaded: ");
     for (int i = 0; i < selectedElements.length; i ++) {
-      print(selectedElements[i]);
-      Record? rec = Model().getRecordWithPath(selectedElements[i]);
-      if (rec != null) {
-        CloudStorageController().uploadRecord(rec);
-      } else {
-        throw Exception("Errore: la registrazione da caricare è nulla");
-      }
+      selectedElements[i].printRecordInfo();
+      CloudStorageController().uploadRecord(selectedElements[i]);
     }
   }
 
