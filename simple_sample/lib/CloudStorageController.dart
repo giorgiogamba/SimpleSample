@@ -5,6 +5,7 @@ import 'package:simple_sample/Model.dart';
 
 import 'Record.dart';
 import 'dart:io';
+import 'package:firebase_auth/firebase_auth.dart';
 
 ///Class representing FirebaseStorage Controller
 ///This controller manages all data globally saved and shared between users
@@ -197,6 +198,53 @@ class CloudStorageController {
     res = res + tags[tags.length-1];
     return res;
   }
+
+  List<Record> downloadUserSharedRecords() {
+    //todo implementare
+    return [];
+  }
+
+  Future<void> uploadProfileImage(String imagePath) async {
+    User? user = Model().getUser();
+    if (user != null) {
+
+      File toUpload = File(imagePath);
+
+      String userID = user.uid;
+      String uploadPath = "profiles/"+userID+"profile_picture.jpeg";
+
+      try {
+        await FirebaseStorage.instance.ref(uploadPath).putFile(toUpload);
+      } on FirebaseException catch (e) {
+        print(e.toString());
+      }
+
+    } else {
+      print("User is not logged in");
+    }
+
+  }
+
+  //Downloads firebase image profile
+  //Called when user is logged in
+  Future<void> downloadProfileImage() async {
+
+    User? user = Model().getUser();
+    if (user != null) {
+      String imageCloudPath = "profiles/"+user.uid+"profile_picture.jpeg";
+
+      String downloadedPath = Model().getExtDocPath()! + "firebase_profile_picture.jpeg";
+      File downloadedImage = File(downloadedPath);
+
+      try {
+        Reference imageRef = FirebaseStorage.instance.ref(imageCloudPath); //todo gestire se la reference è nulla
+        await imageRef.writeToFile(downloadedImage);
+      } on FirebaseException catch (e) {
+        print(e.toString());
+      }
+    }
+  }
+
 
 }
 

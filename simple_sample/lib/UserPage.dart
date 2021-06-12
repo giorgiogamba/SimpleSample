@@ -32,7 +32,8 @@ class _UserPageState extends State<UserPage> {
   AuthenticationController _controller = AuthenticationController();
   UserPageController _userPageController = UserPageController();
   bool auth = false; //la mantengo così cambia la UI a seconda dello stato
-  late File _imageFile;
+  int test = 0;
+
 
   @override
   void initState() {
@@ -40,37 +41,40 @@ class _UserPageState extends State<UserPage> {
     super.initState();
   }
 
-  void setImageProfile() {
-
+  //todo: Quando si va a prendere un'immagine questo metodo non viene modificato
+  Widget displayUserProfileImage(String path) {
+    print("Costruisco");
+    var splitted = path.split("/");
+    if (splitted[0] == "assets") { //image is the asset one
+      return Image(image: AssetImage(path),);
+    } else { //image is user's one
+      print("secondo return");
+      return Image.file(File(_userPageController.profileImagePath.value));
+    }
   }
-
-
 
   @override
   Widget build(BuildContext context) {
 
-    bool val = true;
-
     if (auth) {
       return Column(
           children: [
+            SizedBox(height: 20,),
             Center(child: Text("USERNAME", style: TextStyle(fontSize: 30))),
             SizedBox(
               width: 200,
               height: 200,
               child: FittedBox(
                 fit: BoxFit.contain,
-                child: Image(
-                  image: AssetImage('assets/userlogo.png'),
+                child: ValueListenableBuilder(
+                  valueListenable: _userPageController.profileImagePath,
+                  builder: (context, value, _) {
+                    return displayUserProfileImage(value.toString());
+                  }
                 ),
               ),
             ),
-            SizedBox(height: 20),
-            /*DropdownButton<String>(
-              items: chooseImageSource(),
-              value: val ? "Set Profile Image" : null,
-              onChanged: (value) {},
-            ),*/
+            SizedBox(height: 10),
             ElevatedButton(onPressed: () => showDialog(
                 context: context,
                 builder: (context) => ChooseImageOperationDialog(
@@ -81,9 +85,26 @@ class _UserPageState extends State<UserPage> {
                 child: Text("Set Profile Image")),
             SizedBox(height: 20),
             Text("SHARED SAMPLES", style: TextStyle(fontSize: 30),),
-            Expanded(
-              child: ListView(
-
+            SizedBox(height: 10),
+            Container(
+              width: 380,
+              height: 200,
+              decoration: BoxDecoration(
+                border: Border.all(color: Colors.teal, width: 2),
+              ),
+              child: ListView.separated(
+                itemBuilder:  (BuildContext context, int index) {
+                  return UserPageListItems(
+                      itemIndex: index, //record
+                      key: Key(_userPageController.getUserSharedRecordsLength().toString()),
+                      controller: _userPageController,
+                  );
+                },
+                separatorBuilder:  (BuildContext context, int index) => const Divider(
+                  color: Colors.black,
+                  thickness: 3,
+                ),
+                itemCount: _userPageController.getUserSharedRecordsLength(),
               ),
             ),
           ],
@@ -147,11 +168,11 @@ class _UserPageState extends State<UserPage> {
 
 class UserPageListItems extends StatefulWidget {
 
-  final Record item;
+  final int itemIndex;
   final Key key;
-  final ExplorerController controller; //using ExplorerController beacuse I need few of its functionalities
+  final UserPageController controller;
 
-  const UserPageListItems({required this.item, required this.key, required this.controller}) : super(key: key);
+  const UserPageListItems({required this.itemIndex, required this.key, required this.controller}) : super(key: key);
 
   @override
   _UserPageListItemsState createState() => _UserPageListItemsState();
@@ -162,8 +183,8 @@ class _UserPageListItemsState extends State<UserPageListItems> {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        Text(widget.item.getFilename()),
-        ElevatedButton(onPressed: () => widget.controller.playRecord(widget.item), child: Icon(Icons.play_arrow)),
+        Text(widget.controller.getUserSharedRecordAt(widget.itemIndex).toString()),
+        ElevatedButton(onPressed: () => widget.controller.playRecordAt(widget.itemIndex), child: Icon(Icons.play_arrow)),
       ],
     );
   }
@@ -217,6 +238,7 @@ class ChooseImageOperationDialogItem extends StatefulWidget {
 }
 
 class _ChooseImageOperationDialogItemState extends State<ChooseImageOperationDialogItem> {
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -225,8 +247,16 @@ class _ChooseImageOperationDialogItemState extends State<ChooseImageOperationDia
       child: Center(
         child: InkWell(
             child: Text(widget.controller.getElementAt(widget.index)),
-            onTap: () {
-
+            onTap: () async {
+              PickedFile? pickedImage = await widget.controller.executeOperation(widget.index);
+              setState(() {
+                if (pickedImage != null) {
+                  print("Pickedimage non è nulla, top"); //ci si arriva
+                  widget.controller.setProfileImagePath(pickedImage.path);
+                } else {
+                  print("Null picked image");
+                }
+              });
             },
         ),
       ),
