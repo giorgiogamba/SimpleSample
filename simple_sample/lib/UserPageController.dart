@@ -33,7 +33,6 @@ class UserPageController {
   }
 
   Future<PickedFile?> pickImageFromCamera() async {
-    print("UserPageController -- pickImageFromCamera");
     ImagePicker picker = ImagePicker();
     PickedFile? pickedImage = await picker.getImage(source: ImageSource.camera, imageQuality: 100);
     if (pickedImage != null) {
@@ -44,7 +43,6 @@ class UserPageController {
   }
 
   Future<PickedFile?> pickImageFromGallery() async {
-    print("UserPageController -- pickImageFromGallery");
     ImagePicker picker = ImagePicker();
     PickedFile? pickedImage = await picker.getImage(source: ImageSource.gallery, imageQuality: 100);
     if (pickedImage != null) {
@@ -67,9 +65,13 @@ class UserPageController {
   }
 
   //Gets all the records shared by the user in order to display them into user page
-  void getUserSharedRecords() {
-    //todo implementare
-    _userSharedRecords = CloudStorageController().downloadUserSharedRecords();
+  void getUserSharedRecords() async {
+    print("UserPageController -- getUserSharedController method");
+    await CloudStorageController().downloadUserSharedRecords().then((value) {
+      _userSharedRecords = value;
+      print("Ho finito il then");
+    });
+
   }
 
   int getUserSharedRecordsLength() {

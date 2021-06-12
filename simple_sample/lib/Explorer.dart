@@ -38,7 +38,7 @@ class _ExplorerState extends State<Explorer> {
 
   Widget makeListView() {
     return ListView.separated(
-      padding: const EdgeInsets.all(8),
+      padding: const EdgeInsets.all(5),
       itemCount: entries.length,
       itemBuilder: (BuildContext context, int index) {
         return ExplorerListItem(
@@ -120,6 +120,50 @@ class _ExplorerListItemState extends State<ExplorerListItem> {
     );
   }
 
+  Widget makeFirstRow() {
+    return Row(
+      children: [
+        Container(
+          width: 180,
+          child: Text(widget.item.getFilename(), style: TextStyle(fontSize: 20),),
+        ),
+
+        SizedBox(width: 15,),
+        ElevatedButton(
+          onPressed: () => widget.controller.addToFavorites(),
+          child: Icon(Icons.star, color: Colors.yellow,),
+          style: getButtonStyle(),),
+        SizedBox(width: 15,),
+        ElevatedButton(
+          onPressed: () => widget.controller.downloadRecord(widget.item),
+          child: Icon(Icons.arrow_circle_down, color: Colors.yellow,),
+          style: getButtonStyle(),),
+        SizedBox(width: 15,),
+        ElevatedButton(
+          onPressed: () => widget.controller.playRecord(widget.item),
+          child:Icon(Icons.play_arrow, color: Colors.yellow,),
+          style: getButtonStyle(), ),
+      ],
+    );
+  }
+
+  List<Widget> createTagWidget() {
+    List<Widget> res = [];
+    res.add(Text("Tags: "));
+    res.add(SizedBox(width: 2));
+    for (String tag in widget.item.getTagList()) {
+      res.add(Text(tag+ ", "));
+      res.add(SizedBox(width: 2,));
+    }
+    return res;
+  }
+
+  Widget makeSecondRow() {
+    return Row(
+      children: createTagWidget(),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return InkWell(
@@ -129,47 +173,10 @@ class _ExplorerListItemState extends State<ExplorerListItem> {
           widget.isSelected(isSelected);
         });
       },
-      child: Row(
+      child: Column(
         children: [
-          Text(widget.item.getFilename(), style: TextStyle(fontSize: 20),),
-          SizedBox(width: 15,),
-          ElevatedButton(
-            onPressed: () => widget.controller.addToFavorites(),
-            child: Icon(Icons.star, color: Colors.yellow,),
-            style: getButtonStyle(),),
-          SizedBox(width: 15,),
-          ElevatedButton(
-            onPressed: () => widget.controller.downloadRecord(widget.item),
-            child: Icon(Icons.arrow_circle_down, color: Colors.yellow,),
-            style: getButtonStyle(),),
-          SizedBox(width: 15,),
-          ElevatedButton(
-            onPressed: () => widget.controller.playRecord(widget.item),
-            child:Icon(Icons.play_arrow, color: Colors.yellow,),
-            style: getButtonStyle(), ),
-          SizedBox(width: 15,),
-          Stack(
-            children: [
-              Icon(
-                Icons.check_circle,
-                color: Colors.white
-              ),
-              isSelected ? Container(
-                  width: 30,
-                  height: 15,
-                  child: Align( //se lo seleziono aggiunge il pallino blu
-                    alignment: Alignment.centerRight,
-                    child: Padding(
-                      padding: const EdgeInsets.all(0.0),
-                      child: Icon(
-                        Icons.check_circle,
-                        color: Colors.blue,
-                      ),
-                    ),
-                  )
-              ) : Container(width: 30, height: 15), //se lo deseleziono sostituisco il pallino bli con un container vuoto
-            ],
-          ),
+          makeFirstRow(),
+          makeSecondRow(),
         ],
       ),
     );

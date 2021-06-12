@@ -1,10 +1,14 @@
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:googleapis/chat/v1.dart';
 import 'package:googleapis/secretmanager/v1.dart';
 import 'package:simple_sample/AudioController.dart';
+import 'package:simple_sample/SamplerController.dart';
 import 'package:simple_sample/ShareDialogController.dart';
 import 'package:simple_sample/ToUpdateListController.dart';
+import 'dart:io';
+import 'dart:async';
 
 import 'Record.dart';
 
@@ -28,7 +32,6 @@ class _SamplerState extends State<Sampler> {
 
   @override
   void initState() {
-    print("********************** INIT STATE SAMPLER *******************"); //chaimato solo una volta
     _controller = AudioController();
     super.initState();
   }
@@ -102,25 +105,24 @@ class _SamplerState extends State<Sampler> {
           SizedBox(height: verticalSpacing,),
           createSamplerRow(12),
           SizedBox(height: verticalSpacing,),
-          Center(
-            child: Row(
-              children: [
-                ElevatedButton(onPressed: () => showDialog(
-                  context: context,
-                  builder: (context) => ToUploadList(),
-                ), child: Text("Load")), //todo aprire finestra di dialogo che permette di scegliere
-                // suoni dal filesystem e caricarli assegnandoli a un tasto
-                ElevatedButton(onPressed: () => showDialog(
-                  context: context,
-                  builder: (context) => ToUploadList(),
-                ), child: Text("Upload")),
-                ElevatedButton(onPressed: () => showDialog(
-                  context: context,
-                  builder: (context) => SharePage(),
-                ), child: Text("Share")), //todo aprire una finestra di dialogo che permetta di selezionare un
-                //elemento, associargli dei tag e successivamente caricarlo con tutte le info
-              ],
-            ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              ElevatedButton(onPressed: () => showDialog(
+                context: context,
+                builder: (context) => LoadDialog(),
+              ), child: Text("Load")),
+              SizedBox(width: 20),
+              ElevatedButton(onPressed: () => SamplerController().checkIfUserConnected() ? showDialog(
+                context: context,
+                builder: (context) => ToUploadList(),
+              ) : null, child: Text("Upload")),
+              SizedBox(width: 20),
+              ElevatedButton(onPressed: () => SamplerController().checkIfUserConnected() ? showDialog(
+                context: context,
+                builder: (context) => SharePage(),
+              ) : null, child: Text("Share")),
+            ],
           ),
         ],
       ),
@@ -508,6 +510,27 @@ class _TagListButtonState extends State<TagListButton> {
 }
 
 
+class LoadDialog extends StatelessWidget {
+  const LoadDialog({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    /*return Container(
+      child: ListView.separated(
+          itemBuilder: itemBuilder,
+          separatorBuilder: (BuildContext context, int index) => const Divider(
+            color: Colors.black,
+            thickness: 3,
+          ),
+          itemCount: itemCount
+      ),
+    );*/
+    //List<File> files = await FilePicker.getMultiFile();
+    return AlertDialog(
+      content: Text("File Loading Dialog, implement"),
+    );
+  }
+}
 
 
 

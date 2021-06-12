@@ -21,19 +21,19 @@ class Model {
   HashMap<int,
       Record> _records = HashMap(); //It maintains a map representing the sampler buttons
   //If a new record is done on a full button, the record is replaced NB the old record should already be saved into filesystem
-  int counter = 0;
-  String docPath = "";
-  String? extDocPath;
-  int bpm = 1;
+  int _counter = 0;
+  String _docPath = "";
+  String _extDocPath = "";
+  int _bpm = 1;
 
   //Sequencer
   //static HashMap<int, HashMap<int, bool>>? _sequencerMap = HashMap(); //mappa con 16 righe e 8 colonne. La mappa esterna contiene colonne, la seconda righe
 
   //Storage
-  String storageUploadPath = "uploads/";
+  String _storageUploadPath = "uploads/";
 
   //Drive
-  GoogleSignInAccount? googleAccount;
+  GoogleSignInAccount? _googleAccount;
 
   //Tags
   List<String> _tagsList = ["Dreamy", "HipHop", "SingleShot", "Pop", "Snare", "Kick"];
@@ -52,15 +52,14 @@ class Model {
   initModel() async {
     _records = HashMap();
     //this._user = new User();
-    counter = 0;
-    docPath = await getDocFilePath();
-    extDocPath = await getExternalStorageDoc();
-    bpm = 20;
+    this._counter = 0;
+    this._docPath = await getDocFilePath();
+    this._extDocPath = await getExternalStorageDoc();
+    this._bpm = 20;
 
     //initSequencerMap();
 
     print("*************** INIZIALIZZAZIONE MODELLO COMPLETATA ***********");
-    print("extDocPath: " + extDocPath!);
   }
 
   /*void initSequencerMap() {
@@ -106,16 +105,16 @@ class Model {
     return null;
   }*/
 
-  String? getExtDocPath() {
-    return this.extDocPath;
+  String getExtDocPath() {
+    return this._extDocPath;
   }
 
   int getBPM() {
-    return this.bpm;
+    return this._bpm;
   }
 
   void setBPM(int newBPM) {
-    this.bpm = newBPM;
+    this._bpm = newBPM;
   }
 
   User? getUser() {
@@ -150,9 +149,9 @@ class Model {
   }
 
   String getNewPath() {
-    counter ++;
+    this._counter ++;
     //return docPath+"/"+counter.toString();
-    String path = extDocPath! + "/" + counter.toString() + ".wav";
+    String path = this._extDocPath + "/" + this._counter.toString() + ".wav";
     File file = new File(path);
     file.create();
     return path;
@@ -163,9 +162,9 @@ class Model {
     return appDocumentsDirectory.absolute.path;
   }
 
-  Future<String?> getExternalStorageDoc() async {
+  Future<String> getExternalStorageDoc() async {
     Directory? dir = await getExternalStorageDirectory();
-    return dir?.absolute.path;
+    return dir!.absolute.path;
   }
 
   Future<void> loadAssets() async {
@@ -174,7 +173,7 @@ class Model {
 
   List<String> getDirElementsList() {
     List<String> res = [];
-    var dir = new Directory(docPath);
+    var dir = new Directory(this._docPath);
     List temp = dir.listSync();
     for (var elem in temp) {
       if (elem is File) {
@@ -188,7 +187,7 @@ class Model {
   //Takes all the audio files into the externalDir
   List<String> getExtDirElementsList() {
     List<String> res = [];
-    var dir = Directory(extDocPath!);
+    var dir = Directory(this._extDocPath);
     List temp = dir.listSync();
     for (var elem in temp) {
       if (elem is File) {
@@ -209,21 +208,20 @@ class Model {
   }
 
   String getStorageUploadPath() {
-    return storageUploadPath;
+    return this._storageUploadPath;
   }
 
   GoogleSignInAccount? getGoogleSignInAccount() {
-    return this.googleAccount;
+    return this._googleAccount;
   }
 
   void setGoogleSignInAccount(GoogleSignInAccount? account) {
-    this.googleAccount = account;
+    this._googleAccount = account;
   }
 
   String createCloudStoragePath(String recordName) {
     //Non eseguo un controllo sulll'user perchè se uso questo comando è perchè l'utente è sicuramente connesso
-    return this.getStorageUploadPath() + "/" + this.getUser()!.uid.toString() +
-        "/" + recordName;
+    return this.getStorageUploadPath() + "/" + this.getUser()!.uid.toString() + "/" + recordName;
   }
 
   Record? getRecordWithPath(String path) {
@@ -238,7 +236,7 @@ class Model {
   }
 
   String getFilesPath() {
-    return this.extDocPath!+"/files/";
+    return this._extDocPath+"/files/";
   }
 
   List<String> getTagsList() {

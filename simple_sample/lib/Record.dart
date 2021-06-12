@@ -7,6 +7,7 @@ class Record {
   int? _position;
   String _ownerID = "";
   String _filename = "";
+  List<String> _tags = [];
 
   //Constructor
   Record(String url) {
@@ -62,6 +63,21 @@ class Record {
 
   void printRecordInfo() {
     print("Record info: url == ${getUrl()} | filename == ${getFilename()} | Owner == ${getRecordOwnerID()}");
+  }
+
+  void addNewTag(String tag) {
+    this._tags.add(tag);
+  }
+
+  String getTagAt(int index) {
+    if (index < this._tags.length) {
+      return this._tags[index];
+    }
+    return ""; //empty tag, not valid
+  }
+
+  List<String> getTagList() {
+    return this._tags;
   }
 
 }

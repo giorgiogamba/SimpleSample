@@ -34,7 +34,6 @@ class CloudStorageController {
 
   //Method which shows all the elements in the bucket
   //se questo metodo ritorna in troppo tempo, usare list() con un limite massimo
-  //todo usare questo metodo per riempure "esplora"
   Future<void> listAllElements() async {
     ListResult res = await rootRef!.listAll();
     res.items.forEach((Reference ref) {
@@ -54,11 +53,13 @@ class CloudStorageController {
     List<Record> records = [];
 
     //Getting reference to uploads folder
-    Reference? uploadsRef = rootRef?.child("uploads");
+    Reference? uploadsRef = rootRef?.child("shared");
     ListResult? uploadsChilds = await uploadsRef!.listAll();
 
     //Pre ognuna delle cartelle dei vari utenti
     for (var element in uploadsChilds.prefixes) {
+
+      print("Analyzing directory: "+element.name);
       //Prelevo gli elementi contenuti nella cartella
       List<Record> elementChildsRecords = await getElementsIntoDirectory(element);
       records = new List.from(records)..addAll(elementChildsRecords);
@@ -78,11 +79,23 @@ class CloudStorageController {
     List<Record> records = [];
     ListResult elementRes = await ref.listAll();
     for (var element in elementRes.items) {
+
       String temp = await element.getDownloadURL();
       Record newRec = Record(temp);
       newRec.setRecordOwnerID(getOwnerID(element.fullPath));
       newRec.setFilename(element.name);
       newRec.printRecordInfo();
+
+      //Getting files metadata and adding tags to the new record
+      FullMetadata metadata = await element.getMetadata();
+      String tags = metadata.customMetadata!["tags"]!;
+
+      //Deparsing tags
+      List<String> tagsList = tags.split("|");
+      for (int i = 0; i < tagsList.length; i ++) {
+        newRec.addNewTag(tagsList[i]);
+      }
+
       records.add(newRec);
     }
     return records;
@@ -135,7 +148,7 @@ class CloudStorageController {
   }
 
   Future<void> download() async { //FUNZIONANTE
-    File newFile = File(Model().docPath+"download_ex.wav");
+    File newFile = File(Model().getExtDocPath()+"download_ex.wav");
     try {
       await FirebaseStorage.instance.ref("uploads/example.wav").writeToFile(newFile);
     } on FirebaseException catch (e) {
@@ -148,7 +161,7 @@ class CloudStorageController {
   void downloadRecord(Record record) async {
     print("CloudStorageController -- downloadRecord method");
     var splitted = record.getFilename().split(".");
-    String newURL = Model().getExtDocPath()!+"/"+splitted[0]+"_downloaded.wav";
+    String newURL = Model().getExtDocPath()+"/"+splitted[0]+"_downloaded.wav";
     File newFile = File(newURL);
 
     //Creating record's cloud storage path
@@ -167,25 +180,32 @@ class CloudStorageController {
 
     String parsedtags = parseTags(tags);
     String owner = "";
-    if (Model().getUser() != null) {
-      owner = Model().getUser()!.uid;
-    }
+    User? user = Model().getUser();
+    if (user != null) {
+      owner = user.uid;
 
-    // Create your custom metadata.
-    SettableMetadata metadata = SettableMetadata(
-      customMetadata: <String, String>{
-        "tags" : parsedtags,
-        "owner" : owner,
-      },
-    );
+      // Create your custom metadata.
+      SettableMetadata metadata = SettableMetadata(
+        customMetadata: <String, String>{
+          "tags" : parsedtags,
+          "owner" : owner,
+        },
+      );
 
-    try {
-      // Pass metadata to any file upload method e.g putFile.
-      await FirebaseStorage.instance.ref('shared/'+newName+".wav").putFile(file, metadata);
-      return true;
-    } on FirebaseException catch (e) {
-      print("share Record exception");
-      print(e.toString());
+      //Adding tags to record to be shared
+      for (int i = 0; i < tags.length; i ++) {
+        toUpload.addNewTag(tags[i]);
+      }
+
+      try {
+        // Pass metadata to any file upload method e.g putFile.
+        await FirebaseStorage.instance.ref('shared/'+user.uid.toString()+"/"+newName+".wav").putFile(file, metadata);
+        return true;
+      } on FirebaseException catch (e) {
+        print("share Record exception");
+        print(e.toString());
+      }
+
     }
     return false;
   }
@@ -193,18 +213,28 @@ class CloudStorageController {
   String parseTags(List<String> tags) {
     String res = "";
     for (int i = 0; i < tags.length-2; i ++) {
-      res = res + tags[i] + " | ";
+      res = res + tags[i] + "|";
     }
     res = res + tags[tags.length-1];
     return res;
   }
 
-  List<Record> downloadUserSharedRecords() {
-    //todo implementare
+  Future<List<Record>> downloadUserSharedRecords() async {
+    print("CloudStorageController -- downloadUserSharedRecords");
+    User? user = Model().getUser();
+    if (user != null) {
+
+      String sharedDirectoryPath = "shared/"+user.uid.toString()+"/";
+      Reference sharedDirectoryRef = FirebaseStorage.instance.ref(sharedDirectoryPath);
+      List<Record> sharedRecords = await getElementsIntoDirectory(sharedDirectoryRef);
+      print("sto ritornando, la lista ha lunghezza "+sharedRecords.length.toString());
+      return sharedRecords;
+    }
+    print("Sto ritornando con utente scollegato");
     return [];
   }
 
-  Future<void> uploadProfileImage(String imagePath) async {
+  Future<void> uploadProfileImage(String imagePath) async { //todo TEST //todo si può anche visualizzare un'immagine network senza dover scaricare
     User? user = Model().getUser();
     if (user != null) {
 
@@ -227,13 +257,13 @@ class CloudStorageController {
 
   //Downloads firebase image profile
   //Called when user is logged in
-  Future<void> downloadProfileImage() async {
+  Future<void> downloadProfileImage() async { //todo TEST
 
     User? user = Model().getUser();
     if (user != null) {
       String imageCloudPath = "profiles/"+user.uid+"profile_picture.jpeg";
 
-      String downloadedPath = Model().getExtDocPath()! + "firebase_profile_picture.jpeg";
+      String downloadedPath = Model().getExtDocPath() + "firebase_profile_picture.jpeg";
       File downloadedImage = File(downloadedPath);
 
       try {

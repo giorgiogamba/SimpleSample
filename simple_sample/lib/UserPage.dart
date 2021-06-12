@@ -27,28 +27,24 @@ class UserPage extends StatefulWidget {
 
 class _UserPageState extends State<UserPage> {
 
-  //TEST
   CloudStorageController storageController = CloudStorageController();
-  AuthenticationController _controller = AuthenticationController();
+  AuthenticationController _authenticationController = AuthenticationController();
   UserPageController _userPageController = UserPageController();
   bool auth = false; //la mantengo così cambia la UI a seconda dello stato
-  int test = 0;
 
 
   @override
   void initState() {
-    auth = _controller.checkIfAuthorized();
+    auth = _authenticationController.checkIfAuthorized();
+    _userPageController.getUserSharedRecords();
     super.initState();
   }
 
-  //todo: Quando si va a prendere un'immagine questo metodo non viene modificato
   Widget displayUserProfileImage(String path) {
-    print("Costruisco");
     var splitted = path.split("/");
     if (splitted[0] == "assets") { //image is the asset one
       return Image(image: AssetImage(path),);
     } else { //image is user's one
-      print("secondo return");
       return Image.file(File(_userPageController.profileImagePath.value));
     }
   }
@@ -152,7 +148,7 @@ class _UserPageState extends State<UserPage> {
                 ),
                 onTap: ()
                 async{
-                  _controller.signInWithGoogle().then((value) {
+                  _authenticationController.signInWithGoogle().then((value) {
                     setState(() {
                       auth = true;
                     });
@@ -179,12 +175,28 @@ class UserPageListItems extends StatefulWidget {
 }
 
 class _UserPageListItemsState extends State<UserPageListItems> {
+
+  TextStyle getTextStyle() {
+    return TextStyle(
+        fontSize: 20
+    );
+  }
+
+  ButtonStyle getButtonStyle() {
+    return ButtonStyle(
+      backgroundColor: MaterialStateColor.resolveWith((states) => Colors.teal),
+      minimumSize: MaterialStateProperty.resolveWith((states) => Size(5, 10)),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Text(widget.controller.getUserSharedRecordAt(widget.itemIndex).toString()),
-        ElevatedButton(onPressed: () => widget.controller.playRecordAt(widget.itemIndex), child: Icon(Icons.play_arrow)),
+        Text(widget.controller.getUserSharedRecordAt(widget.itemIndex).getFilename(), style: getTextStyle(),),
+        SizedBox(width: 20,),
+        ElevatedButton(onPressed: () => widget.controller.playRecordAt(widget.itemIndex), child: Icon(Icons.play_arrow), style: getButtonStyle(),),
       ],
     );
   }
