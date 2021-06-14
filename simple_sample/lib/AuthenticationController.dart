@@ -2,7 +2,9 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:googleapis/drive/v3.dart' as drive;
+import 'package:simple_sample/UserPageController.dart';
 
+import 'CloudStorageController.dart';
 import 'Model.dart';
 
 class AuthenticationController {
@@ -36,7 +38,6 @@ class AuthenticationController {
         print("*** User logged in. Infos");
         print(user.toString());
         Model().setUser(user); //Model gets initialized at every start so every time we have to write in it
-        //todo trovare un modo di reperire le credenziali
       }
     });
 
@@ -46,12 +47,6 @@ class AuthenticationController {
   Future<void> signInWithGoogle() async { //todo eseguire collegamento a google
 
     print("****************** Google sing in ******************");
-    /* CODICE CORRETTO
-    GoogleSignIn googleSignIn = GoogleSignIn();
-    GoogleSignInAccount? googleAccount = await googleSignIn.signIn();
-     */
-
-    //Ptrovo questo codice per accesso a google drive -> SEMBRA FUNZIONARE
     final GoogleSignIn googleSignIn = GoogleSignIn.standard(scopes: [drive.DriveApi.driveScope]);
     final GoogleSignInAccount? googleAccount = await googleSignIn.signIn();
 
@@ -76,7 +71,14 @@ class AuthenticationController {
 
         //Saving infos in model
         Model().setUser(_user);
-        Model().setUserCredentials(_userCredential);
+
+        //Downloading profile image and setting it
+        String? imagePath = await CloudStorageController().downloadProfileImage();
+        if (imagePath != null) {
+          UserPageController().setProfileImagePath(imagePath);
+        } else {
+          print("******* Profile image download not completed ********");
+        }
 
       } on FirebaseAuthException catch (e) {
         if (e.code == "account-exists-woth-different-credential") {
@@ -96,7 +98,7 @@ class AuthenticationController {
     GoogleSignIn _googleSignIn = GoogleSignIn(); //NB istanziato di nuovo, veder se da problemi
     await _googleSignIn.signOut();
     Model().clearUser();
-    print("************** User Signed Out ************");
+    print("************** User Signed Out from Google ************");
   }
 
   /*static Future<UserCredential?> signInWithFacebook() async {

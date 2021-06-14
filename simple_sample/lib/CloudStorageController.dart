@@ -257,7 +257,7 @@ class CloudStorageController {
 
   //Downloads firebase image profile
   //Called when user is logged in
-  Future<void> downloadProfileImage() async { //todo TEST
+  Future<String?> downloadProfileImage() async { //todo TEST
 
     User? user = Model().getUser();
     if (user != null) {
@@ -269,10 +269,13 @@ class CloudStorageController {
       try {
         Reference imageRef = FirebaseStorage.instance.ref(imageCloudPath); //todo gestire se la reference è nulla
         await imageRef.writeToFile(downloadedImage);
+        return downloadedPath;
       } on FirebaseException catch (e) {
         print(e.toString());
       }
+      return null;
     }
+    return null;
   }
 
 

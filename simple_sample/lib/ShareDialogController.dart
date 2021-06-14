@@ -18,6 +18,7 @@ class ShareDialogController {
   }
 
   void initElements() {
+    _selectedEntry = null;
     _entries = Model().getAllCurrentRecords();
     _selectedTags = Model().getTagsList();
     print("Eseguita inizializzazione elementi");

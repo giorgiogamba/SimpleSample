@@ -56,10 +56,7 @@ class _ExplorerState extends State<Explorer> {
           controller: _controller,
         );
       },
-      separatorBuilder: (BuildContext context, int index) => const Divider(
-        color: Colors.black,
-        thickness: 3,
-      ),
+      separatorBuilder: (BuildContext context, int index) => const MyDivider(),
     );
   }
 
@@ -85,10 +82,16 @@ class _ExplorerState extends State<Explorer> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Center(
+        title: /*Center(
           child:  Text("Explorer"),
-        ),
+        ),*/ Text("Explorer"),
         backgroundColor: Colors.teal,
+        leading: GestureDetector(
+          onTap: () { /* Write listener code here */ },
+          child: Icon(
+            Icons.menu,  // add custom icons also
+          ),
+        ),
       ),
       body: chooseBody(),
     );
@@ -127,7 +130,6 @@ class _ExplorerListItemState extends State<ExplorerListItem> {
           width: 180,
           child: Text(widget.item.getFilename(), style: TextStyle(fontSize: 20),),
         ),
-
         SizedBox(width: 15,),
         ElevatedButton(
           onPressed: () => widget.controller.addToFavorites(),
@@ -183,3 +185,14 @@ class _ExplorerListItemState extends State<ExplorerListItem> {
   }
 }
 
+class MyDivider extends StatelessWidget {
+  const MyDivider({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Divider(
+      color: Colors.black,
+      thickness: 2,
+    );
+  }
+}

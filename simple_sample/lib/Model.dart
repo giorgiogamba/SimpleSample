@@ -16,10 +16,8 @@ class Model {
   //Authorization variables
   //They == null if user not logged in
   User? _user; //todo fare in modo che non possa essere cambiato a meno che non si faccia un login
-  UserCredential? _userCredential;
 
-  HashMap<int,
-      Record> _records = HashMap(); //It maintains a map representing the sampler buttons
+  HashMap<int, Record> _records = HashMap(); //It maintains a map representing the sampler buttons
   //If a new record is done on a full button, the record is replaced NB the old record should already be saved into filesystem
   int _counter = 0;
   String _docPath = "";
@@ -127,7 +125,6 @@ class Model {
 
   void clearUser() {
     _user = null;
-    _userCredential = null;
   }
 
   bool isUserConnected() {
@@ -142,10 +139,6 @@ class Model {
     print("USER IN MODEL INFOS:");
     print(_user?.email);
     print(_user?.displayName);
-  }
-
-  void setUserCredentials(UserCredential cred) {
-    this._userCredential = cred;
   }
 
   String getNewPath() {

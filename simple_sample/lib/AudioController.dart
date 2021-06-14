@@ -27,7 +27,7 @@ class AudioController {
   List<bool> _isPlayerInited = List.filled(16, false);
   FlutterSoundRecorder _recorder = FlutterSoundRecorder();
   bool _isRecorderInited = false;
-  bool _playbackReady = false; //todo true quando finisce il recorder
+  bool _playbackReady = false;
 
   factory AudioController() {
     return _instance;
@@ -89,6 +89,7 @@ class AudioController {
 
   //Faccio la creazione della registrazione all'inizio dello svolgimento perchè il metodo startRecorder restituisce void
   void record(int index) {
+    this._playbackReady = false;
     String path = Model().getNewPath();
     if (_isRecorderInited == true) {
       _recorder.startRecorder(toFile: path, codec: Codec.pcm16WAV);
@@ -104,6 +105,10 @@ class AudioController {
     await _recorder.stopRecorder().then((value) => {
       _playbackReady = true,
     });
+  }
+
+  void enablePlayback() {
+    this._playbackReady = true;
   }
 
   void play(int index) {

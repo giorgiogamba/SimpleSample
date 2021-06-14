@@ -10,6 +10,7 @@ import 'package:simple_sample/ToUpdateListController.dart';
 import 'dart:io';
 import 'dart:async';
 
+import 'Explorer.dart';
 import 'Record.dart';
 
 /// Class representing Sampler UI
@@ -33,6 +34,7 @@ class _SamplerState extends State<Sampler> {
   @override
   void initState() {
     _controller = AudioController();
+    SamplerController().disableItemSelection();
     super.initState();
   }
 
@@ -54,14 +56,43 @@ class _SamplerState extends State<Sampler> {
   }
 
   Widget createButton(int index) {
-    return GestureDetector(
-      onLongPress: () => _controller?.record(index),
-      onLongPressUp: () => _controller?.stopRecorder(),
-      child: ElevatedButton(
-        child: Text("Lp "+index.toString()),
-        onPressed: () => _controller?.play(index),
-        style: getSamplerButtonStyle(),
-      ),
+    return Stack(
+      children: [
+        GestureDetector(
+          onLongPress: () => !SamplerController().isEnabledItemSelection() ? _controller?.record(index) : {},
+          onLongPressUp: () => _controller?.stopRecorder(),
+          child: ElevatedButton(
+            child: Text("Lp "+index.toString()),
+            onPressed: () {
+              if (!SamplerController().isEnabledItemSelection()) {
+                _controller?.play(index);
+              } else {
+                setState(() {
+                  print("Selected Button for association");
+                  SamplerController().associateFileToButton(index);
+                  SamplerController().disableItemSelection();
+                  _controller?.enablePlayback();
+                });
+              }},
+            style: getSamplerButtonStyle(),
+          ),
+        ),
+        SamplerController().isEnabledItemSelection() ?
+        Container(
+            width: 10,
+            height: 10,
+            child: Align(
+              alignment: Alignment.bottomLeft,
+              child: Padding(
+                padding: const EdgeInsets.all(0.0),
+                child: Icon(
+                  Icons.check_circle,
+                  color: Colors.pink,
+                ),
+              ),
+            )
+        ) : Container(width: 10, height: 10),
+      ],
     );
   }
 
@@ -108,10 +139,22 @@ class _SamplerState extends State<Sampler> {
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              ElevatedButton(onPressed: () => showDialog(
-                context: context,
-                builder: (context) => LoadDialog(),
-              ), child: Text("Load")),
+              ElevatedButton(onPressed: () => SamplerController().pickFile().then((value) {
+                /*showDialog(
+                  context: context,
+                  builder: (context) => LoadDialog(),
+                );*/
+                setState(() {
+                  SamplerController().enableItemSelection();
+                  print("*** Ho cambiato lo stato, itemSelection vale: "+SamplerController().isEnabledItemSelection().toString());
+                  if (value != null && value != "") {
+                    SamplerController().setSelectedURL(value);
+                    print("Ho impostato URL");
+                  } else {
+                    print("ERROR: the selected URL is null");
+                  }
+                });
+              }), child: Text("Load")),
               SizedBox(width: 20),
               ElevatedButton(onPressed: () => SamplerController().checkIfUserConnected() ? showDialog(
                 context: context,
@@ -272,6 +315,7 @@ class _SharePageState extends State<SharePage> {
     } else {
       print("Non è stato selezionato neitne, non si può procedere");
       setState(() {
+        print("Non ho selezionato niente, apro il dialogo di allerta");
         _currentPage = 2;
       });
     }
@@ -309,10 +353,7 @@ class _SharePageState extends State<SharePage> {
                   controller: _controller,
                 );
               },
-              separatorBuilder: (BuildContext context, int index) => const Divider(
-                color: Colors.black,
-                thickness: 3,
-              ),
+              separatorBuilder: (BuildContext context, int index) => MyDivider(),
             ),
           ),
           Row(
@@ -374,10 +415,7 @@ class _SharePageState extends State<SharePage> {
                 controller: _controller,
             );
           },
-          separatorBuilder: (BuildContext context, int index) => const Divider(
-            color: Colors.black,
-            thickness: 3,
-          ),
+          separatorBuilder: (BuildContext context, int index) => MyDivider(),
           itemCount: _controller.getTagsListLength(),
       ),
     );
@@ -385,11 +423,17 @@ class _SharePageState extends State<SharePage> {
 
   Widget makeNoSelectionAlertDialog() {
     return AlertDialog(
-      content: Column(
-        children: [
-          Text("No item selected, come back"),
-          ElevatedButton(onPressed: backToPageOne, child: Text("OK")),
-        ],
+      content: Container(
+        width: 200,
+        height: 100,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Text("No item selected, come back"),
+            ElevatedButton(onPressed: backToPageOne, child: Text("OK")),
+          ],
+        ),
       ),
     );
   }
@@ -527,7 +571,12 @@ class LoadDialog extends StatelessWidget {
     );*/
     //List<File> files = await FilePicker.getMultiFile();
     return AlertDialog(
-      content: Text("File Loading Dialog, implement"),
+      content: Column(
+        children: [
+          Text("File Loading Dialog, implement"),
+          ElevatedButton(onPressed: () => SamplerController().pickFile(), child: Text("LOAD")),
+        ],
+      ),
     );
   }
 }

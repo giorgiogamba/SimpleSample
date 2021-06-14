@@ -5,6 +5,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:simple_sample/AudioController.dart';
+import 'package:simple_sample/Explorer.dart';
 import 'package:simple_sample/ExplorerController.dart';
 import 'package:simple_sample/GoogleDriveController.dart';
 import 'package:simple_sample/StorageController.dart';
@@ -71,14 +72,17 @@ class _UserPageState extends State<UserPage> {
               ),
             ),
             SizedBox(height: 10),
-            ElevatedButton(onPressed: () => showDialog(
-                context: context,
-                builder: (context) => ChooseImageOperationDialog(
-                  controller: _userPageController,
-                  key: Key(1.toString()),
-                ),
+            ElevatedButton(
+              onPressed: () => Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => SettingsPage()),
               ),
-                child: Text("Set Profile Image")),
+              child: Icon(Icons.settings),
+              style: ElevatedButton.styleFrom(
+                shape: CircleBorder(),
+                padding: EdgeInsets.all(13),
+              ),
+            ),
             SizedBox(height: 20),
             Text("SHARED SAMPLES", style: TextStyle(fontSize: 30),),
             SizedBox(height: 10),
@@ -96,10 +100,7 @@ class _UserPageState extends State<UserPage> {
                       controller: _userPageController,
                   );
                 },
-                separatorBuilder:  (BuildContext context, int index) => const Divider(
-                  color: Colors.black,
-                  thickness: 3,
-                ),
+                separatorBuilder:  (BuildContext context, int index) => MyDivider(),
                 itemCount: _userPageController.getUserSharedRecordsLength(),
               ),
             ),
@@ -229,7 +230,7 @@ class _ChooseImageOperationDialogState extends State<ChooseImageOperationDialog>
                 key: Key(widget.controller.getElementsLength().toString()),
               );
             },
-            separatorBuilder:  (BuildContext context, int index) => const Divider(),
+            separatorBuilder:  (BuildContext context, int index) => const MyDivider(),
             itemCount: widget.controller.getElementsLength(),
           ),
       ),
@@ -275,6 +276,65 @@ class _ChooseImageOperationDialogItemState extends State<ChooseImageOperationDia
     );
   }
 }
+
+
+class SettingsPage extends StatefulWidget {
+  const SettingsPage({Key? key}) : super(key: key);
+
+  @override
+  _SettingsPageState createState() => _SettingsPageState();
+}
+
+class _SettingsPageState extends State<SettingsPage> {
+
+  ButtonStyle getButtonStyle() {
+    return ButtonStyle(
+      backgroundColor:  MaterialStateColor.resolveWith((states) => Colors.red),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text("Settings", style: TextStyle(fontSize: 30),),
+              Padding(padding: EdgeInsets.all(10)),
+              ElevatedButton(onPressed: () => Navigator.pop(context), child: Text("BAck")),
+              ElevatedButton(onPressed: () => showDialog(
+                context: context,
+                builder: (context) => ChooseImageOperationDialog(
+                  controller: UserPageController(),
+                  key: Key(1.toString()),
+                ),
+              ), child: Text("Set Profile Image")),
+              ElevatedButton(
+                onPressed: () => UserPageController().disconnect(),
+                child: Text("Logout from Google"),
+                style: getButtonStyle(),
+              ),
+              ElevatedButton(
+                onPressed: () {},
+                child: Text("Disconnect from Drive"),
+                style: getButtonStyle(),
+              ),
+              ElevatedButton(
+                onPressed: () {},
+                child: Text("Disconnect from Dropbox"),
+                style: getButtonStyle(),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 
 
 

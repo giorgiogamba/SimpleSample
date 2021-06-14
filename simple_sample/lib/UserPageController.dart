@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:simple_sample/AuthenticationController.dart';
 import 'package:simple_sample/Record.dart';
 
 import 'AudioController.dart';
@@ -90,6 +91,10 @@ class UserPageController {
 
   void setProfileImagePath(String path) {
     profileImagePath.value = path;
+  }
+
+  void disconnect() {
+    AuthenticationController().signOutGoogle();
   }
 
 }
