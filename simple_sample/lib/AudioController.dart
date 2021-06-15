@@ -69,14 +69,6 @@ class AudioController {
     print("********** Recorder opened **********");
   }
 
-  int getBPM() {
-    return Model().getBPM();
-  }
-
-  void setBPM (int newBPM) {
-    Model().setBPM(newBPM);
-  }
-
   void disposeSampler() {
     for (int i = 0; i < playersNumber-1; i ++) {
       _players[i]?.dispose();

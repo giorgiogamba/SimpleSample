@@ -1,6 +1,5 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_sound/flutter_sound.dart';
 import 'package:simple_sample/ExplorerController.dart';
 
 import 'Record.dart';
@@ -18,64 +17,81 @@ class Explorer extends StatefulWidget {
 
 class _ExplorerState extends State<Explorer> {
 
-  late ExplorerController _controller;
-  List<Record> entries = [];
-  List<Record> selectedEntries = [];
-
-  @override
-  void initState() {
-    _controller = ExplorerController();
-    initEntries();
-    super.initState();
-  }
-
-  void initEntries() async {
-    List<Record> temp = await _controller.getElementsList();
-    setState(() {
-      entries = temp;
-    });
-  }
+  ExplorerController _controller = ExplorerController();
+  TextEditingController _textEditingController = TextEditingController();
 
   Widget makeListView() {
-    return ListView.separated(
-      padding: const EdgeInsets.all(5),
-      itemCount: entries.length,
-      itemBuilder: (BuildContext context, int index) {
-        return ExplorerListItem(
-          item: entries[index],
-          isSelected: (bool value) {
-            setState(() {
-              if (value) {
-                selectedEntries.add(entries[index]); //inutile
-              } else {
-                selectedEntries.remove(entries[index]); //inutile
-              }
-            });
-          },
-          key: Key(entries[index].toString()),
-          controller: _controller,
-        );
-      },
-      separatorBuilder: (BuildContext context, int index) => const MyDivider(),
+    return Expanded(
+      child: ListView.separated(
+        padding: const EdgeInsets.all(5),
+        itemCount: _controller.getSelectedEntriesLength(),
+        itemBuilder: (BuildContext context, int index) {
+          return ExplorerListItem(
+            item: _controller.getSelectedEntryAt(index),
+            key: Key(_controller.getSelectedEntryAt(index).toString()),
+            controller: _controller,
+          );
+        },
+        separatorBuilder: (BuildContext context, int index) => const MyDivider(),
+      ),
     );
   }
 
   Widget makeProgressBar() {
-    return CircularProgressIndicator();
+    return Center(
+      child: CircularProgressIndicator(),
+    );
+  }
+
+  Widget makeSearchBar() {
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+      child: TextField(
+        controller: _textEditingController,
+        decoration: InputDecoration(
+          border: OutlineInputBorder(),
+          labelText: "Search",
+        ),
+        onChanged: onItemChanged,
+      ),
+    );
+  }
+
+  onItemChanged(String value) {
+    setState(() {
+      List<Record> selectedEntries = _controller.getSelectedEntries();
+      selectedEntries = selectedEntries.where((record) => record.getFilename().toLowerCase().contains(value.toLowerCase())).toList();
+      if (value == "") {
+        List<Record> entries = _controller.getEntries();
+        _controller.setSelectedEntries(entries);
+      } else {
+        _controller.setSelectedEntries(selectedEntries);
+      }
+    });
   }
 
   Widget chooseBody() {
-    if (!_controller.checkIfUserLogged()) {
-      return Center(
-        child: Text("USER IS NOT LOGGED IN"),
-      );
-    } else {
-      if (entries == []) {
-        return makeProgressBar();
-      } else {
-        return makeListView();
-      }
-    }
+    return ValueListenableBuilder (
+        valueListenable: _controller.loaded,
+        builder: (context, value, _) {
+          if (!_controller.checkIfUserLogged()) {
+            return Center(
+              child: Text("USER IS NOT LOGGED IN"),
+            );
+          } else {
+            if (value == false) {
+              return makeProgressBar();
+            } else {
+              return Column(
+                children: [
+                  makeSearchBar(),
+                  makeListView(),
+                ],
+              );
+            }
+          }
+        }
+        );
   }
 
   @override
@@ -102,18 +118,15 @@ class ExplorerListItem extends StatefulWidget {
 
   final Key key;
   final Record item;
-  final ValueChanged<bool> isSelected;
   final ExplorerController controller;
 
-  const ExplorerListItem({required this.item, required this.isSelected, required this.key, required this.controller}) : super(key: key);
+  const ExplorerListItem({required this.item, required this.key, required this.controller}) : super(key: key);
 
   @override
   _ExplorerListItemState createState() => _ExplorerListItemState();
 }
 
 class _ExplorerListItemState extends State<ExplorerListItem> {
-
-  bool isSelected = false;
 
   ButtonStyle getButtonStyle() {
     return ButtonStyle(
@@ -168,19 +181,11 @@ class _ExplorerListItemState extends State<ExplorerListItem> {
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      onTap: () {
-        setState(() {
-          isSelected = !isSelected;
-          widget.isSelected(isSelected);
-        });
-      },
-      child: Column(
-        children: [
-          makeFirstRow(),
-          makeSecondRow(),
-        ],
-      ),
+    return Column(
+      children: [
+        makeFirstRow(),
+        makeSecondRow(),
+      ],
     );
   }
 }

@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -127,5 +128,11 @@ class AuthenticationController {
   void signOutFromFacebook() async {
     await FacebookAuth.instance.logOut();
   }*/
+
+  /*void addUsername() {
+    CollectionReference users = FirebaseFirestore.instance.collection('users');
+    users.add()
+  }*/
+
 
 }

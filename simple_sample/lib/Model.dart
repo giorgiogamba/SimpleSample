@@ -53,7 +53,7 @@ class Model {
     this._counter = 0;
     this._docPath = await getDocFilePath();
     this._extDocPath = await getExternalStorageDoc();
-    this._bpm = 20;
+    this._bpm = 60;
 
     //initSequencerMap();
 
