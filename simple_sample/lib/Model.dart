@@ -239,6 +239,36 @@ class Model {
   String getTagAt(int index) {
     return this._tagsList[index];
   }
+
+  bool isButtonFull(int index) {
+    Record? record = _records[index];
+    if (record == null) {
+      return false;
+    } else {
+      return true;
+    }
+  }
+
+  Future<void> renameRecord (int index, String name) async {
+    Record? toRename = getRecordAt(index);
+    if (toRename != null) {
+      File toRenameFile = File (toRename.getUrl());
+      String newName = name + ".wav";
+      File updatedFile = await changeFileNameOnly(toRenameFile, newName);
+      toRename.setUrl(updatedFile.path);
+      toRename.extractFilename();
+    } else {
+      print("The record to rename is null");
+    }
+
+  }
+
+  Future<File> changeFileNameOnly(File file, String newFileName) {
+    var path = file.path;
+    var lastSeparator = path.lastIndexOf(Platform.pathSeparator);
+    var newPath = path.substring(0, lastSeparator + 1) + newFileName;
+    return file.rename(newPath);
+  }
 }
 
 

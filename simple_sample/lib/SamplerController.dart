@@ -1,5 +1,6 @@
 import 'package:file_picker/file_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/cupertino.dart';
 
 import 'Model.dart';
 import 'Record.dart';
@@ -37,6 +38,9 @@ class SamplerController {
 
   bool _selectAnItem = false;
   String _selectedURL = "";
+  bool _renameRunning = false;
+  TextEditingController _textEditingController = TextEditingController();
+  int? _selectedItemForRename;
 
   bool isEnabledItemSelection() {
     return this._selectAnItem;
@@ -68,6 +72,47 @@ class SamplerController {
     newRecord.setPosition(index);
     Model().addRecord(newRecord, index);
     print("SamplerController -- associate File to button \n ${newRecord.getUrl()} -- ${newRecord.getPosition()}");
+  }
+
+  bool checkIsButtonIsFull(int index) {
+    return Model().isButtonFull(index);
+  }
+
+  String getButtonName(int index) {
+    Record? record = Model().getRecordAt(index);
+    if (record != null) {
+      return record.getFilename();
+    } else {
+      return "Bt $index";
+    }
+  }
+
+  bool isRenameRunning() {
+    return this._renameRunning;
+  }
+
+  void enableRenaming() {
+    this._renameRunning = true;
+  }
+
+  void disableRenaming() {
+    this._renameRunning = false;
+  }
+
+  TextEditingController getTextEditingController() {
+    return this._textEditingController;
+  }
+
+  void setSelectedItemForRename(int index) {
+    this._selectedItemForRename = index;
+  }
+
+  Future<void> renameRecord() async {
+    if (this._selectedItemForRename != null) {
+      await Model().renameRecord(this._selectedItemForRename!, _textEditingController.text);
+    } else {
+      print("Item selected is null");
+    }
   }
 
 }

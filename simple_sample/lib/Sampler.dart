@@ -1,16 +1,12 @@
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:googleapis/chat/v1.dart';
-import 'package:googleapis/secretmanager/v1.dart';
 import 'package:simple_sample/AudioController.dart';
 import 'package:simple_sample/SamplerController.dart';
 import 'package:simple_sample/ShareDialogController.dart';
 import 'package:simple_sample/ToUpdateListController.dart';
-import 'dart:io';
-import 'dart:async';
 
 import 'Explorer.dart';
+import 'Model.dart';
 import 'Record.dart';
 
 /// Class representing Sampler UI
@@ -29,25 +25,27 @@ class Sampler extends StatefulWidget {
 
 class _SamplerState extends State<Sampler> {
 
-  AudioController? _controller;
+  AudioController _audioController = AudioController();
+  SamplerController _samplerController = SamplerController();
 
   @override
   void initState() {
-    _controller = AudioController();
-    SamplerController().disableItemSelection();
+    //todo eseguire inizializzazione recorder
+    _samplerController.disableItemSelection();
     super.initState();
   }
 
   /*@override
   void dispose() {
+  //todo eseguire dispose recorder
     print("Dispose sampler");
     //_controller?.disposeSampler();
     super.dispose();
   }*/
 
-  ButtonStyle getSamplerButtonStyle() {
+  ButtonStyle getSamplerButtonStyle(int index) {
     return ButtonStyle(
-      backgroundColor: MaterialStateColor.resolveWith((states) => Colors.teal),
+      backgroundColor: getSamplerColor(index),
       elevation: MaterialStateProperty.resolveWith((states) => elevationValue),
       shadowColor: MaterialStateProperty.resolveWith((states) => Colors.pinkAccent),
       enableFeedback: true,
@@ -55,29 +53,55 @@ class _SamplerState extends State<Sampler> {
     );
   }
 
+  MaterialStateProperty<Color?>? getSamplerColor(int index) {
+    if (_samplerController.checkIsButtonIsFull(index)) { //there is a record on this button
+      return MaterialStateColor.resolveWith((states) => Colors.pink);
+    } else {
+      return MaterialStateColor.resolveWith((states) => Colors.teal);
+    }
+  }
+
   Widget createButton(int index) {
     return Stack(
       children: [
         GestureDetector(
-          onLongPress: () => !SamplerController().isEnabledItemSelection() ? _controller?.record(index) : {},
-          onLongPressUp: () => _controller?.stopRecorder(),
+          onLongPress: () => !_samplerController.isEnabledItemSelection() ? _audioController.record(index) : {},
+          onLongPressUp: () {
+            _audioController.stopRecorder();
+            setState(() {});
+          },
           child: ElevatedButton(
-            child: Text("Lp "+index.toString()),
+            child: Text(_samplerController.getButtonName(index)),
             onPressed: () {
-              if (!SamplerController().isEnabledItemSelection()) {
-                _controller?.play(index);
+              if (!_samplerController.isEnabledItemSelection()) {
+                _audioController.play(index);
               } else {
-                setState(() {
-                  print("Selected Button for association");
-                  SamplerController().associateFileToButton(index);
-                  SamplerController().disableItemSelection();
-                  _controller?.enablePlayback();
-                });
+                  if (!_samplerController.isRenameRunning()) {
+                    setState(() {
+                      print("Associating button to record");
+                      _samplerController.associateFileToButton(index);
+                      _samplerController.disableItemSelection();
+                      _audioController.enablePlayback();
+                    });
+                  } else {
+                    print("Associating button for renaming");
+                    _samplerController.setSelectedItemForRename(index);
+                    showDialog(
+                        context: context,
+                        builder: (context) => RenamePage(samplerController: _samplerController,)
+                    ).then((value) {
+                      _samplerController.renameRecord().then((value) {
+                        _samplerController.disableRenaming();
+                        _samplerController.disableItemSelection();
+                        setState(() {});
+                      });
+                    });
+                  }
               }},
-            style: getSamplerButtonStyle(),
+            style: getSamplerButtonStyle(index),
           ),
         ),
-        SamplerController().isEnabledItemSelection() ?
+        _samplerController.isEnabledItemSelection() ?
         Container(
             width: 10,
             height: 10,
@@ -91,7 +115,7 @@ class _SamplerState extends State<Sampler> {
                 ),
               ),
             )
-        ) : Container(width: 10, height: 10),
+        ) : Container(width: 10, height: 10,),
       ],
     );
   }
@@ -139,16 +163,16 @@ class _SamplerState extends State<Sampler> {
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              ElevatedButton(onPressed: () => SamplerController().pickFile().then((value) {
+              ElevatedButton(onPressed: () => _samplerController.pickFile().then((value) {
                 /*showDialog(
                   context: context,
                   builder: (context) => LoadDialog(),
                 );*/
                 setState(() {
-                  SamplerController().enableItemSelection();
-                  print("*** Ho cambiato lo stato, itemSelection vale: "+SamplerController().isEnabledItemSelection().toString());
+                  _samplerController.enableItemSelection();
+                  print("*** Ho cambiato lo stato, itemSelection vale: "+_samplerController.isEnabledItemSelection().toString());
                   if (value != null && value != "") {
-                    SamplerController().setSelectedURL(value);
+                    _samplerController.setSelectedURL(value);
                     print("Ho impostato URL");
                   } else {
                     print("ERROR: the selected URL is null");
@@ -156,15 +180,24 @@ class _SamplerState extends State<Sampler> {
                 });
               }), child: Text("Load")),
               SizedBox(width: 20),
-              ElevatedButton(onPressed: () => SamplerController().checkIfUserConnected() ? showDialog(
+              ElevatedButton(onPressed: () => _samplerController.checkIfUserConnected() ? showDialog(
                 context: context,
                 builder: (context) => ToUploadList(),
               ) : null, child: Text("Upload")),
               SizedBox(width: 20),
-              ElevatedButton(onPressed: () => SamplerController().checkIfUserConnected() ? showDialog(
+              ElevatedButton(onPressed: () => _samplerController.checkIfUserConnected() ? showDialog(
                 context: context,
                 builder: (context) => SharePage(),
               ) : null, child: Text("Share")),
+              SizedBox(width: 20),
+              ElevatedButton(onPressed: () {
+                setState(() {
+                  _samplerController.enableItemSelection();
+                  _samplerController.enableRenaming();
+                  //todo selezione tasto
+                  //todo apertura dialogo
+                });
+              }, child: Text("Rename")),
             ],
           ),
         ],
@@ -183,8 +216,15 @@ class ToUploadList extends StatefulWidget {
 
 class _ToUploadListState extends State<ToUploadList> {
 
-  List<Record> entries = ToUpdateListController().getElementsList();
+  ToUpdateListController _toUpdateListController = ToUpdateListController();
+  List<Record> entries = [];
   List<Record> selectedEntries = [];
+
+  @override
+  void initState() {
+    entries = _toUpdateListController.getElementsList();
+    super.initState();
+  }
 
   String parseFilename(String path) {
     var splitted = path.split("/");
@@ -212,10 +252,10 @@ class _ToUploadListState extends State<ToUploadList> {
                           print("Sampler List build: Index to upload "+entries[index].toString());
                           selectedEntries.add(entries[index]);
                           //Aggiunta al controller
-                          ToUpdateListController().addElement(entries[index]);
+                          _toUpdateListController.addElement(entries[index]);
                         } else {
                           selectedEntries.remove(entries[index]);
-                          ToUpdateListController().removeElement(entries[index]);
+                          _toUpdateListController.removeElement(entries[index]);
                         }
                       });
                     },
@@ -225,7 +265,7 @@ class _ToUploadListState extends State<ToUploadList> {
             ),
           ),
           ElevatedButton(
-              onPressed: () { ToUpdateListController().uploadSelectedElements(); },
+              onPressed: () { _toUpdateListController.uploadSelectedElements(); },
               child: Text("Upload Selected Elements")),
         ],
       ),
@@ -582,6 +622,30 @@ class LoadDialog extends StatelessWidget {
 }
 
 
+class RenamePage extends StatelessWidget {
+  const RenamePage({Key? key, required this.samplerController}) : super(key: key);
+
+  final SamplerController samplerController;
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      content: Column(
+        children: [
+          Text("Choose a new name for the Sampler"),
+          Padding(padding: EdgeInsets.symmetric(vertical: 4),),
+          TextField(
+            controller: samplerController.getTextEditingController(),
+          ),
+          Padding(padding: EdgeInsets.symmetric(vertical: 4),),
+          ElevatedButton(onPressed: () {
+            Navigator.pop(context);
+          }, child: Text("Submit")),
+        ],
+      ),
+    );
+  }
+}
 
 
 
