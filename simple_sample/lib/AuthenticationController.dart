@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:googleapis/drive/v3.dart' as drive;
@@ -11,6 +12,7 @@ import 'Model.dart';
 class AuthenticationController {
 
   static final AuthenticationController _instance = AuthenticationController._internal();
+  String username = ""; //todo prelevare valore da finestra di dialogo
 
   AuthenticationController._internal() {
     print("Initializing AuthenticationController");
@@ -63,7 +65,7 @@ class AuthenticationController {
 
       try {
 
-        UserCredential _userCredential = await FirebaseAuth.instance.signInWithCredential(credential);
+        UserCredential _userCredential = await FirebaseAuth.instance.signInWithCredential(credential); //todo forse bisogna mettere un then
         User? _user = _userCredential.user;
         print("********** !!!!!!! Ricavato user !!!!!!! **************");
         print(_user!.email.toString());
@@ -80,6 +82,53 @@ class AuthenticationController {
         } else {
           print("******* Profile image download not completed ********");
         }
+
+        //Addition Users Info Management
+        CollectionReference users = FirebaseFirestore.instance.collection("users");
+
+        //Trying to get user's document
+        DocumentSnapshot snapshot = await users.doc(_user.uid).get();
+        if (!snapshot.exists) {
+          print("Document does not exist, creating a new one");
+          DocumentReference userDocRef = users.doc(_user.uid);
+          userDocRef.set({
+            "nDownloads": 0,
+            "username": username,
+          }).then((value) => print("Created document"));
+
+
+          //Test per provara a reperire favourites
+          CollectionReference favCollRef = userDocRef.collection("favourites");
+          QuerySnapshot favSnap = await favCollRef.get();
+          List<QueryDocumentSnapshot> docList = favSnap.docs;
+          for (int i = 0; i < docList.length; i ++) {
+            print(docList[i].id.toString());
+          }
+
+        } else {
+          print("Firestore: document already exists");
+
+          //Test per provara a reperire favourites
+          DocumentReference userDocRef = users.doc(_user.uid);
+          CollectionReference favCollRef = userDocRef.collection("favourites");
+          QuerySnapshot favSnap = await favCollRef.get();
+          List<QueryDocumentSnapshot> docList = favSnap.docs;
+          for (int i = 0; i < docList.length; i ++) {
+            print(docList[i].id.toString());
+
+            //todo spostare questo codice nel punto in cui si va a costruire l'interfaccia utente
+            //inserire tali url nella pagina utente con relativo tasto play
+
+          } //FINOA  QUA FUNXIONA
+
+
+
+
+        }
+
+
+
+
 
       } on FirebaseAuthException catch (e) {
         if (e.code == "account-exists-woth-different-credential") {

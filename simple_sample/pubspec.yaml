@@ -44,6 +44,9 @@ dependencies:
   googleapis: ^3.0.0
   image_picker: ^0.8.0+3
   file_picker: ^3.0.2+2
+  firebase_messaging: ^10.0.2
+  platform_device_id: ^1.0.1 #for firebase messaging
+  overlay_support: ^1.2.1 #for toasts and In_app Notifications
 
 dev_dependencies:
   flutter_test:
@@ -70,6 +73,7 @@ flutter:
 
   assets:
     - assets/userlogo.png
+    - assets/google_logo.png
     - assets/
 
   # An image asset can refer to one or more resolution-specific "variants", see

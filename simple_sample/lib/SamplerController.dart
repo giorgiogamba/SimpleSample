@@ -41,6 +41,11 @@ class SamplerController {
   bool _renameRunning = false;
   TextEditingController _textEditingController = TextEditingController();
   int? _selectedItemForRename;
+  bool _renameSubmitted = false;
+  bool _isSharingRunning = false;
+  int? _selectedItemForSharing;
+  String _operationInformationText = "";
+
 
   bool isEnabledItemSelection() {
     return this._selectAnItem;
@@ -92,10 +97,12 @@ class SamplerController {
   }
 
   void enableRenaming() {
+    _operationInformationText = "Choose a Record to Rename";
     this._renameRunning = true;
   }
 
   void disableRenaming() {
+    _operationInformationText = "";
     this._renameRunning = false;
   }
 
@@ -110,9 +117,44 @@ class SamplerController {
   Future<void> renameRecord() async {
     if (this._selectedItemForRename != null) {
       await Model().renameRecord(this._selectedItemForRename!, _textEditingController.text);
+      //resetting TextEditingController
+      _textEditingController.text = "";
     } else {
       print("Item selected is null");
     }
   }
 
+  bool getRenameSubmitted() {
+    return this._renameSubmitted;
+  }
+
+  void setRenameSubmitted(bool value) {
+    this._renameSubmitted = value;
+  }
+
+  void enableSharing() {
+    _operationInformationText = "Choose a Record to Share";
+    this._isSharingRunning = true;
+  }
+
+  void disableSharing() {
+    _operationInformationText = "";
+    this._isSharingRunning = false;
+  }
+
+  bool isSharingRunning() {
+    return this._isSharingRunning;
+  }
+
+  void setSelectedItemForSharing(int index) {
+    this._selectedItemForSharing = index;
+  }
+
+  Record? getSelectedItemForSharing(int index) {
+    return Model().getRecordAt(index);
+  }
+
+  String getOperationInformationText() {
+    return this._operationInformationText;
+  }
 }

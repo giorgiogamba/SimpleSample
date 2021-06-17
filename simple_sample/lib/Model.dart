@@ -250,6 +250,7 @@ class Model {
   }
 
   Future<void> renameRecord (int index, String name) async {
+    print("Rename record");
     Record? toRename = getRecordAt(index);
     if (toRename != null) {
       File toRenameFile = File (toRename.getUrl());

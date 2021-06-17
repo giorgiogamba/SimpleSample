@@ -20,8 +20,8 @@ class UserPageController {
   }
 
   List<String> _elements = ["Select image from Gallery", "Select image from Camera"];
-
   List<Record> _userSharedRecords = [];
+  List<Record> _favourites = [];
 
   ValueNotifier profileImagePath = ValueNotifier("assets/userlogo.png"); //!!! NON PRIVATIZZARE
 
@@ -95,6 +95,40 @@ class UserPageController {
 
   void disconnect() {
     AuthenticationController().signOutGoogle();
+  }
+
+  void initFavourites() async {
+    List<Record> favs = await CloudStorageController().getFavouritesFromDB();
+    print("DOWNLOADED FAVS: ");
+    for (int i = 0; i < favs.length; i++) {
+      favs[i].printRecordInfo();
+    }
+    this._favourites = favs;
+  }
+
+  List<Record> getFavourites() {
+    return this._favourites;
+  }
+
+  Record getFavouriteAt(int index) {
+    return this._favourites[index];
+  }
+
+  int getFavouritesLength() {
+    return this._favourites.length;
+  }
+
+  Future<void> setUsername(String newUsername) async {
+    print("newUsername: "+newUsername);
+    await CloudStorageController().setUsername(newUsername);
+  }
+
+  Future<String> getUsername() async {
+    return await CloudStorageController().getUsername();
+  }
+
+  void deleteAccount() {
+    //todo listare tutte le cose da scollegare
   }
 
 }

@@ -8,6 +8,7 @@ class Record {
   String _ownerID = "";
   String _filename = "";
   List<String> _tags = [];
+  int _downloadsNumber = 0;
 
   //Constructor
   Record(String url) {
@@ -78,6 +79,18 @@ class Record {
 
   List<String> getTagList() {
     return this._tags;
+  }
+
+  void setDownloadsNumber(int newNumber) {
+    this._downloadsNumber = newNumber;
+  }
+
+  void upgradeDownloadsNumber() {
+    this._downloadsNumber ++;
+  }
+
+  int getDownloadsNumber() {
+    return this._downloadsNumber;
   }
 
 }

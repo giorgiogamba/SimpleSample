@@ -56,8 +56,9 @@ class ShareDialogController {
 
     //_selectedEntry è l'elemento da cricare
     if (newName != "") {
+      print("newname diverso da null");
       if (_selectedEntry != null) {
-
+        print("selected entru diverso da null");
         print("ShareDialogController -- share Method: uploadign record with name $newName amd tags");
         for (int i = 0; i < _selectedTags.length; i ++) {
           print(_selectedTags[i]);

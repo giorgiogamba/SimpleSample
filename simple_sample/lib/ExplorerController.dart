@@ -42,11 +42,17 @@ class ExplorerController {
     GoogleDriveController().upload(record);
   }
 
-  void addToFavorites() {
+  Future<void> addToFavorites(Record record) async {
     print("ExplorerController: addToFavorites");
+    await CloudStorageController().addToFavourites(record);
   }
 
-  void downloadRecord(Record record) {
+  Future<void> removeFromFavourites(Record record) async {
+    print("ExplorerController: removeFromFavorites");
+    await CloudStorageController().removeFromFavourites(record);
+  }
+
+  Future<void> downloadRecord(Record record) async {
     print("ExplorerController: downloadRecord");
     CloudStorageController().downloadRecord(record);
   }

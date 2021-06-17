@@ -70,6 +70,61 @@ class _ExplorerState extends State<Explorer> {
     });
   }
 
+  onFilterChanged(String value) {
+    setState(() {
+      List<Record> selectedEntries = _controller.getSelectedEntries();
+      List<Record> newList = [];
+      for (Record rec in selectedEntries) {
+        List<String> tags = rec.getTagList();
+        for (String tag in tags) {
+          if (tag.toLowerCase().contains(value.toLowerCase())) {
+            newList.add(rec);
+            break;
+          }
+        }
+      }
+      selectedEntries = newList;
+      if (value == "") {
+        List<Record> entries = _controller.getEntries();
+        _controller.setSelectedEntries(entries);
+      } else {
+        _controller.setSelectedEntries(selectedEntries);
+      }
+    });
+  }
+
+  String? dropdownValue = "Tags";
+
+  Widget makeCommands() {
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 20),
+      child: Row(
+        children: [
+          Text("Filter by: ", style: TextStyle(fontSize: 18),),
+          DropdownButton<String>(
+            value: dropdownValue,
+            onChanged: (String? newValue) {
+              setState(() {
+                dropdownValue = newValue;
+              });
+            },
+            items: [
+              DropdownMenuItem<String>(value: "Tags", child: Text("Tags"))
+            ],
+          ),
+          Expanded(
+            child: Padding(
+              padding: EdgeInsets.symmetric(horizontal: 10, vertical: 2),
+              child: TextField(
+                onChanged: onFilterChanged,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget chooseBody() {
     return ValueListenableBuilder (
         valueListenable: _controller.loaded,
@@ -84,6 +139,7 @@ class _ExplorerState extends State<Explorer> {
             } else {
               return Column(
                 children: [
+                  makeCommands(),
                   makeSearchBar(),
                   makeListView(),
                 ],
@@ -128,6 +184,8 @@ class ExplorerListItem extends StatefulWidget {
 
 class _ExplorerListItemState extends State<ExplorerListItem> {
 
+  bool add = true;
+
   ButtonStyle getButtonStyle() {
     return ButtonStyle(
       backgroundColor: MaterialStateColor.resolveWith((states) => Colors.teal),
@@ -145,12 +203,29 @@ class _ExplorerListItemState extends State<ExplorerListItem> {
         ),
         SizedBox(width: 15,),
         ElevatedButton(
-          onPressed: () => widget.controller.addToFavorites(),
+          onPressed: () {
+            if (add) {
+              widget.controller.addToFavorites(widget.item).then((value) {
+                setState(() {
+                  add = false;
+                });
+              });
+            } else {
+              widget.controller.removeFromFavourites(widget.item).then((value) {
+                setState(() {
+                  add = true;
+                });
+              });
+            }
+          },
           child: Icon(Icons.star, color: Colors.yellow,),
           style: getButtonStyle(),),
         SizedBox(width: 15,),
         ElevatedButton(
-          onPressed: () => widget.controller.downloadRecord(widget.item),
+          onPressed: () {
+            widget.controller.downloadRecord(widget.item);
+            setState(() {});
+          },
           child: Icon(Icons.arrow_circle_down, color: Colors.yellow,),
           style: getButtonStyle(),),
         SizedBox(width: 15,),
@@ -170,6 +245,9 @@ class _ExplorerListItemState extends State<ExplorerListItem> {
       res.add(Text(tag+ ", "));
       res.add(SizedBox(width: 2,));
     }
+
+    res.add(Text("Dwl: ${widget.item.getDownloadsNumber()}"));
+
     return res;
   }
 

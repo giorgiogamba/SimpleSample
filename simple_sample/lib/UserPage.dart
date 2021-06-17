@@ -38,6 +38,8 @@ class _UserPageState extends State<UserPage> {
   void initState() {
     auth = _authenticationController.checkIfAuthorized();
     _userPageController.getUserSharedRecords();
+    _userPageController.initFavourites();
+    print("Chiamato initstate USERPAGE");
     super.initState();
   }
 
@@ -52,15 +54,22 @@ class _UserPageState extends State<UserPage> {
 
   @override
   Widget build(BuildContext context) {
-
     if (auth) {
       return Column(
           children: [
             SizedBox(height: 20,),
-            Center(child: Text("USERNAME", style: TextStyle(fontSize: 30))),
+            FutureBuilder(
+                future: _userPageController.getUsername(),
+                builder: (context, snapshot) {
+                  if (snapshot.hasData) {
+                    return Center(child: Text(snapshot.data.toString(), style: TextStyle(fontSize: 30)),);
+                  } else {
+                    return Center(child: Text("Username", style: TextStyle(fontSize: 30)),);
+                  }
+                }),
             SizedBox(
-              width: 200,
-              height: 200,
+              width: 150,
+              height: 150,
               child: FittedBox(
                 fit: BoxFit.contain,
                 child: ValueListenableBuilder(
@@ -73,29 +82,35 @@ class _UserPageState extends State<UserPage> {
             ),
             SizedBox(height: 10),
             ElevatedButton(
-              onPressed: () => Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => SettingsPage()),
-              ),
+              onPressed: () async {
+                await Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => SettingsPage(controller: _userPageController,)),
+                ).then((value) {
+                  setState(() {});
+                });
+              },
               child: Icon(Icons.settings),
               style: ElevatedButton.styleFrom(
                 shape: CircleBorder(),
                 padding: EdgeInsets.all(13),
+                primary: Colors.blueGrey,
               ),
             ),
-            SizedBox(height: 20),
+            SizedBox(height: 10),
             Text("SHARED SAMPLES", style: TextStyle(fontSize: 30),),
             SizedBox(height: 10),
             Container(
               width: 380,
-              height: 200,
+              height: 100,
               decoration: BoxDecoration(
                 border: Border.all(color: Colors.teal, width: 2),
               ),
               child: ListView.separated(
+                scrollDirection: Axis.horizontal,
                 itemBuilder:  (BuildContext context, int index) {
-                  return UserPageListItems(
-                      itemIndex: index, //record
+                  return SquareListItem(
+                      itemIndex: index,
                       key: Key(_userPageController.getUserSharedRecordsLength().toString()),
                       controller: _userPageController,
                   );
@@ -104,62 +119,133 @@ class _UserPageState extends State<UserPage> {
                 itemCount: _userPageController.getUserSharedRecordsLength(),
               ),
             ),
+            SizedBox(height: 10),
+            Container(
+              width: 380,
+              height: 100,
+              decoration: BoxDecoration(
+                border: Border.all(color: Colors.teal, width: 2),
+              ),
+              child: ListView.separated(
+                scrollDirection: Axis.horizontal,
+                itemBuilder:  (BuildContext context, int index) {
+                  return SquareListItem(
+                    itemIndex: index,
+                    key: Key(_userPageController.getFavouritesLength().toString()),
+                    controller: _userPageController,
+                  );
+                },
+                separatorBuilder:  (BuildContext context, int index) => MyDivider(),
+                itemCount: _userPageController.getFavouritesLength(),
+              ),
+            ),
           ],
         );
     } else {
-      return AlertDialog(
-          title: Text("You are not logged in"),
-          elevation: 20,
-          content: Column(
-            children: [
-              InkWell(
-                child: Container(
-                    width: 200,
-                    height: 30,
-                    margin: EdgeInsets.only(top: 25),
-                    decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(20),
-                        color:Colors.black
-                    ),
-                    child: Center(
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: <Widget>[
-                            /*Container( //todo aggiungere logo google
-                              height: 30.0,
-                              width: 30.0,
-                              decoration: BoxDecoration(
-                                image: DecorationImage(
-                                    image:
-                                    AssetImage('assets/google.jpg'),
-                                    fit: BoxFit.cover),
-                                shape: BoxShape.circle,
-                              ),
-                            ),*/
-                            Text('Sign in with Google',
-                              style: TextStyle(
-                                  fontSize: 16.0,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.white
-                              ),
-                            ),
-                          ],
-                        )
-                    )
-                ),
-                onTap: ()
-                async{
-                  _authenticationController.signInWithGoogle().then((value) {
-                    setState(() {
-                      auth = true;
-                    });
-                  });
-                },
+      return Center(
+        child: Container(
+          width: 400,
+          height: 200,
+          child: AlertDialog(
+              title: Center(
+                child:  Text("You are not logged in"),
               ),
-            ],
-          )
+              elevation: 20,
+              content: Column(
+                children: [
+                  InkWell(
+                    child: Container(
+                        width: 200,
+                        height: 30,
+                        margin: EdgeInsets.only(top: 25),
+                        decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(20),
+                            color:Colors.black
+                        ),
+                        child: Center(
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              children: <Widget>[
+                                Container(
+                                  height: 30.0,
+                                  width: 30.0,
+                                  decoration: BoxDecoration(
+                                    image: DecorationImage(
+                                        image:
+                                        AssetImage('assets/google_logo.png'),
+                                        fit: BoxFit.cover),
+                                    shape: BoxShape.circle,
+                                  ),
+                                ),
+                                Text('Sign in with Google',
+                                  style: TextStyle(
+                                      fontSize: 16.0,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.white
+                                  ),
+                                ),
+                              ],
+                            )
+                        )
+                    ),
+                    onTap: ()
+                    async{
+                      _authenticationController.signInWithGoogle().then((value) {
+                        setState(() {
+                          print("Sono nel then del signInWithGoogle");
+                          auth = true;
+                        });
+                      });
+                    },
+                  ),
+                ],
+              )
+          ),
+        ),
       );
     }
+  }
+}
+
+class SquareListItem extends StatefulWidget {
+
+  final int itemIndex;
+  final Key key;
+  final UserPageController controller;
+
+  const SquareListItem({required this.itemIndex, required this.key, required this.controller}) : super(key: key);
+
+  @override
+  _SquareListItemState createState() => _SquareListItemState();
+}
+
+class _SquareListItemState extends State<SquareListItem> {
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      child: Container(
+        width: 100,
+        height: 50,
+        child: Center(
+          child: Column(
+            children: [
+              Center(
+                child: Text(widget.controller.getUserSharedRecordAt(widget.itemIndex).getFilename(), style: TextStyle(fontSize: 16)),
+              ),
+              ElevatedButton(
+                onPressed: () => widget.controller.playRecordAt(widget.itemIndex),
+                child: Icon(Icons.play_arrow),
+                style: ButtonStyle(
+                  minimumSize: MaterialStateProperty.resolveWith((states) => Size(30, 30)),
+                  backgroundColor: MaterialStateColor.resolveWith((states) => Colors.blueGrey),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+
   }
 }
 
@@ -279,13 +365,18 @@ class _ChooseImageOperationDialogItemState extends State<ChooseImageOperationDia
 
 
 class SettingsPage extends StatefulWidget {
-  const SettingsPage({Key? key}) : super(key: key);
+
+  final UserPageController controller;
+
+  const SettingsPage({required this.controller, Key? key}) : super(key: key);
 
   @override
   _SettingsPageState createState() => _SettingsPageState();
 }
 
 class _SettingsPageState extends State<SettingsPage> {
+
+  TextEditingController _textEditingController = TextEditingController();
 
   ButtonStyle getButtonStyle() {
     return ButtonStyle(
@@ -304,6 +395,17 @@ class _SettingsPageState extends State<SettingsPage> {
             children: [
               Text("Settings", style: TextStyle(fontSize: 30),),
               Padding(padding: EdgeInsets.all(10)),
+              Container(
+                width: 300,
+                height: 50,
+                child: TextField(
+                  controller: _textEditingController,
+                  decoration: InputDecoration(
+                    labelText: "New Username",
+                  ),
+                ),
+              ),
+              Padding(padding: EdgeInsets.all(10)),
               ElevatedButton(onPressed: () => Navigator.pop(context), child: Text("BAck")),
               ElevatedButton(onPressed: () => showDialog(
                 context: context,
@@ -318,6 +420,18 @@ class _SettingsPageState extends State<SettingsPage> {
                 style: getButtonStyle(),
               ),
               ElevatedButton(
+                onPressed: () {
+                  UserPageController()
+                      .setUsername(_textEditingController.text)
+                      .then((value) {
+                        _textEditingController.text = ""; //resetting username field
+                        Navigator.pop(context);
+                      }
+                      );},
+                child: Text("Set username"),
+                style: getButtonStyle(),
+              ),
+              ElevatedButton(
                 onPressed: () {},
                 child: Text("Disconnect from Drive"),
                 style: getButtonStyle(),
@@ -325,6 +439,11 @@ class _SettingsPageState extends State<SettingsPage> {
               ElevatedButton(
                 onPressed: () {},
                 child: Text("Disconnect from Dropbox"),
+                style: getButtonStyle(),
+              ),
+              ElevatedButton(
+                onPressed: () => widget.controller.deleteAccount,
+                child: Text("Delete User"),
                 style: getButtonStyle(),
               ),
             ],
