@@ -18,7 +18,7 @@ class SequencerController {
   int _tick = 0;
   Duration _dur = new Duration();
   Timer? _timer;
-  final counter = ValueNotifier(0);
+  final counter = ValueNotifier(1); //todo prima era 0
 
   SequencerController._internal() {
     print("Initializing Sequencer Controller");
@@ -96,9 +96,16 @@ class SequencerController {
   }
 
   void startTimeout() {
-    calculateTick();
+    //calculateTick();
     print("Duration vale: "+_dur.toString());
     _timer = Timer.periodic(_dur, (Timer t) => handleTimeout());
+  }
+
+  void handlePlay() {
+    print("COUNTER;; ${counter.value}");
+    playPosition(0);
+    calculateTick();
+    startTimeout();
   }
 
   void handleStop() {
@@ -110,7 +117,7 @@ class SequencerController {
     _timer?.cancel();
   }
   void resetCounter() {
-    counter.value = 0;
+    counter.value = 1; //todo pèrima er a0
   }
 
   void handleTimeout() {

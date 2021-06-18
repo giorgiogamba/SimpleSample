@@ -114,6 +114,18 @@ class SamplerController {
     this._selectedItemForRename = index;
   }
 
+  ///Returns true iff record at position index has non-null filename
+  bool isRenamePossible(int index) {
+    Record? record = Model().getRecordAt(index);
+    if (record != null) {
+      if(record.getFilename() != null) {
+        return true;
+      }
+      return false;
+    }
+    return false;
+  }
+
   Future<void> renameRecord() async {
     if (this._selectedItemForRename != null) {
       await Model().renameRecord(this._selectedItemForRename!, _textEditingController.text);

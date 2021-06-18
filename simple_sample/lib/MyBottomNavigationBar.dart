@@ -35,13 +35,14 @@ class _MyBottomNavigationBarState extends State<MyBottomNavigationBar> {
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
         items: const <BottomNavigationBarItem>[
-          BottomNavigationBarItem(icon: Icon(Icons.apps_sharp), label: "Sampler"),
-          BottomNavigationBarItem(icon: Icon(Icons.audiotrack), label: "Sequencer"),
-          BottomNavigationBarItem(icon: Icon(Icons.accessibility), label: "User"),
-          BottomNavigationBarItem(icon: Icon(Icons.all_inbox), label: "Explorer"),
+          BottomNavigationBarItem(icon: Icon(Icons.apps_sharp,), label: "Sampler", ),
+          BottomNavigationBarItem(icon: Icon(Icons.audiotrack,), label: "Sequencer"),
+          BottomNavigationBarItem(icon: Icon(Icons.accessibility,), label: "User"),
+          BottomNavigationBarItem(icon: Icon(Icons.all_inbox,), label: "Explorer"),
         ],
         currentIndex: _selectedIndex,
         selectedItemColor: Colors.teal,
+        unselectedItemColor: Colors.white,
         onTap: _onItemTapped,
       ),
     );

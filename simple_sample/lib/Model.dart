@@ -24,9 +24,6 @@ class Model {
   String _extDocPath = "";
   int _bpm = 1;
 
-  //Sequencer
-  //static HashMap<int, HashMap<int, bool>>? _sequencerMap = HashMap(); //mappa con 16 righe e 8 colonne. La mappa esterna contiene colonne, la seconda righe
-
   //Storage
   String _storageUploadPath = "uploads/";
 

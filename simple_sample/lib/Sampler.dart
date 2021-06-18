@@ -13,6 +13,7 @@ import 'package:simple_sample/ToUpdateListController.dart';
 import 'Explorer.dart';
 import 'Model.dart';
 import 'Record.dart';
+import 'Utils.dart';
 
 /// Class representing Sampler UI
 
@@ -91,7 +92,7 @@ class _SamplerState extends State<Sampler> {
               //child: Container(
                 //width: buttonSize,
                 //height: buttonSize,
-                child: Text(_samplerController.getButtonName(index)),
+                child: Text(Utils.removeExtension(_samplerController.getButtonName(index))),
               //),
             //),
             onPressed: () {
@@ -111,10 +112,14 @@ class _SamplerState extends State<Sampler> {
                   });
                 } else if (_samplerController.isRenameRunning()) { //Renaming
                   print("Associating button for renaming");
-                  _samplerController.setSelectedItemForRename(index);
-                  showDialog(
-                    context: context,
-                    builder: (context) => RenamePage(samplerController: _samplerController,)).then((value) {
+
+                  if (_samplerController.isRenamePossible(index)) {
+                    _samplerController.setSelectedItemForRename(index);
+                    showDialog(
+                        context: context,
+                        builder: (context) =>
+                            RenamePage(samplerController: _samplerController,))
+                        .then((value) {
                       if (_samplerController.getRenameSubmitted()) {
                         _samplerController.renameRecord().then((value) {
                           _samplerController.disableRenaming();
@@ -125,13 +130,14 @@ class _SamplerState extends State<Sampler> {
                         print("No selected item, rename is not possible");
                       }
                     });
+                  }
                 } else if (_samplerController.isSharingRunning()) { //sharing
                   print("Associating button for sharing");
-                  _samplerController.disableItemSelection();
                   setState(() {});
 
                   Record? toShare = _samplerController.getSelectedItemForSharing(index);
                   if (toShare != null) {
+                    _samplerController.disableItemSelection();
                     showDialog(
                       context: context,
                       builder: (context) => SharingDialog(record: toShare, key: Key(toShare.getFilename())),
@@ -210,13 +216,12 @@ class _SamplerState extends State<Sampler> {
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         createButton(indexes[0]),
-        SizedBox(width: horizontalSpacing),
+        Padding(padding: EdgeInsets.symmetric(horizontal: 10)),
         createButton(indexes[1]),
-        SizedBox(width: horizontalSpacing),
+        Padding(padding: EdgeInsets.symmetric(horizontal: 10)),
         createButton(indexes[2]),
-        SizedBox(width: horizontalSpacing),
+        Padding(padding: EdgeInsets.symmetric(horizontal: 10)),
         createButton(indexes[3]),
-        SizedBox(width: horizontalSpacing),
       ],
     );
   }
@@ -225,129 +230,137 @@ class _SamplerState extends State<Sampler> {
   Widget build(BuildContext context) {
     return Scaffold(
       resizeToAvoidBottomInset: true, //to avoid keyboard overflow
-      body: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Container(
-            height: 30,
-            width: 400,
-            child: Center(
-              child: Text(
-                _samplerController.getOperationInformationText(),
-                style: TextStyle(fontSize: 30),
+      body: Container(
+        decoration: new BoxDecoration(
+          gradient: new LinearGradient(
+            colors: [
+              Color.fromRGBO(101, 78, 163, 1),
+              Color.fromRGBO(234, 175, 200, 1),
+            ],
+            begin: Alignment.topRight,
+            end: Alignment.bottomLeft,
+          ),
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          //crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Container(
+              height: 30,
+              width: 400,
+              child: Center(
+                child: Text(
+                  _samplerController.getOperationInformationText(),
+                  style: TextStyle(fontSize: 30),
+                ),
               ),
             ),
-          ),
-          SizedBox(height: verticalSpacing,),
-          createSamplerRow(0),
-          SizedBox(height: verticalSpacing,),
-          createSamplerRow(4),
-          SizedBox(height: verticalSpacing,),
-          createSamplerRow(8),
-          SizedBox(height: verticalSpacing,),
-          createSamplerRow(12),
-          SizedBox(height: verticalSpacing,),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              ElevatedButton(onPressed: () {
-                if (!_samplerController.isSharingRunning() && !_samplerController.isRenameRunning()) {
-                  _samplerController.pickFile().then((value) {
-                    setState(() {
-                      _samplerController.enableItemSelection();
-                      print("*** Ho cambiato lo stato, itemSelection vale: " +
-                          _samplerController.isEnabledItemSelection()
-                              .toString());
-                      if (value != null && value != "") {
-                        _samplerController.setSelectedURL(value);
-                        print("Ho impostato URL");
-                      } else {
-                        print("ERROR: the selected URL is null");
-                      }
-                    });
-                  });
-                } else {
-                  print("Another operation is running");
-                }
-              },
-                child: Text("Load"),
-                style: ButtonStyle(backgroundColor:  MaterialStateColor.resolveWith((states) => Colors.blueGrey),),
-              ),
-              SizedBox(width: 20),
-              ElevatedButton(onPressed: () {
-                if (_samplerController.checkIfUserConnected()) {
-                  if (!_samplerController.isSharingRunning() &&
-                      !_samplerController.isRenameRunning()) {
-                    showDialog(
-                      context: context,
-                      builder: (context) => ToUploadList(),
-                    );
-                  } else {
-                    print("Another operation is running");
-                  }
-                } else {
-                  print("User is not connected");
-                }
-              },
-                child: Text("Upload"),
-                style: ButtonStyle(backgroundColor:  MaterialStateColor.resolveWith((states) => Colors.blueGrey),),
-              ),
-              SizedBox(width: 20),
-              ElevatedButton( onPressed: () {
-                if (_samplerController.checkIfUserConnected()) { //user is connected
-                  if (!_samplerController.isRenameRunning()) {
-                    setState(() {
-                      if (!_samplerController.isSharingRunning()) {
-                        //Enabling sharing
+            Padding(padding: EdgeInsets.symmetric(vertical: 20)),
+            createSamplerRow(0),
+            Padding(padding: EdgeInsets.symmetric(vertical: 10)),
+            createSamplerRow(4),
+            Padding(padding: EdgeInsets.symmetric(vertical: 10)),
+            createSamplerRow(8),
+            Padding(padding: EdgeInsets.symmetric(vertical: 10)),
+            createSamplerRow(12),
+            Padding(padding: EdgeInsets.symmetric(vertical: 10)),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                ElevatedButton(onPressed: () {
+                  if (!_samplerController.isSharingRunning() && !_samplerController.isRenameRunning()) {
+                    _samplerController.pickFile().then((value) {
+                      setState(() {
                         _samplerController.enableItemSelection();
-                        print("Enabled item selection for sharing");
-                        _samplerController.enableSharing();
-                      } else {
-                        //Disabling sharing
-                        setState(() {
-                          _samplerController.disableSharing();
-                          _samplerController.disableItemSelection();
-                        });
-                      }
+                        if (value != null && value != "") {
+                          _samplerController.setSelectedURL(value);
+                        } else {
+                          print("ERROR: the selected URL is null");
+                        }
+                      });
                     });
                   } else {
                     print("Another operation is running");
                   }
-                } else { //user is not connected
-                  print("User is not connected");
-                }
-              },
-                child: selectSharingButtonName(),
-                style: getSharingButtonStyle(),
-              ),
-              SizedBox(width: 20),
-              ElevatedButton(onPressed: () {
-                if (!_samplerController.isSharingRunning()) {
-                  if (!_samplerController.isRenameRunning()) { //Enable Renaming
-                    setState(() {
-                      _samplerController.enableItemSelection();
-                      _samplerController.enableRenaming();
-                    });
-                  } else { //Disable renaming
-                    print("DIsabling renamning");
-                    setState(() {
-                      _samplerController.disableItemSelection();
-                      _samplerController.disableRenaming();
-                    });
+                },
+                  child: Text("Load"),
+                  style: ButtonStyle(backgroundColor:  MaterialStateColor.resolveWith((states) => Colors.blueGrey),),
+                ),
+                Padding(padding: EdgeInsets.symmetric(horizontal: 10)),
+                ElevatedButton(onPressed: () {
+                  if (_samplerController.checkIfUserConnected()) {
+                    if (!_samplerController.isSharingRunning() &&
+                        !_samplerController.isRenameRunning()) {
+                      showDialog(
+                        context: context,
+                        builder: (context) => ToUploadList(),
+                      );
+                    } else {
+                      print("Another operation is running");
+                    }
+                  } else {
+                    print("User is not connected");
                   }
-                } else {
-                  print("Another operation is running");
-                }
-              },
-                child: selectButtonWidgetChild(),
-              style: getRenameButtonStyle(),),
-            ],
-          ),
-        ],
+                },
+                  child: Text("Upload"),
+                  style: ButtonStyle(backgroundColor:  MaterialStateColor.resolveWith((states) => Colors.blueGrey),),
+                ),
+                Padding(padding: EdgeInsets.symmetric(horizontal: 10)),
+                ElevatedButton( onPressed: () {
+                  if (_samplerController.checkIfUserConnected()) { //user is connected
+                    if (!_samplerController.isRenameRunning()) {
+                      setState(() {
+                        if (!_samplerController.isSharingRunning()) {
+                          _samplerController.enableItemSelection();
+                          _samplerController.enableSharing();
+                        } else {
+                          //Disabling sharing
+                          setState(() {
+                            _samplerController.disableSharing();
+                            _samplerController.disableItemSelection();
+                          });
+                        }
+                      });
+                    } else {
+                      print("Another operation is running");
+                    }
+                  } else { //user is not connected
+                    print("User is not connected");
+                  }
+                },
+                  child: selectSharingButtonName(),
+                  style: getSharingButtonStyle(),
+                ),
+                Padding(padding: EdgeInsets.symmetric(horizontal: 10)),
+                ElevatedButton(onPressed: () {
+                  if (!_samplerController.isSharingRunning()) {
+                    if (!_samplerController.isRenameRunning()) { //Enable Renaming
+                      setState(() {
+                        _samplerController.enableItemSelection();
+                        _samplerController.enableRenaming();
+                      });
+                    } else { //Disable renaming
+                      setState(() {
+                        _samplerController.disableItemSelection();
+                        _samplerController.disableRenaming();
+                      });
+                    }
+                  } else {
+                    print("Another operation is running");
+                  }
+                },
+                  child: selectButtonWidgetChild(),
+                  style: getRenameButtonStyle(),),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
+
+
+
 }
 
 
@@ -552,12 +565,10 @@ class ToUploadList extends StatefulWidget {
 class _ToUploadListState extends State<ToUploadList> {
 
   ToUpdateListController _toUpdateListController = ToUpdateListController();
-  List<Record> entries = [];
   List<Record> selectedEntries = [];
 
   @override
   void initState() {
-    entries = _toUpdateListController.getElementsList();
     super.initState();
   }
 
@@ -568,33 +579,40 @@ class _ToUploadListState extends State<ToUploadList> {
 
   @override
   Widget build(BuildContext context) {
+
+    _toUpdateListController.getElementsList();
+
     return AlertDialog(
       content: Column(
         children: [
           Container(
-            width: 200,
+            width: 300,
             height: 500,
             child: ListView.separated(
               padding: const EdgeInsets.all(8), //porre a 0 se si vuole che riempa tutto lo spazion padre
               physics: ClampingScrollPhysics(),
-              itemCount: entries.length,
+              itemCount: _toUpdateListController.getElementsListLength(),
               itemBuilder: (BuildContext context, int index) {
                 return ToUploadItem(
-                  item: entries[index].getFilename(),
+                  //item: entries[index].getFilename(),
+                  itemIndex: index,
                   isSelected: (bool value) {
                     setState(() {
                       if (value) {
-                        selectedEntries.add(entries[index]);
-                        _toUpdateListController.addElement(entries[index]);
+                        //selectedEntries.add(entries[index]);
+                        _toUpdateListController.addElement(index);
                       } else {
-                        selectedEntries.remove(entries[index]);
-                        _toUpdateListController.removeElement(entries[index]);
+                        //selectedEntries.remove(entries[index]);
+                        //_toUpdateListController.removeElement(entries[index]);
+                        _toUpdateListController.removeElement(index);
                       }
                     });},
-                  key: Key(entries.length.toString()),
+                  //key: Key(entries.length.toString()),
+                  key: Key(_toUpdateListController.getElementsListLength().toString()),
+                  controller: _toUpdateListController,
                 );
               },
-              separatorBuilder: (BuildContext context, int index) => const Divider(),
+              separatorBuilder: (BuildContext context, int index) => const MyDivider(),
             ),
           ),
           Row(
@@ -610,8 +628,9 @@ class _ToUploadListState extends State<ToUploadList> {
               Padding(padding: EdgeInsets.all(5)),
               ElevatedButton(
                 onPressed: () {
-                  if (entries.length > 0) {
+                  if (_toUpdateListController.getElementsListLength() >0) {
                     _toUpdateListController.uploadSelectedElements();
+                    Navigator.pop(context);
                   };
                 },
                 child: Text("Upload Selected Elements"),
@@ -626,17 +645,14 @@ class _ToUploadListState extends State<ToUploadList> {
 }
 
 
-
-
-
-
 class ToUploadItem extends StatefulWidget {
 
   final Key key;
-  final String item;
+  final int itemIndex;
   final ValueChanged<bool> isSelected;
+  final ToUpdateListController controller;
 
-  const ToUploadItem({required this.item, required this.isSelected, required this.key}) : super(key: key);
+  const ToUploadItem({required this.itemIndex, required this.isSelected, required this.key, required this.controller}) : super(key: key);
 
   @override
   _ToUploadItemState createState() => _ToUploadItemState();
@@ -656,23 +672,32 @@ class _ToUploadItemState extends State<ToUploadItem> {
           widget.isSelected(isSelected);
         });
       },
-      child: Stack(
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(widget.item),
-          isSelected ? Container(
-              width: 80,
-              height: 10,
-              child: Align( //se lo seleziono aggiunge il pallino blu
-                alignment: Alignment.centerRight,
-                child: Padding(
-                  padding: const EdgeInsets.all(0.0),
-                  child: Icon(
-                    Icons.check_circle,
-                    color: Colors.blue,
-                  ),
+          Padding(padding: EdgeInsets.symmetric(horizontal: 5)),
+          Text(Utils.removeExtension(widget.controller.getElementAt(widget.itemIndex).getFilename())),
+          Stack(
+            children: [
+              isSelected ? Center(
+                child: Container(
+                    width: 50,
+                    height: 50,
+                    child: Align( //se lo seleziono aggiunge il pallino blu
+                      alignment: Alignment.centerRight,
+                      child: Padding(
+                        padding: const EdgeInsets.all(0.0),
+                        child: Icon(
+                          Icons.check_circle,
+                          color: Colors.blue,
+                        ),
+                      ),
+                    )
                 ),
-              )
-          ) : Container(width: 80, height: 10), //se lo deseleziono sostituisco il pallino bli con un container vuoto
+              ) : Container(width: 50, height: 50), //se lo deseleziono sostituisco il pallino bli con un container vuoto
+            ],
+          ),
+          Padding(padding: EdgeInsets.symmetric(horizontal: 5)),
         ],
       ),
     );

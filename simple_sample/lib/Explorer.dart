@@ -50,7 +50,7 @@ class _ExplorerState extends State<Explorer> {
         controller: _textEditingController,
         decoration: InputDecoration(
           border: OutlineInputBorder(),
-          labelText: "Search",
+          labelText: "Search by name",
         ),
         onChanged: onItemChanged,
       ),
@@ -72,7 +72,7 @@ class _ExplorerState extends State<Explorer> {
 
   onFilterChanged(String value) {
     setState(() {
-      List<Record> selectedEntries = _controller.getSelectedEntries();
+      List<Record> selectedEntries = _controller.getEntries();
       List<Record> newList = [];
       for (Record rec in selectedEntries) {
         List<String> tags = rec.getTagList();
@@ -84,6 +84,7 @@ class _ExplorerState extends State<Explorer> {
         }
       }
       selectedEntries = newList;
+
       if (value == "") {
         List<Record> entries = _controller.getEntries();
         _controller.setSelectedEntries(entries);
@@ -98,30 +99,33 @@ class _ExplorerState extends State<Explorer> {
   Widget makeCommands() {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 20),
-      child: Row(
-        children: [
-          Text("Filter by: ", style: TextStyle(fontSize: 18),),
-          DropdownButton<String>(
-            value: dropdownValue,
-            onChanged: (String? newValue) {
-              setState(() {
-                dropdownValue = newValue;
-              });
-            },
-            items: [
-              DropdownMenuItem<String>(value: "Tags", child: Text("Tags"))
-            ],
-          ),
-          Expanded(
-            child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: 10, vertical: 2),
-              child: TextField(
-                onChanged: onFilterChanged,
+      child: Padding(
+        padding: EdgeInsets.symmetric(vertical: 15),
+        child: Row(
+          children: [
+            Text("Filter by: ", style: TextStyle(fontSize: 18, color: Colors.white),),
+            DropdownButton<String>(
+              value: dropdownValue,
+              onChanged: (String? newValue) {
+                setState(() {
+                  dropdownValue = newValue;
+                });
+              },
+              items: [
+                DropdownMenuItem<String>(value: "Tags", child: Text("Tags", style: TextStyle(color: Colors.white)))
+              ],
+            ),
+            Expanded(
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: 10, vertical: 2),
+                child: TextField(
+                  onChanged: onFilterChanged,
+                ),
               ),
             ),
-          ),
-        ],
-      ),
+          ],
+        ),
+      )
     );
   }
 
@@ -152,20 +156,21 @@ class _ExplorerState extends State<Explorer> {
 
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
-      appBar: AppBar(
-        title: /*Center(
-          child:  Text("Explorer"),
-        ),*/ Text("Explorer"),
-        backgroundColor: Colors.teal,
-        leading: GestureDetector(
-          onTap: () { /* Write listener code here */ },
-          child: Icon(
-            Icons.menu,  // add custom icons also
+      body: Container(
+        decoration: new BoxDecoration(
+          gradient: new LinearGradient(
+            colors: [
+              Color.fromRGBO(101, 78, 163, 1),
+              Color.fromRGBO(234, 175, 200, 1),
+            ],
+            begin: Alignment.topRight,
+            end: Alignment.bottomLeft,
           ),
         ),
+        child: chooseBody(),
       ),
-      body: chooseBody(),
     );
   }
 }
@@ -196,12 +201,19 @@ class _ExplorerListItemState extends State<ExplorerListItem> {
 
   Widget makeFirstRow() {
     return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
+        Padding(padding: EdgeInsets.symmetric(horizontal: 4)),
         Container(
           width: 180,
-          child: Text(widget.item.getFilename(), style: TextStyle(fontSize: 20),),
+          child: Text(
+            widget.item.getFilename(),
+            style: TextStyle(
+              fontSize: 20,
+              color: Colors.white,
+            ),
+          ),
         ),
-        SizedBox(width: 15,),
         ElevatedButton(
           onPressed: () {
             if (add) {
@@ -218,42 +230,41 @@ class _ExplorerListItemState extends State<ExplorerListItem> {
               });
             }
           },
-          child: Icon(Icons.star, color: Colors.yellow,),
-          style: getButtonStyle(),),
-        SizedBox(width: 15,),
+          child: Icon(Icons.star, color: Colors.white,),
+          style: getButtonStyle(),
+        ),
         ElevatedButton(
           onPressed: () {
             widget.controller.downloadRecord(widget.item);
             setState(() {});
           },
-          child: Icon(Icons.arrow_circle_down, color: Colors.yellow,),
+          child: Icon(Icons.arrow_circle_down, color: Colors.white,),
           style: getButtonStyle(),),
-        SizedBox(width: 15,),
         ElevatedButton(
           onPressed: () => widget.controller.playRecord(widget.item),
-          child:Icon(Icons.play_arrow, color: Colors.yellow,),
-          style: getButtonStyle(), ),
+          child:Icon(Icons.play_arrow, color: Colors.white,),
+          style: getButtonStyle(),
+        ),
+        Padding(padding: EdgeInsets.symmetric(horizontal: 4)),
       ],
     );
   }
 
-  List<Widget> createTagWidget() {
-    List<Widget> res = [];
-    res.add(Text("Tags: "));
-    res.add(SizedBox(width: 2));
+  String createTagString() {
+    String res = "Tags: ";
     for (String tag in widget.item.getTagList()) {
-      res.add(Text(tag+ ", "));
-      res.add(SizedBox(width: 2,));
+      res = res + tag + ", ";
     }
-
-    res.add(Text("Dwl: ${widget.item.getDownloadsNumber()}"));
-
     return res;
   }
 
   Widget makeSecondRow() {
     return Row(
-      children: createTagWidget(),
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(createTagString(), style: TextStyle(color: Colors.white)),
+        Text("Downloads: " + widget.item.getDownloadsNumber().toString(), style: TextStyle(color: Colors.white)),
+      ]
     );
   }
 

@@ -1,23 +1,14 @@
-import 'dart:async';
 import 'dart:io';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:simple_sample/AudioController.dart';
 import 'package:simple_sample/Explorer.dart';
-import 'package:simple_sample/ExplorerController.dart';
-import 'package:simple_sample/GoogleDriveController.dart';
-import 'package:simple_sample/StorageController.dart';
 import 'package:simple_sample/UserPageController.dart';
-
+import 'package:simple_sample/Utils.dart';
 import 'AuthenticationController.dart';
 import 'CloudStorageController.dart';
-import 'Model.dart';
-import 'Record.dart';
 
 ///Class representing the user Interface
-///
 
 class UserPage extends StatefulWidget {
   const UserPage({Key? key}) : super(key: key);
@@ -31,7 +22,7 @@ class _UserPageState extends State<UserPage> {
   CloudStorageController storageController = CloudStorageController();
   AuthenticationController _authenticationController = AuthenticationController();
   UserPageController _userPageController = UserPageController();
-  bool auth = false; //la mantengo così cambia la UI a seconda dello stato
+  bool auth = false;
 
   TextEditingController _emailConttoller = TextEditingController();
   TextEditingController _passwordController = TextEditingController();
@@ -56,89 +47,125 @@ class _UserPageState extends State<UserPage> {
 
   Widget makeUserPage() {
     return Column(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        SizedBox(height: 20,),
+        Padding(padding: EdgeInsets.symmetric(vertical: 5)),
         FutureBuilder(
-            future: _userPageController.getUsername(),
-            builder: (context, snapshot) {
-              if (snapshot.hasData) {
-                return Center(child: Text(snapshot.data.toString(), style: TextStyle(fontSize: 30)),);
-              } else {
-                return Center(child: Text("Username", style: TextStyle(fontSize: 30)),);
-              }
-            }),
-        SizedBox(
-          width: 150,
-          height: 150,
-          child: FittedBox(
-            fit: BoxFit.contain,
-            child: ValueListenableBuilder(
-                valueListenable: _userPageController.profileImagePath,
-                builder: (context, value, _) {
-                  return displayUserProfileImage(value.toString());
-                }
+          future: _userPageController.getUsername(),
+          builder: (context, snapshot) {
+            if (snapshot.hasData) {
+              return Center(child: Text(snapshot.data.toString(), style: TextStyle(fontSize: 30)),);
+            } else {
+              return Center(child: Text("Username", style: TextStyle(fontSize: 30)),);
+            }},
+        ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            SizedBox(
+              width: 100,
+              height: 150,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  ElevatedButton(
+                    onPressed: () async {
+                      await Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => SettingsPage(controller: _userPageController,)),
+                      ).then((value) {
+                        setState(() {});
+                      });
+                    },
+                    child: Icon(Icons.settings),
+                    style: ElevatedButton.styleFrom(
+                      shape: CircleBorder(),
+                      padding: EdgeInsets.all(13),
+                      primary: Colors.blueGrey,
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ),
+            Container( //prima era sized box
+              width: 100,
+              height: 150,
+              child: FittedBox(
+                fit: BoxFit.contain,
+                child: ValueListenableBuilder(
+                    valueListenable: _userPageController.profileImagePath,
+                    builder: (context, value, _) {
+                      return displayUserProfileImage(value.toString());
+                    }
+                ),
+              ),
+            ),
+            SizedBox(
+              width: 150,
+              height: 150,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text("DOWNLOADS: "),
+                  Text("No"), //todo prelevare dal controller il numero totale
+                ],
+              ),
+            ),
+          ],
         ),
-        SizedBox(height: 10),
-        ElevatedButton(
-          onPressed: () async {
-            await Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => SettingsPage(controller: _userPageController,)),
-            ).then((value) {
-              setState(() {});
-            });
-          },
-          child: Icon(Icons.settings),
-          style: ElevatedButton.styleFrom(
-            shape: CircleBorder(),
-            padding: EdgeInsets.all(13),
-            primary: Colors.blueGrey,
-          ),
+        Column(
+          children: [
+            Text("SHARED SAMPLES", style: TextStyle(fontSize: 20),),
+            Padding(padding: EdgeInsets.symmetric(vertical: 2)),
+            Container(
+              width: 380,
+              height: 100,
+              /*decoration: BoxDecoration(
+                border: Border.all(color: Colors.teal, width: 2),
+              ),*/
+              child: ListView.separated(
+                scrollDirection: Axis.horizontal,
+                itemBuilder:  (BuildContext context, int index) {
+                  return SquareListItem(
+                    itemIndex: index,
+                    key: Key(_userPageController.getUserSharedRecordsLength().toString()),
+                    controller: _userPageController,
+                    isFavourite: false,
+                  );
+                },
+                separatorBuilder:  (BuildContext context, int index) => MyDivider(),
+                itemCount: _userPageController.getUserSharedRecordsLength(),
+              ),
+            ),
+          ],
         ),
-        SizedBox(height: 10),
-        Text("SHARED SAMPLES", style: TextStyle(fontSize: 30),),
-        SizedBox(height: 10),
-        Container(
-          width: 380,
-          height: 100,
-          decoration: BoxDecoration(
-            border: Border.all(color: Colors.teal, width: 2),
-          ),
-          child: ListView.separated(
-            scrollDirection: Axis.horizontal,
-            itemBuilder:  (BuildContext context, int index) {
-              return SquareListItem(
-                itemIndex: index,
-                key: Key(_userPageController.getUserSharedRecordsLength().toString()),
-                controller: _userPageController,
-              );
-            },
-            separatorBuilder:  (BuildContext context, int index) => MyDivider(),
-            itemCount: _userPageController.getUserSharedRecordsLength(),
-          ),
+        Column(
+          children: [
+            Text("FAVOURITES", style: TextStyle(fontSize: 20),),
+            Padding(padding: EdgeInsets.symmetric(vertical: 2)),
+            Container(
+              width: 380,
+              height: 100,
+              /*decoration: BoxDecoration(
+                border: Border.all(color: Colors.teal, width: 2),
+              ),*/
+              child: ListView.separated(
+                scrollDirection: Axis.horizontal,
+                itemBuilder:  (BuildContext context, int index) {
+                  return SquareListItem(
+                    itemIndex: index,
+                    key: Key(_userPageController.getFavouritesLength().toString()),
+                    controller: _userPageController,
+                    isFavourite: true,
+                  );
+                },
+                separatorBuilder:  (BuildContext context, int index) => MyDivider(),
+                itemCount: _userPageController.getFavouritesLength(),
+              ),
+            ),
+          ],
         ),
-        SizedBox(height: 10),
-        Container(
-          width: 380,
-          height: 100,
-          decoration: BoxDecoration(
-            border: Border.all(color: Colors.teal, width: 2),
-          ),
-          child: ListView.separated(
-            scrollDirection: Axis.horizontal,
-            itemBuilder:  (BuildContext context, int index) {
-              return SquareListItem(
-                itemIndex: index,
-                key: Key(_userPageController.getFavouritesLength().toString()),
-                controller: _userPageController,
-              );
-            },
-            separatorBuilder:  (BuildContext context, int index) => MyDivider(),
-            itemCount: _userPageController.getFavouritesLength(),
-          ),
-        ),
+        Padding(padding: EdgeInsets.symmetric(horizontal: 5)),
       ],
     );
   }
@@ -247,7 +274,19 @@ class _UserPageState extends State<UserPage> {
   @override
   Widget build(BuildContext context) {
     if (auth) {
-      return makeUserPage();
+      return Container(
+        child: makeUserPage(),
+        decoration: new BoxDecoration(
+          gradient: new LinearGradient(
+            colors: [
+              Color.fromRGBO(101, 78, 163, 1),
+              Color.fromRGBO(234, 175, 200, 1),
+            ],
+            begin: Alignment.topRight,
+            end: Alignment.bottomLeft,
+          ),
+        ),
+      );
     } else {
       return makeAccessPage();
     }
@@ -259,14 +298,45 @@ class SquareListItem extends StatefulWidget {
   final int itemIndex;
   final Key key;
   final UserPageController controller;
+  final bool isFavourite;
 
-  const SquareListItem({required this.itemIndex, required this.key, required this.controller}) : super(key: key);
+  const SquareListItem({
+    required this.itemIndex,
+    required this.key,
+    required this.controller,
+    required this.isFavourite,
+  }) : super(key: key);
 
   @override
   _SquareListItemState createState() => _SquareListItemState();
 }
 
 class _SquareListItemState extends State<SquareListItem> {
+
+  Widget createSecondPart() {
+    if (widget.isFavourite) { //this widget will be used to display a favpurite record
+      return Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          IconButton(icon: Icon(
+            Icons.play_arrow,
+            color: Colors.white,
+          ), onPressed: () => widget.controller.playRecordAt(widget.itemIndex)),
+          IconButton(icon: Icon(
+            Icons.star,
+            color: Colors.white, //todo implementare rimozione da favs
+          ), onPressed: () => widget.controller.playRecordAt(widget.itemIndex))
+        ],
+      );
+
+    } else {
+      return IconButton(
+        icon: Icon(Icons.play_arrow, color: Colors.white),
+        onPressed: () => widget.controller.playRecordAt(widget.itemIndex),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Card(
@@ -275,20 +345,27 @@ class _SquareListItemState extends State<SquareListItem> {
         height: 50,
         child: Center(
           child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Center(
-                child: Text(widget.controller.getUserSharedRecordAt(widget.itemIndex).getFilename(), style: TextStyle(fontSize: 16)),
+                child: Padding(
+                  padding: EdgeInsets.symmetric(vertical: 10),
+                  child: Text(
+                      Utils.removeExtension(widget.controller.getUserSharedRecordAt(widget.itemIndex).getFilename()),
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: Colors.white,
+                      )
+                  ),
+                )
               ),
-              ElevatedButton(
-                onPressed: () => widget.controller.playRecordAt(widget.itemIndex),
-                child: Icon(Icons.play_arrow),
-                style: ButtonStyle(
-                  minimumSize: MaterialStateProperty.resolveWith((states) => Size(30, 30)),
-                  backgroundColor: MaterialStateColor.resolveWith((states) => Colors.blueGrey),
-                ),
-              ),
+              createSecondPart(),
             ],
           ),
+        ),
+        decoration: BoxDecoration(
+          color: Colors.teal,
+          border: Border.all(color: Colors.black, width: 1),
         ),
       ),
     );
@@ -326,10 +403,13 @@ class _UserPageListItemsState extends State<UserPageListItems> {
   @override
   Widget build(BuildContext context) {
     return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(widget.controller.getUserSharedRecordAt(widget.itemIndex).getFilename(), style: getTextStyle(),),
-        SizedBox(width: 20,),
+        Container(
+          child: Text(Utils.removeExtension(widget.controller.getUserSharedRecordAt(widget.itemIndex).getFilename()), style: getTextStyle(),),
+          height: 20,
+        ),
+        //SizedBox(width: 20,),
         ElevatedButton(onPressed: () => widget.controller.playRecordAt(widget.itemIndex), child: Icon(Icons.play_arrow), style: getButtonStyle(),),
       ],
     );
@@ -397,8 +477,9 @@ class _ChooseImageOperationDialogItemState extends State<ChooseImageOperationDia
               PickedFile? pickedImage = await widget.controller.executeOperation(widget.index);
               setState(() {
                 if (pickedImage != null) {
-                  print("Pickedimage non è nulla, top"); //ci si arriva
+                  print("Pickedimage non è nulla, top");
                   widget.controller.setProfileImagePath(pickedImage.path);
+                  Navigator.pop(context);
                 } else {
                   print("Null picked image");
                 }
@@ -453,7 +534,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 ),
               ),
               Padding(padding: EdgeInsets.all(10)),
-              ElevatedButton(onPressed: () => Navigator.pop(context), child: Text("BAck")),
+              ElevatedButton(onPressed: () => Navigator.pop(context), child: Text("Back")),
               ElevatedButton(onPressed: () => showDialog(
                 context: context,
                 builder: (context) => ChooseImageOperationDialog(

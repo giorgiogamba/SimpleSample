@@ -5,7 +5,8 @@ import 'Record.dart';
 
 class ToUpdateListController{
 
-  List<Record> selectedElements = [];
+  List<Record> _selectedElements = [];
+  List<Record> _elements = [];
 
   static final ToUpdateListController _instance = ToUpdateListController._internal();
 
@@ -20,28 +21,37 @@ class ToUpdateListController{
     return Model().isUserConnected();
   }
 
-  List<Record> getElementsList() {
-    //Versione 1; preleva tutte le registrazioni presenti nel filesystem
-    //return Model().getExtDirElementsList(); //preleva tutte le registrazioni presenti nel filesystem
-
-    //Versione2: preleva tutti le registrazioni effettuate dall'avvio
-    return Model().getAllCurrentRecords();
+  void getElementsList() {
+    this._elements =  Model().getAllCurrentRecords();
+    print("ToUpdateListController: numero tot elmeenti: ${this._elements.length}");
   }
 
-  void addElement(Record elem) {
-    selectedElements.add(elem);
+  void addElement(int index) {
+    this._selectedElements.add(this._elements[index]);
   }
 
-  void removeElement(Record elem) {
-    selectedElements.remove(elem);
+  void removeElement(int index) {
+    this._selectedElements.remove(index);
   }
 
   void uploadSelectedElements() {
     print("Method upoadSelectedElements -- Elements to be uploaded: ");
-    for (int i = 0; i < selectedElements.length; i ++) {
-      selectedElements[i].printRecordInfo();
-      CloudStorageController().uploadRecord(selectedElements[i]);
+    for (int i = 0; i < this._selectedElements.length; i ++) {
+      this._selectedElements[i].printRecordInfo();
+      CloudStorageController().uploadRecord(this._selectedElements[i]);
     }
+  }
+
+  int getElementsListLength() {
+    return this._elements.length;
+  }
+
+  Record getElementAt(int index) {
+    return this._elements[index];
+  }
+
+  int getSelectedElementsListLength() {
+    return this._selectedElements.length;
   }
 
 }

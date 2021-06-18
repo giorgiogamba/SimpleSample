@@ -47,8 +47,9 @@ class _SequencerState extends State<Sequencer> {
     return Container(
       height: rowContainerHeight,
       child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          SizedBox(width: sizedBoxWidth,),
+          Padding(padding: EdgeInsets.symmetric(horizontal: 5)),
           Container(
             width: buttonContainerWidth,
             child: Text("S "+number.toString()),
@@ -64,7 +65,6 @@ class _SequencerState extends State<Sequencer> {
               style: getSequencerButtonStyle(number, 0),
             ),
           ),
-          SizedBox(width: sizedBoxWidth,),
           Container(
             width: buttonContainerWidth,
             child: ElevatedButton(
@@ -76,7 +76,6 @@ class _SequencerState extends State<Sequencer> {
               style: getSequencerButtonStyle(number, 1),
             ),
           ),
-          SizedBox(width: sizedBoxWidth,),
           Container(
             width: buttonContainerWidth,
             child: ElevatedButton(
@@ -88,7 +87,6 @@ class _SequencerState extends State<Sequencer> {
               style: getSequencerButtonStyle(number, 2),
             ),
           ),
-          SizedBox(width: sizedBoxWidth,),
           Container(
             width: buttonContainerWidth,
             child: ElevatedButton(
@@ -100,7 +98,6 @@ class _SequencerState extends State<Sequencer> {
               style: getSequencerButtonStyle(number, 3),
             ),
           ),
-          SizedBox(width: sizedBoxWidth,),
           Container(
             width: buttonContainerWidth,
             child: ElevatedButton(
@@ -112,7 +109,6 @@ class _SequencerState extends State<Sequencer> {
               style: getSequencerButtonStyle(number, 4),
             ),
           ),
-          SizedBox(width: sizedBoxWidth,),
           Container(
             width: buttonContainerWidth,
             child: ElevatedButton(
@@ -124,7 +120,6 @@ class _SequencerState extends State<Sequencer> {
               style: getSequencerButtonStyle(number, 5),
             ),
           ),
-          SizedBox(width: sizedBoxWidth,),
           Container(
             width: buttonContainerWidth,
             child: ElevatedButton(
@@ -136,7 +131,6 @@ class _SequencerState extends State<Sequencer> {
               style: getSequencerButtonStyle(number, 6),
             ),
           ),
-          SizedBox(width: sizedBoxWidth,),
           Container(
             width: buttonContainerWidth,
             child: ElevatedButton(
@@ -148,6 +142,7 @@ class _SequencerState extends State<Sequencer> {
               style: getSequencerButtonStyle(number, 7),
             ),
           ),
+          Padding(padding: EdgeInsets.symmetric(horizontal: 5)),
         ],
       ),
     );
@@ -181,31 +176,30 @@ class _SequencerState extends State<Sequencer> {
           createSequencerRow(13),
           createSequencerRow(14),
           createSequencerRow(15),
+          Padding(padding: EdgeInsets.symmetric(vertical: 5),),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               ElevatedButton(
-                onPressed: () => _sequencerController.startTimeout(),
+                onPressed: () => /*_sequencerController.startTimeout(),*/ _sequencerController.handlePlay(),
                 child: Icon(Icons.play_arrow),
                 style: ButtonStyle(
                   backgroundColor: MaterialStateColor.resolveWith((states) => Colors.blueGrey),),
               ),
-              SizedBox(width: sizedBoxWidth,),
+              Padding(padding: EdgeInsets.symmetric(horizontal: 3),),
               ElevatedButton(
                 onPressed: _sequencerController.handleStop,
                 child: Icon(Icons.stop),
                 style: ButtonStyle(backgroundColor: MaterialStateColor.resolveWith((states) => Colors.blueGrey),),
               ),
-              SizedBox(width: sizedBoxWidth,),
+              Padding(padding: EdgeInsets.symmetric(horizontal: 3),),
               ElevatedButton(
                 onPressed: _sequencerController.handlePause,
                 child: Icon(Icons.pause),
                 style: ButtonStyle(backgroundColor: MaterialStateColor.resolveWith((states) => Colors.blueGrey),),
               ),
-              SizedBox(width: sizedBoxWidth*2,),
-              BPMSelector(controller: /*_audioController*/ /*AudioController()*/ _sequencerController), //todo cambiare
-              SizedBox(width: sizedBoxWidth),
+              Padding(padding: EdgeInsets.symmetric(horizontal: 3),),
               ElevatedButton(
                 onPressed: () {
                   _sequencerController.resetSequencer();
@@ -214,6 +208,8 @@ class _SequencerState extends State<Sequencer> {
                 child: Text("Reset"),
                 style: ButtonStyle(backgroundColor: MaterialStateColor.resolveWith((states) => Colors.blueGrey),),
               ),
+              Padding(padding: EdgeInsets.symmetric(horizontal: 3),),
+              BPMSelector(controller: _sequencerController),
             ],
           ),
         ],
@@ -224,7 +220,19 @@ class _SequencerState extends State<Sequencer> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body:  buildSequencer(),
+      body:  Container(
+        child: buildSequencer(),
+        decoration: new BoxDecoration(
+          gradient: new LinearGradient(
+            colors: [
+              Color.fromRGBO(101, 78, 163, 1),
+              Color.fromRGBO(234, 175, 200, 1),
+            ],
+            begin: Alignment.topRight,
+            end: Alignment.bottomLeft,
+          ),
+        ),
+      ),
     );
   }
 }
@@ -253,8 +261,9 @@ class SequencerPointer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        SizedBox(width: sizedBoxWidth,),
+        Padding(padding: EdgeInsets.symmetric(horizontal: 5)),
         Container(
           width: buttonContainerWidth,
           child: null,
@@ -263,41 +272,35 @@ class SequencerPointer extends StatelessWidget {
           width: buttonContainerWidth,
           child: ElevatedButton(onPressed: () {}, child: Text("1"), style: getSequencerButtonStyle(0)),
         ),
-        SizedBox(width: sizedBoxWidth,),
         Container(
           width: buttonContainerWidth,
           child: ElevatedButton(onPressed: () {}, child: Text("2"), style: getSequencerButtonStyle(1)),
         ),
-        SizedBox(width: sizedBoxWidth,),
         Container(
           width: buttonContainerWidth,
           child: ElevatedButton(onPressed: () {}, child: Text("3"), style: getSequencerButtonStyle(2)),
         ),
-        SizedBox(width: sizedBoxWidth,),
         Container(
           width: buttonContainerWidth,
           child: ElevatedButton(onPressed: () {}, child: Text("4"), style: getSequencerButtonStyle(3)),
         ),
-        SizedBox(width: sizedBoxWidth,),
         Container(
           width: buttonContainerWidth,
           child: ElevatedButton(onPressed: () {}, child: Text("5"), style: getSequencerButtonStyle(4)),
         ),
-        SizedBox(width: sizedBoxWidth,),
         Container(
           width: buttonContainerWidth,
           child: ElevatedButton(onPressed: () {}, child: Text("6"), style: getSequencerButtonStyle(5)),
         ),
-        SizedBox(width: sizedBoxWidth,),
         Container(
           width: buttonContainerWidth,
           child: ElevatedButton(onPressed: () {}, child: Text("7"), style: getSequencerButtonStyle(6)),
         ),
-        SizedBox(width: sizedBoxWidth,),
         Container(
           width: buttonContainerWidth,
           child: ElevatedButton(onPressed: () {}, child: Text("8"), style: getSequencerButtonStyle(7)),
         ),
+        Padding(padding: EdgeInsets.symmetric(horizontal: 5)),
       ],
     );
   }
