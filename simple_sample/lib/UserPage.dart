@@ -33,6 +33,8 @@ class _UserPageState extends State<UserPage> {
   UserPageController _userPageController = UserPageController();
   bool auth = false; //la mantengo così cambia la UI a seconda dello stato
 
+  TextEditingController _emailConttoller = TextEditingController();
+  TextEditingController _passwordController = TextEditingController();
 
   @override
   void initState() {
@@ -52,157 +54,202 @@ class _UserPageState extends State<UserPage> {
     }
   }
 
+  Widget makeUserPage() {
+    return Column(
+      children: [
+        SizedBox(height: 20,),
+        FutureBuilder(
+            future: _userPageController.getUsername(),
+            builder: (context, snapshot) {
+              if (snapshot.hasData) {
+                return Center(child: Text(snapshot.data.toString(), style: TextStyle(fontSize: 30)),);
+              } else {
+                return Center(child: Text("Username", style: TextStyle(fontSize: 30)),);
+              }
+            }),
+        SizedBox(
+          width: 150,
+          height: 150,
+          child: FittedBox(
+            fit: BoxFit.contain,
+            child: ValueListenableBuilder(
+                valueListenable: _userPageController.profileImagePath,
+                builder: (context, value, _) {
+                  return displayUserProfileImage(value.toString());
+                }
+            ),
+          ),
+        ),
+        SizedBox(height: 10),
+        ElevatedButton(
+          onPressed: () async {
+            await Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => SettingsPage(controller: _userPageController,)),
+            ).then((value) {
+              setState(() {});
+            });
+          },
+          child: Icon(Icons.settings),
+          style: ElevatedButton.styleFrom(
+            shape: CircleBorder(),
+            padding: EdgeInsets.all(13),
+            primary: Colors.blueGrey,
+          ),
+        ),
+        SizedBox(height: 10),
+        Text("SHARED SAMPLES", style: TextStyle(fontSize: 30),),
+        SizedBox(height: 10),
+        Container(
+          width: 380,
+          height: 100,
+          decoration: BoxDecoration(
+            border: Border.all(color: Colors.teal, width: 2),
+          ),
+          child: ListView.separated(
+            scrollDirection: Axis.horizontal,
+            itemBuilder:  (BuildContext context, int index) {
+              return SquareListItem(
+                itemIndex: index,
+                key: Key(_userPageController.getUserSharedRecordsLength().toString()),
+                controller: _userPageController,
+              );
+            },
+            separatorBuilder:  (BuildContext context, int index) => MyDivider(),
+            itemCount: _userPageController.getUserSharedRecordsLength(),
+          ),
+        ),
+        SizedBox(height: 10),
+        Container(
+          width: 380,
+          height: 100,
+          decoration: BoxDecoration(
+            border: Border.all(color: Colors.teal, width: 2),
+          ),
+          child: ListView.separated(
+            scrollDirection: Axis.horizontal,
+            itemBuilder:  (BuildContext context, int index) {
+              return SquareListItem(
+                itemIndex: index,
+                key: Key(_userPageController.getFavouritesLength().toString()),
+                controller: _userPageController,
+              );
+            },
+            separatorBuilder:  (BuildContext context, int index) => MyDivider(),
+            itemCount: _userPageController.getFavouritesLength(),
+          ),
+        ),
+      ],
+    );
+  }
+
+
+  Widget makeAccessPage() {
+    return Center(
+      child: Container(
+        width: 400,
+        height: 430,
+        child: AlertDialog(
+            title: Center(
+              child:  Text("You are not logged in"),
+            ),
+            elevation: 20,
+            content: Column(
+              children: [
+                TextField(
+                  decoration: InputDecoration(
+                    border: OutlineInputBorder(),
+                    labelText: 'email',
+                  ),
+                ),
+                Padding(padding: EdgeInsets.all(5)),
+                TextField(
+                  obscureText: true,
+                  decoration: InputDecoration(
+                    border: OutlineInputBorder(),
+                    labelText: 'Password',
+                  ),
+                ),
+                Padding(padding: EdgeInsets.all(5)),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    ElevatedButton(
+                      onPressed: () => _userPageController.createUserWithEmailAndPassword(
+                        _emailConttoller.text,
+                        _passwordController.text,
+                      ),
+                      child: Text("Register"),
+                    ),
+                    ElevatedButton(
+                      onPressed: () => _userPageController.signInWithEmailAndPassword(
+                        _emailConttoller.text,
+                        _passwordController.text,
+                      ),
+                      child: Text("Login"),
+                    ),
+                  ],
+                ),
+                Padding(padding: EdgeInsets.all(5)),
+                MyDivider(),
+                InkWell(
+                  child: Container(
+                      width: 200,
+                      height: 30,
+                      margin: EdgeInsets.only(top: 25),
+                      decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(20),
+                          color:Colors.black
+                      ),
+                      child: Center(
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: <Widget>[
+                              Container(
+                                height: 30.0,
+                                width: 30.0,
+                                decoration: BoxDecoration(
+                                  image: DecorationImage(
+                                      image:
+                                      AssetImage('assets/google_logo.png'),
+                                      fit: BoxFit.cover),
+                                  shape: BoxShape.circle,
+                                ),
+                              ),
+                              Text('Sign in with Google',
+                                style: TextStyle(
+                                    fontSize: 16.0,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white
+                                ),
+                              ),
+                            ],
+                          )
+                      )
+                  ),
+                  onTap: ()
+                  async{
+                    _authenticationController.signInWithGoogle().then((value) {
+                      setState(() {
+                        auth = true;
+                      });
+                    });
+                  },
+                ),
+              ],
+            )
+        ),
+      ),
+    );
+  }
+
+
   @override
   Widget build(BuildContext context) {
     if (auth) {
-      return Column(
-          children: [
-            SizedBox(height: 20,),
-            FutureBuilder(
-                future: _userPageController.getUsername(),
-                builder: (context, snapshot) {
-                  if (snapshot.hasData) {
-                    return Center(child: Text(snapshot.data.toString(), style: TextStyle(fontSize: 30)),);
-                  } else {
-                    return Center(child: Text("Username", style: TextStyle(fontSize: 30)),);
-                  }
-                }),
-            SizedBox(
-              width: 150,
-              height: 150,
-              child: FittedBox(
-                fit: BoxFit.contain,
-                child: ValueListenableBuilder(
-                  valueListenable: _userPageController.profileImagePath,
-                  builder: (context, value, _) {
-                    return displayUserProfileImage(value.toString());
-                  }
-                ),
-              ),
-            ),
-            SizedBox(height: 10),
-            ElevatedButton(
-              onPressed: () async {
-                await Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => SettingsPage(controller: _userPageController,)),
-                ).then((value) {
-                  setState(() {});
-                });
-              },
-              child: Icon(Icons.settings),
-              style: ElevatedButton.styleFrom(
-                shape: CircleBorder(),
-                padding: EdgeInsets.all(13),
-                primary: Colors.blueGrey,
-              ),
-            ),
-            SizedBox(height: 10),
-            Text("SHARED SAMPLES", style: TextStyle(fontSize: 30),),
-            SizedBox(height: 10),
-            Container(
-              width: 380,
-              height: 100,
-              decoration: BoxDecoration(
-                border: Border.all(color: Colors.teal, width: 2),
-              ),
-              child: ListView.separated(
-                scrollDirection: Axis.horizontal,
-                itemBuilder:  (BuildContext context, int index) {
-                  return SquareListItem(
-                      itemIndex: index,
-                      key: Key(_userPageController.getUserSharedRecordsLength().toString()),
-                      controller: _userPageController,
-                  );
-                },
-                separatorBuilder:  (BuildContext context, int index) => MyDivider(),
-                itemCount: _userPageController.getUserSharedRecordsLength(),
-              ),
-            ),
-            SizedBox(height: 10),
-            Container(
-              width: 380,
-              height: 100,
-              decoration: BoxDecoration(
-                border: Border.all(color: Colors.teal, width: 2),
-              ),
-              child: ListView.separated(
-                scrollDirection: Axis.horizontal,
-                itemBuilder:  (BuildContext context, int index) {
-                  return SquareListItem(
-                    itemIndex: index,
-                    key: Key(_userPageController.getFavouritesLength().toString()),
-                    controller: _userPageController,
-                  );
-                },
-                separatorBuilder:  (BuildContext context, int index) => MyDivider(),
-                itemCount: _userPageController.getFavouritesLength(),
-              ),
-            ),
-          ],
-        );
+      return makeUserPage();
     } else {
-      return Center(
-        child: Container(
-          width: 400,
-          height: 200,
-          child: AlertDialog(
-              title: Center(
-                child:  Text("You are not logged in"),
-              ),
-              elevation: 20,
-              content: Column(
-                children: [
-                  InkWell(
-                    child: Container(
-                        width: 200,
-                        height: 30,
-                        margin: EdgeInsets.only(top: 25),
-                        decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(20),
-                            color:Colors.black
-                        ),
-                        child: Center(
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                              children: <Widget>[
-                                Container(
-                                  height: 30.0,
-                                  width: 30.0,
-                                  decoration: BoxDecoration(
-                                    image: DecorationImage(
-                                        image:
-                                        AssetImage('assets/google_logo.png'),
-                                        fit: BoxFit.cover),
-                                    shape: BoxShape.circle,
-                                  ),
-                                ),
-                                Text('Sign in with Google',
-                                  style: TextStyle(
-                                      fontSize: 16.0,
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.white
-                                  ),
-                                ),
-                              ],
-                            )
-                        )
-                    ),
-                    onTap: ()
-                    async{
-                      _authenticationController.signInWithGoogle().then((value) {
-                        setState(() {
-                          print("Sono nel then del signInWithGoogle");
-                          auth = true;
-                        });
-                      });
-                    },
-                  ),
-                ],
-              )
-          ),
-        ),
-      );
+      return makeAccessPage();
     }
   }
 }

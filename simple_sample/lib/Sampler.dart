@@ -4,6 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:overlay_support/overlay_support.dart';
 import 'package:simple_sample/AudioController.dart';
+import 'package:simple_sample/AuthenticationController.dart';
 import 'package:simple_sample/NotificationController.dart';
 import 'package:simple_sample/SamplerController.dart';
 import 'package:simple_sample/ShareDialogController.dart';
@@ -35,6 +36,9 @@ class _SamplerState extends State<Sampler> {
   @override
   void initState() {
     NotificationController();
+
+    //Executing Login
+    print("+++++USER CONNECTED ${AuthenticationController().checkIfUseConnected()}");
 
     //todo eseguire inizializzazione recorder
     _samplerController.disableItemSelection();

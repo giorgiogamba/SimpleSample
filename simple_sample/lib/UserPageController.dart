@@ -94,7 +94,7 @@ class UserPageController {
   }
 
   void disconnect() {
-    AuthenticationController().signOutGoogle();
+    AuthenticationController().signOut();
   }
 
   void initFavourites() async {
@@ -129,6 +129,15 @@ class UserPageController {
 
   void deleteAccount() {
     //todo listare tutte le cose da scollegare
+  }
+
+  void signInWithEmailAndPassword(String email, String password) {
+    AuthenticationController().signInWithEmailAndPassword(email, password);
+  }
+
+  void createUserWithEmailAndPassword(String email, String password) {
+    print("USerPageController: metodo create User");
+    AuthenticationController().createUserWithEmailAndPassword(email, password);
   }
 
 }

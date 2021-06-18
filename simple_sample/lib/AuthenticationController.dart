@@ -47,7 +47,18 @@ class AuthenticationController {
     print("End method authentication controller initialization");
   }
 
-  Future<void> signInWithGoogle() async { //todo eseguire collegamento a google
+  bool checkIfUseConnected() {
+    if (FirebaseAuth.instance.currentUser != null) {
+      print("User is already connected");
+      return true;
+    } else {
+      print("User is not connected");
+      return false;
+    }
+  }
+
+
+  Future<void> signInWithGoogle() async {
 
     print("****************** Google sing in ******************");
     final GoogleSignIn googleSignIn = GoogleSignIn.standard(scopes: [drive.DriveApi.driveScope]);
@@ -120,16 +131,7 @@ class AuthenticationController {
             //inserire tali url nella pagina utente con relativo tasto play
 
           } //FINOA  QUA FUNXIONA
-
-
-
-
         }
-
-
-
-
-
       } on FirebaseAuthException catch (e) {
         if (e.code == "account-exists-woth-different-credential") {
           print("linkGoogle: account exists with different credential");
@@ -144,12 +146,18 @@ class AuthenticationController {
     }
   }
 
-  void signOutGoogle() async{
+  Future<void> signOutGoogle() async{
     GoogleSignIn _googleSignIn = GoogleSignIn(); //NB istanziato di nuovo, veder se da problemi
     await _googleSignIn.signOut();
-    Model().clearUser();
-    print("************** User Signed Out from Google ************");
   }
+
+  Future<void> signOut () async {
+    await signOutGoogle();
+    await FirebaseAuth.instance.signOut();
+    Model().clearUser();
+    print("End signout method");
+  }
+
 
   /*static Future<UserCredential?> signInWithFacebook() async {
     final LoginResult result = await FacebookAuth.instance.login();
@@ -182,6 +190,69 @@ class AuthenticationController {
     CollectionReference users = FirebaseFirestore.instance.collection('users');
     users.add()
   }*/
+
+
+  ///Creates a new user with email and password infos
+  ///NB automatically signs in the new user
+  void createUserWithEmailAndPassword(String newEmail, String newPassword) async {
+    print("MEtodo creatre");
+    try {
+      UserCredential credentials = await FirebaseAuth.instance.createUserWithEmailAndPassword(
+        email: newEmail,
+        password: newPassword,
+      );
+      print("credentiale: $credentials");
+      print("DOpo await");
+
+      User? user = credentials.user;
+      if (user != null) {
+        Model().setUser(user);
+      } else {
+        print("Authentication Controller -- createUserWithemail... -- user is null, cannot assign it to Model");
+      }
+
+      //todo inserire tutte le informazioni
+
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'weak-password') {
+        print('The password provided is too weak.');
+      } else if (e.code == 'email-already-in-use') {
+        print('The account already exists for that email.');
+      }
+    } catch (e) {
+      print(e);
+    }
+  }
+
+  void signInWithEmailAndPassword(String newEmail, String newPassword) async {
+
+    try {
+      UserCredential credentials = await FirebaseAuth.instance.signInWithEmailAndPassword(
+          email: newEmail,
+          password: newPassword,
+      );
+
+      User? user = credentials.user;
+      if (user != null) {
+        Model().setUser(user);
+      } else {
+        print("Authentication Controller -- signInWithemail... -- user is null, cannot assign it to Model");
+      }
+
+      //todo inserire tutte le informazioni
+
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'user-not-found') {
+        print('No user found for that email.');
+      } else if (e.code == 'wrong-password') {
+        print('Wrong password provided for that user.');
+      }
+    }
+
+
+  }
+
+
 
 
 }
