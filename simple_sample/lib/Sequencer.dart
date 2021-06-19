@@ -43,16 +43,24 @@ class _SequencerState extends State<Sequencer> {
     );
   }
 
+  Color? setContainerRowColor(int index) {
+    if (_sequencerController.isRecordAtPositionNull(index)) { //record is null
+      return null;
+    } else { //record is not null
+      return Colors.red;
+    }
+  }
+
   Widget createSequencerRow(int number) {
     return Container(
       height: rowContainerHeight,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Padding(padding: EdgeInsets.symmetric(horizontal: 5)),
           Container(
             width: buttonContainerWidth,
-            child: Text("S "+number.toString()),
+            child: Text("S "+number.toString(), style: TextStyle(color: Colors.white), textAlign: TextAlign.center,),
+            color: setContainerRowColor(number),
           ),
           Container(
             width: buttonContainerWidth,
@@ -182,7 +190,7 @@ class _SequencerState extends State<Sequencer> {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               ElevatedButton(
-                onPressed: () => /*_sequencerController.startTimeout(),*/ _sequencerController.handlePlay(),
+                onPressed: () => _sequencerController.handlePlay(),
                 child: Icon(Icons.play_arrow),
                 style: ButtonStyle(
                   backgroundColor: MaterialStateColor.resolveWith((states) => Colors.blueGrey),),
@@ -225,8 +233,8 @@ class _SequencerState extends State<Sequencer> {
         decoration: new BoxDecoration(
           gradient: new LinearGradient(
             colors: [
-              Color.fromRGBO(101, 78, 163, 1),
-              Color.fromRGBO(234, 175, 200, 1),
+              Color.fromRGBO(20, 30, 48, 1),
+              Color.fromRGBO(36, 59, 85, 1),
             ],
             begin: Alignment.topRight,
             end: Alignment.bottomLeft,
@@ -362,7 +370,7 @@ class _BPMSelectorState extends State<BPMSelector> {
           width: buttonContainerWidth,
           height: buttonContainerWidth,
           child: Center(
-            child: Text(counter.toString(),),
+            child: Text(counter.toString(), style: TextStyle(color: Colors.white),),
           ),
         ),
     );

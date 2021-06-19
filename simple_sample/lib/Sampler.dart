@@ -88,13 +88,7 @@ class _SamplerState extends State<Sampler> {
             setState(() {});
           },
           child: ElevatedButton(
-            //child: Center(
-              //child: Container(
-                //width: buttonSize,
-                //height: buttonSize,
-                child: Text(Utils.removeExtension(_samplerController.getButtonName(index))),
-              //),
-            //),
+            child: Text(Utils.wrapText(Utils.removeExtension(_samplerController.getButtonName(index)))),
             onPressed: () {
               if (!_samplerController.isEnabledItemSelection()) { //Item selection not enablesd playing record
                 _audioController.play(index);
@@ -234,8 +228,8 @@ class _SamplerState extends State<Sampler> {
         decoration: new BoxDecoration(
           gradient: new LinearGradient(
             colors: [
-              Color.fromRGBO(101, 78, 163, 1),
-              Color.fromRGBO(234, 175, 200, 1),
+              Color.fromRGBO(20, 30, 48, 1),
+              Color.fromRGBO(36, 59, 85, 1),
             ],
             begin: Alignment.topRight,
             end: Alignment.bottomLeft,
@@ -243,7 +237,6 @@ class _SamplerState extends State<Sampler> {
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
-          //crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Container(
               height: 30,
@@ -533,6 +526,9 @@ class RenamePage extends StatelessWidget {
             Padding(padding: EdgeInsets.symmetric(vertical: 4),),
             TextField(
               controller: samplerController.getTextEditingController(),
+              decoration: InputDecoration(
+                labelText: "New Sample Name",
+              ),
             ),
             Padding(padding: EdgeInsets.symmetric(vertical: 4),),
             Row(

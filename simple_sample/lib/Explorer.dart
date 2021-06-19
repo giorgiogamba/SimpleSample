@@ -157,13 +157,15 @@ class _ExplorerState extends State<Explorer> {
   @override
   Widget build(BuildContext context) {
 
+    _controller.getElementsList(); //updating elements
+
     return Scaffold(
       body: Container(
         decoration: new BoxDecoration(
           gradient: new LinearGradient(
             colors: [
-              Color.fromRGBO(101, 78, 163, 1),
-              Color.fromRGBO(234, 175, 200, 1),
+              Color.fromRGBO(20, 30, 48, 1),
+              Color.fromRGBO(36, 59, 85, 1),
             ],
             begin: Alignment.topRight,
             end: Alignment.bottomLeft,

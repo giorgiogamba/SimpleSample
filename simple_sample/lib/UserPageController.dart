@@ -23,7 +23,8 @@ class UserPageController {
   List<Record> _userSharedRecords = [];
   List<Record> _favourites = [];
 
-  ValueNotifier profileImagePath = ValueNotifier("assets/userlogo.png"); //!!! NON PRIVATIZZARE
+  ValueNotifier profileImagePath = ValueNotifier("assets/userlogo_white.png"); //!!! NON PRIVATIZZARE
+  ValueNotifier<bool> loaded = ValueNotifier(false);
 
   String getElementAt(int index) {
     return this._elements[index];
@@ -66,13 +67,11 @@ class UserPageController {
   }
 
   //Gets all the records shared by the user in order to display them into user page
-  void getUserSharedRecords() async {
+  Future<void> getUserSharedRecords() async {
     print("UserPageController -- getUserSharedController method");
     await CloudStorageController().downloadUserSharedRecords().then((value) {
       _userSharedRecords = value;
-      print("Ho finito il then");
     });
-
   }
 
   int getUserSharedRecordsLength() {
@@ -97,7 +96,7 @@ class UserPageController {
     AuthenticationController().signOut();
   }
 
-  void initFavourites() async {
+  Future<void> initFavourites() async {
     List<Record> favs = await CloudStorageController().getFavouritesFromDB();
     print("DOWNLOADED FAVS: ");
     for (int i = 0; i < favs.length; i++) {
@@ -138,6 +137,14 @@ class UserPageController {
   void createUserWithEmailAndPassword(String email, String password) {
     print("USerPageController: metodo create User");
     AuthenticationController().createUserWithEmailAndPassword(email, password);
+  }
+
+  void updateUserPage() async {
+    print("Updating user page");
+    loaded.value = false;
+    await getUserSharedRecords();
+    await initFavourites();
+    loaded.value = true;
   }
 
 }

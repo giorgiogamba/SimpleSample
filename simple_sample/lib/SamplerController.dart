@@ -88,7 +88,7 @@ class SamplerController {
     if (record != null) {
       return record.getFilename();
     } else {
-      return "Bt $index";
+      return "Bt$index";
     }
   }
 

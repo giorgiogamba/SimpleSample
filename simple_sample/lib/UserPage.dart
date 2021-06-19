@@ -54,75 +54,56 @@ class _UserPageState extends State<UserPage> {
           future: _userPageController.getUsername(),
           builder: (context, snapshot) {
             if (snapshot.hasData) {
-              return Center(child: Text(snapshot.data.toString(), style: TextStyle(fontSize: 30)),);
+              return Center(child: Text(snapshot.data.toString(), style: TextStyle(fontSize: 30, color: Colors.white)),);
             } else {
-              return Center(child: Text("Username", style: TextStyle(fontSize: 30)),);
+              return Center(child: Text("Username", style: TextStyle(fontSize: 30, color: Colors.white)),);
             }},
+        ),
+        Container( //prima era sized box
+          width: 100,
+          height: 100,
+          child: FittedBox(
+            fit: BoxFit.contain,
+            child: ValueListenableBuilder(
+                valueListenable: _userPageController.profileImagePath,
+                builder: (context, value, _) {
+                  return displayUserProfileImage(value.toString());
+                }
+            ),
+          ),
+          color: Colors.white,
         ),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            SizedBox(
-              width: 100,
-              height: 150,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  ElevatedButton(
-                    onPressed: () async {
-                      await Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => SettingsPage(controller: _userPageController,)),
-                      ).then((value) {
-                        setState(() {});
-                      });
-                    },
-                    child: Icon(Icons.settings),
-                    style: ElevatedButton.styleFrom(
-                      shape: CircleBorder(),
-                      padding: EdgeInsets.all(13),
-                      primary: Colors.blueGrey,
-                    ),
-                  ),
-                ],
+            Padding(padding: EdgeInsets.only(left: 5)),
+            ElevatedButton(
+              onPressed: () async {
+                await Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => SettingsPage(controller: _userPageController,)),
+                ).then((value) {
+                  setState(() {});
+                });
+              },
+              child: Icon(Icons.settings),
+              style: ElevatedButton.styleFrom(
+                shape: CircleBorder(),
+                padding: EdgeInsets.all(13),
+                primary: Colors.blueGrey,
               ),
             ),
-            Container( //prima era sized box
-              width: 100,
-              height: 150,
-              child: FittedBox(
-                fit: BoxFit.contain,
-                child: ValueListenableBuilder(
-                    valueListenable: _userPageController.profileImagePath,
-                    builder: (context, value, _) {
-                      return displayUserProfileImage(value.toString());
-                    }
-                ),
-              ),
-            ),
-            SizedBox(
-              width: 150,
-              height: 150,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text("DOWNLOADS: "),
-                  Text("No"), //todo prelevare dal controller il numero totale
-                ],
-              ),
-            ),
+            Text("DOWNLOADS: " /*todo prelevare*/, style: TextStyle(color: Colors.white),),
+            Padding(padding: EdgeInsets.only(right: 5)),
           ],
         ),
         Column(
           children: [
-            Text("SHARED SAMPLES", style: TextStyle(fontSize: 20),),
+            Text("SHARED SAMPLES", style: TextStyle(fontSize: 20, color: Colors.white),),
             Padding(padding: EdgeInsets.symmetric(vertical: 2)),
             Container(
               width: 380,
               height: 100,
-              /*decoration: BoxDecoration(
-                border: Border.all(color: Colors.teal, width: 2),
-              ),*/
               child: ListView.separated(
                 scrollDirection: Axis.horizontal,
                 itemBuilder:  (BuildContext context, int index) {
@@ -141,14 +122,11 @@ class _UserPageState extends State<UserPage> {
         ),
         Column(
           children: [
-            Text("FAVOURITES", style: TextStyle(fontSize: 20),),
+            Text("FAVOURITES", style: TextStyle(fontSize: 20, color: Colors.white),),
             Padding(padding: EdgeInsets.symmetric(vertical: 2)),
             Container(
               width: 380,
               height: 100,
-              /*decoration: BoxDecoration(
-                border: Border.all(color: Colors.teal, width: 2),
-              ),*/
               child: ListView.separated(
                 scrollDirection: Axis.horizontal,
                 itemBuilder:  (BuildContext context, int index) {
@@ -271,16 +249,34 @@ class _UserPageState extends State<UserPage> {
   }
 
 
+  Widget makeProgressBar() {
+    return Center(
+      child: CircularProgressIndicator(),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     if (auth) {
+
+      _userPageController.updateUserPage();
+
       return Container(
-        child: makeUserPage(),
+        child: ValueListenableBuilder(
+          valueListenable: _userPageController.loaded,
+          builder: (context, value, _) {
+            if (value == true) {
+              return makeUserPage();
+            } else {
+              return makeProgressBar();
+            }
+          },
+        ),
         decoration: new BoxDecoration(
           gradient: new LinearGradient(
             colors: [
-              Color.fromRGBO(101, 78, 163, 1),
-              Color.fromRGBO(234, 175, 200, 1),
+              Color.fromRGBO(20, 30, 48, 1),
+              Color.fromRGBO(36, 59, 85, 1),
             ],
             begin: Alignment.topRight,
             end: Alignment.bottomLeft,
@@ -549,13 +545,11 @@ class _SettingsPageState extends State<SettingsPage> {
               ),
               ElevatedButton(
                 onPressed: () {
-                  UserPageController()
-                      .setUsername(_textEditingController.text)
-                      .then((value) {
-                        _textEditingController.text = ""; //resetting username field
-                        Navigator.pop(context);
-                      }
-                      );},
+                  showDialog(
+                    context: context,
+                    builder: (context) => SetUsernameDialog(),
+                  );
+                },
                 child: Text("Set username"),
                 style: getButtonStyle(),
               ),
@@ -577,6 +571,53 @@ class _SettingsPageState extends State<SettingsPage> {
             ],
           ),
         ],
+      ),
+    );
+  }
+}
+
+
+class SetUsernameDialog extends StatelessWidget {
+
+  const SetUsernameDialog({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+
+    TextEditingController _textEditingController = TextEditingController();
+
+    return AlertDialog(
+      content: Container(
+        width: 200,
+        height: 170,
+        child: Column(
+          children: [
+            Text("Choose a new name for the Sampler", textAlign: TextAlign.center,),
+            Padding(padding: EdgeInsets.symmetric(vertical: 4),),
+            TextField(
+              controller: _textEditingController,
+              decoration: InputDecoration(
+                labelText: "New Username",
+              ),
+            ),
+            Padding(padding: EdgeInsets.symmetric(vertical: 4),),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                ElevatedButton(onPressed: () {
+                  Navigator.pop(context);
+                }, child: Text("Cancel")),
+                ElevatedButton(onPressed: () {
+                  UserPageController().setUsername(_textEditingController.text).then((value) {
+                    _textEditingController.text = ""; //resetting username field
+                    Navigator.pop(context);
+                    Navigator.pop(context);
+                  });
+                  }, child: Text("Submit")),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }

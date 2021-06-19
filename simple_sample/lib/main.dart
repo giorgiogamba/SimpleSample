@@ -32,10 +32,10 @@ class MyApp extends StatelessWidget {
                 return Text("Something ent wrong");
               } else if (snapshot.hasData) {
                 return Scaffold(
-                  body: //MyBottomNavigationBar(),
+                  body:
                     new Theme(
                       data: Theme.of(context).copyWith(
-                        canvasColor: Color.fromRGBO(234, 175, 200, 1),
+                        canvasColor: Color.fromRGBO(20, 30, 48, 1),
                       ),
                       child: MyBottomNavigationBar(),
                     ),

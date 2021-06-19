@@ -5,6 +5,7 @@ import 'package:flutter/cupertino.dart';
 
 import 'AudioController.dart';
 import 'Model.dart';
+import 'Record.dart';
 
 const int bpmBase = 120;
 
@@ -16,9 +17,11 @@ class SequencerController {
   HashMap<int, HashMap<int, bool>>? _sequencerMap = HashMap();
   AudioController? _audioController;
   int _tick = 0;
+  int _remainder = 0;
   Duration _dur = new Duration();
   Timer? _timer;
-  final counter = ValueNotifier(1); //todo prima era 0
+  final counter = ValueNotifier(0);
+  bool _isRunning = false;
 
   SequencerController._internal() {
     print("Initializing Sequencer Controller");
@@ -92,37 +95,42 @@ class SequencerController {
   void calculateTick() {
     int? currentBPM = getBPM();
     _tick = bpmBase ~/ currentBPM;
-    _dur = Duration(seconds: _tick);
+    _remainder = bpmBase % currentBPM;
+    _dur = Duration(seconds: _tick, milliseconds: _remainder);
   }
 
   void startTimeout() {
-    //calculateTick();
     print("Duration vale: "+_dur.toString());
     _timer = Timer.periodic(_dur, (Timer t) => handleTimeout());
   }
 
   void handlePlay() {
-    print("COUNTER;; ${counter.value}");
-    playPosition(0);
-    calculateTick();
-    startTimeout();
+    if (!isSequencerRunning()) {
+      setIsRunning(true);
+      playPosition(0);
+      calculateTick();
+      startTimeout();
+    } else {
+      print("SequencerController -- handlePlay -- sequencer is already running");
+    }
   }
 
   void handleStop() {
     _timer?.cancel();
     resetCounter();
+    setIsRunning(false);
   }
 
   void handlePause() {
     _timer?.cancel();
   }
   void resetCounter() {
-    counter.value = 1; //todo pèrima er a0
+    counter.value = 0;
   }
 
   void handleTimeout() {
-    playPosition(counter.value);
     incrementCounter();
+    playPosition(counter.value);
   }
 
   void incrementCounter() {
@@ -149,6 +157,27 @@ class SequencerController {
 
   void setBPM (int newBPM) {
     Model().setBPM(newBPM);
+  }
+
+  bool isSequencerRunning() {
+    return this._isRunning;
+  }
+
+  void setIsRunning(bool value) {
+    this._isRunning = value;
+  }
+
+  bool isRecordAtPositionNull(int index) {
+    Record? record = Model().getRecordAt(index);
+    if (record != null) {
+      if (record.getFilename() == null) {
+        return true;
+      } else {
+        return false;
+      }
+    } else {
+      return true;
+    }
   }
 
 }
