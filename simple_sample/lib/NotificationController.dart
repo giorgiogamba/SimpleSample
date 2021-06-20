@@ -3,6 +3,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:overlay_support/overlay_support.dart';
 
+import 'Model.dart';
+
 class NotificationController {
 
   static final NotificationController _instance = NotificationController._internal();
@@ -14,8 +16,12 @@ class NotificationController {
   int _totalNotifications = 0;
   PushNotification? _notificationInfo;
 
+  ///Method called once for initialization
   NotificationController._internal() {
     print("Initializing NotificationController");
+
+    //Getting device token
+    FirebaseMessaging.instance.getToken().then((value) => Model().setDeviceToken(value!));
 
     FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
       PushNotification notification = PushNotification(

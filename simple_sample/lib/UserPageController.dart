@@ -6,6 +6,7 @@ import 'package:simple_sample/Record.dart';
 
 import 'AudioController.dart';
 import 'CloudStorageController.dart';
+import 'Model.dart';
 
 class UserPageController {
 
@@ -92,8 +93,9 @@ class UserPageController {
     profileImagePath.value = path;
   }
 
-  void disconnect() {
-    AuthenticationController().signOut();
+  Future<void> disconnect() async {
+    await AuthenticationController().signOut();
+    Model().clearUser();
   }
 
   Future<void> initFavourites() async {
@@ -145,6 +147,11 @@ class UserPageController {
     await getUserSharedRecords();
     await initFavourites();
     loaded.value = true;
+  }
+
+  Future<int> getDownloadsNumber() async {
+    int value = await CloudStorageController().getDownloadsNumber();
+    return value;
   }
 
 }

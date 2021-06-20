@@ -49,8 +49,14 @@ class _ExplorerState extends State<Explorer> {
       child: TextField(
         controller: _textEditingController,
         decoration: InputDecoration(
-          border: OutlineInputBorder(),
-          labelText: "Search by name",
+          enabledBorder: OutlineInputBorder(
+            borderSide: new BorderSide(color: Colors.white, width: 2),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderSide: new BorderSide(color: Colors.white, width: 2),
+          ),
+          labelText: 'Search by name',
+          labelStyle: TextStyle(color: Colors.white),
         ),
         onChanged: onItemChanged,
       ),
@@ -120,6 +126,16 @@ class _ExplorerState extends State<Explorer> {
                 padding: EdgeInsets.symmetric(horizontal: 10, vertical: 2),
                 child: TextField(
                   onChanged: onFilterChanged,
+                  decoration: InputDecoration(
+                    enabledBorder: OutlineInputBorder(
+                      borderSide: new BorderSide(color: Colors.white, width: 2),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderSide: new BorderSide(color: Colors.white, width: 2),
+                    ),
+                    labelText: 'Filter Value',
+                    labelStyle: TextStyle(color: Colors.white),
+                  ),
                 ),
               ),
             ),
@@ -135,7 +151,7 @@ class _ExplorerState extends State<Explorer> {
         builder: (context, value, _) {
           if (!_controller.checkIfUserLogged()) {
             return Center(
-              child: Text("USER IS NOT LOGGED IN"),
+              child: Text("USER IS NOT LOGGED IN", style: TextStyle(color: Colors.white),),
             );
           } else {
             if (value == false) {
@@ -143,6 +159,7 @@ class _ExplorerState extends State<Explorer> {
             } else {
               return Column(
                 children: [
+                  Padding(padding: EdgeInsets.symmetric(vertical: 5)),
                   makeCommands(),
                   makeSearchBar(),
                   makeListView(),
@@ -287,7 +304,7 @@ class MyDivider extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Divider(
-      color: Colors.black,
+      color: Colors.white,
       thickness: 2,
     );
   }

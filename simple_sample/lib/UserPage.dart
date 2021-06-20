@@ -29,7 +29,6 @@ class _UserPageState extends State<UserPage> {
 
   @override
   void initState() {
-    auth = _authenticationController.checkIfAuthorized();
     _userPageController.getUserSharedRecords();
     _userPageController.initFavourites();
     print("Chiamato initstate USERPAGE");
@@ -93,7 +92,12 @@ class _UserPageState extends State<UserPage> {
                 primary: Colors.blueGrey,
               ),
             ),
-            Text("DOWNLOADS: " /*todo prelevare*/, style: TextStyle(color: Colors.white),),
+            FutureBuilder(
+              future: _userPageController.getDownloadsNumber(),
+              builder: (context, snapshot) {
+                return Text("Downloads: "+snapshot.data.toString(), style: TextStyle(fontSize: 20, color: Colors.white));
+              }
+            ),
             Padding(padding: EdgeInsets.only(right: 5)),
           ],
         ),
@@ -150,99 +154,127 @@ class _UserPageState extends State<UserPage> {
 
 
   Widget makeAccessPage() {
-    return Center(
-      child: Container(
-        width: 400,
-        height: 430,
-        child: AlertDialog(
-            title: Center(
-              child:  Text("You are not logged in"),
-            ),
-            elevation: 20,
-            content: Column(
-              children: [
-                TextField(
-                  decoration: InputDecoration(
-                    border: OutlineInputBorder(),
-                    labelText: 'email',
-                  ),
-                ),
-                Padding(padding: EdgeInsets.all(5)),
-                TextField(
-                  obscureText: true,
-                  decoration: InputDecoration(
-                    border: OutlineInputBorder(),
-                    labelText: 'Password',
-                  ),
-                ),
-                Padding(padding: EdgeInsets.all(5)),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    ElevatedButton(
-                      onPressed: () => _userPageController.createUserWithEmailAndPassword(
-                        _emailConttoller.text,
-                        _passwordController.text,
+    return Container(
+      decoration: new BoxDecoration(
+        gradient: new LinearGradient(
+          colors: [
+            Color.fromRGBO(20, 30, 48, 1),
+            Color.fromRGBO(36, 59, 85, 1),
+          ],
+          begin: Alignment.topRight,
+          end: Alignment.bottomLeft,
+        ),
+      ),
+
+      child: Center(
+        child: Container(
+          width: 400,
+          height: 430,
+          child: AlertDialog(
+              backgroundColor: Color.fromRGBO(20, 30, 48, 1),
+              title: Center(
+                child:  Text("You are not logged in", style: TextStyle(color: Colors.white)),
+              ),
+              elevation: 20,
+              content: Column(
+                children: [
+                  TextField(
+                    decoration: InputDecoration(
+                      enabledBorder: OutlineInputBorder(
+                        borderSide: new BorderSide(color: Colors.white, width: 2),
                       ),
-                      child: Text("Register"),
+                      focusedBorder: OutlineInputBorder(
+                        borderSide: new BorderSide(color: Colors.white, width: 2),
+                      ),
+                      labelText: 'email',
+                      labelStyle: TextStyle(color: Colors.white),
                     ),
-                    ElevatedButton(
-                      onPressed: () => _userPageController.signInWithEmailAndPassword(
-                        _emailConttoller.text,
-                        _passwordController.text,
-                      ),
-                      child: Text("Login"),
-                    ),
-                  ],
-                ),
-                Padding(padding: EdgeInsets.all(5)),
-                MyDivider(),
-                InkWell(
-                  child: Container(
-                      width: 200,
-                      height: 30,
-                      margin: EdgeInsets.only(top: 25),
-                      decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(20),
-                          color:Colors.black
-                      ),
-                      child: Center(
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            children: <Widget>[
-                              Container(
-                                height: 30.0,
-                                width: 30.0,
-                                decoration: BoxDecoration(
-                                  image: DecorationImage(
-                                      image:
-                                      AssetImage('assets/google_logo.png'),
-                                      fit: BoxFit.cover),
-                                  shape: BoxShape.circle,
-                                ),
-                              ),
-                              Text('Sign in with Google',
-                                style: TextStyle(
-                                    fontSize: 16.0,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.white
-                                ),
-                              ),
-                            ],
-                          )
-                      )
                   ),
-                  onTap: ()
-                  async{
-                    _authenticationController.signInWithGoogle().then((value) {
-                      setState(() {
-                        auth = true;
+                  Padding(padding: EdgeInsets.all(5)),
+                  TextField(
+                    obscureText: true,
+                    decoration: InputDecoration(
+                      enabledBorder: OutlineInputBorder(
+                        borderSide: new BorderSide(color: Colors.white, width: 2),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderSide: new BorderSide(color: Colors.white, width: 2),
+                      ),
+                      labelText: 'Password',
+                      labelStyle: TextStyle(color: Colors.white),
+                    ),
+                  ),
+                  Padding(padding: EdgeInsets.all(5)),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      ElevatedButton(
+                        onPressed: () => _userPageController.createUserWithEmailAndPassword(
+                          _emailConttoller.text,
+                          _passwordController.text,
+                        ),
+                        child: Text("Register"),
+                        style: ButtonStyle(backgroundColor:  MaterialStateColor.resolveWith((states) => Colors.blueGrey),),
+                      ),
+                      ElevatedButton(
+                        onPressed: () => _userPageController.signInWithEmailAndPassword(
+                          _emailConttoller.text,
+                          _passwordController.text,
+                        ),
+                        child: Text("Login"),
+                        style: ButtonStyle(backgroundColor:  MaterialStateColor.resolveWith((states) => Colors.blueGrey),),
+                      ),
+                    ],
+                  ),
+                  Padding(padding: EdgeInsets.all(5)),
+                  MyDivider(),
+                  InkWell(
+                    child: Container(
+                        width: 200,
+                        height: 30,
+                        margin: EdgeInsets.only(top: 25),
+                        decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(20),
+                            color:Colors.black
+                        ),
+                        child: Center(
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              children: <Widget>[
+                                Container(
+                                  height: 30.0,
+                                  width: 30.0,
+                                  decoration: BoxDecoration(
+                                    image: DecorationImage(
+                                        image:
+                                        AssetImage('assets/google_logo.png'),
+                                        fit: BoxFit.cover),
+                                    shape: BoxShape.circle,
+                                  ),
+                                ),
+                                Text('Sign in with Google',
+                                  style: TextStyle(
+                                      fontSize: 16.0,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.white
+                                  ),
+                                ),
+                              ],
+                            )
+                        )
+                    ),
+                    onTap: ()
+                    async{
+                      _authenticationController.signInWithGoogle().then((value) {
+                        setState(() {
+                          auth = true;
+                        });
                       });
-                    });
-                  },
-                ),
-              ],
-            )
+                    },
+                  ),
+                ],
+              )
+          ),
         ),
       ),
     );
@@ -257,6 +289,9 @@ class _UserPageState extends State<UserPage> {
 
   @override
   Widget build(BuildContext context) {
+
+    auth = _authenticationController.checkIfAuthorized();
+
     if (auth) {
 
       _userPageController.updateUserPage();
@@ -320,7 +355,7 @@ class _SquareListItemState extends State<SquareListItem> {
           ), onPressed: () => widget.controller.playRecordAt(widget.itemIndex)),
           IconButton(icon: Icon(
             Icons.star,
-            color: Colors.white, //todo implementare rimozione da favs
+            color: Colors.white,
           ), onPressed: () => widget.controller.playRecordAt(widget.itemIndex))
         ],
       );
@@ -428,20 +463,20 @@ class _ChooseImageOperationDialogState extends State<ChooseImageOperationDialog>
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
+      backgroundColor: Color.fromRGBO(36, 59, 85, 1),
       content: Container(
         width: 200,
         height: 100,
         child: ListView.separated(
-            itemBuilder:  (BuildContext context, int index) {
-              return ChooseImageOperationDialogItem(
-                index: index,
-                controller: widget.controller,
-                key: Key(widget.controller.getElementsLength().toString()),
-              );
-            },
-            separatorBuilder:  (BuildContext context, int index) => const MyDivider(),
-            itemCount: widget.controller.getElementsLength(),
-          ),
+          itemBuilder:  (BuildContext context, int index) {
+            return ChooseImageOperationDialogItem(
+              index: index,
+              controller: widget.controller,
+              key: Key(widget.controller.getElementsLength().toString()),
+            );},
+          separatorBuilder:  (BuildContext context, int index) => const MyDivider(),
+          itemCount: widget.controller.getElementsLength(),
+        ),
       ),
     );
   }
@@ -468,7 +503,7 @@ class _ChooseImageOperationDialogItemState extends State<ChooseImageOperationDia
       height: 40,
       child: Center(
         child: InkWell(
-            child: Text(widget.controller.getElementAt(widget.index)),
+            child: Text(widget.controller.getElementAt(widget.index), style: TextStyle(color: Colors.white),),
             onTap: () async {
               PickedFile? pickedImage = await widget.controller.executeOperation(widget.index);
               setState(() {
@@ -500,77 +535,84 @@ class SettingsPage extends StatefulWidget {
 
 class _SettingsPageState extends State<SettingsPage> {
 
-  TextEditingController _textEditingController = TextEditingController();
-
-  ButtonStyle getButtonStyle() {
-    return ButtonStyle(
-      backgroundColor:  MaterialStateColor.resolveWith((states) => Colors.red),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text("Settings", style: TextStyle(fontSize: 30),),
-              Padding(padding: EdgeInsets.all(10)),
-              Container(
-                width: 300,
-                height: 50,
-                child: TextField(
-                  controller: _textEditingController,
-                  decoration: InputDecoration(
-                    labelText: "New Username",
+      body: Container(
+
+        decoration: new BoxDecoration(
+          gradient: new LinearGradient(
+            colors: [
+              Color.fromRGBO(20, 30, 48, 1),
+              Color.fromRGBO(36, 59, 85, 1),
+            ],
+            begin: Alignment.topRight,
+            end: Alignment.bottomLeft,
+          ),
+        ),
+
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Column(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Padding(padding: EdgeInsets.symmetric(vertical: 20)),
+                Text("Settings", style: TextStyle(fontSize: 30, color: Colors.white ),),
+                ElevatedButton(onPressed: () => showDialog(
+                  context: context,
+                  builder: (context) => ChooseImageOperationDialog(
+                    controller: UserPageController(),
+                    key: Key(1.toString()),
                   ),
                 ),
-              ),
-              Padding(padding: EdgeInsets.all(10)),
-              ElevatedButton(onPressed: () => Navigator.pop(context), child: Text("Back")),
-              ElevatedButton(onPressed: () => showDialog(
-                context: context,
-                builder: (context) => ChooseImageOperationDialog(
-                  controller: UserPageController(),
-                  key: Key(1.toString()),
+                  child: Text("Set Profile Image"),
+                  style: ButtonStyle(backgroundColor:  MaterialStateColor.resolveWith((states) => Colors.blueGrey),),
                 ),
-              ), child: Text("Set Profile Image")),
-              ElevatedButton(
-                onPressed: () => UserPageController().disconnect(),
-                child: Text("Logout from Google"),
-                style: getButtonStyle(),
-              ),
-              ElevatedButton(
-                onPressed: () {
-                  showDialog(
-                    context: context,
-                    builder: (context) => SetUsernameDialog(),
-                  );
-                },
-                child: Text("Set username"),
-                style: getButtonStyle(),
-              ),
-              ElevatedButton(
-                onPressed: () {},
-                child: Text("Disconnect from Drive"),
-                style: getButtonStyle(),
-              ),
-              ElevatedButton(
-                onPressed: () {},
-                child: Text("Disconnect from Dropbox"),
-                style: getButtonStyle(),
-              ),
-              ElevatedButton(
-                onPressed: () => widget.controller.deleteAccount,
-                child: Text("Delete User"),
-                style: getButtonStyle(),
-              ),
-            ],
-          ),
-        ],
+                ElevatedButton(
+                  onPressed: () {
+                    showDialog(
+                      context: context,
+                      builder: (context) => SetUsernameDialog(),
+                    );
+                  },
+                  child: Text("Set username"),
+                  style: ButtonStyle(backgroundColor:  MaterialStateColor.resolveWith((states) => Colors.blueGrey),),
+                ),
+                MyDivider(),
+                ElevatedButton(
+                  onPressed: () => UserPageController().disconnect().then((value) {
+                    Navigator.pop(context);
+                  }),
+                  child: Text("Logout from Google"),
+                  style: ButtonStyle(backgroundColor:  MaterialStateColor.resolveWith((states) => Colors.red),),
+                ),
+                ElevatedButton(
+                  onPressed: () {},
+                  child: Text("Disconnect from Drive"),
+                  style: ButtonStyle(backgroundColor:  MaterialStateColor.resolveWith((states) => Colors.red),),
+                ),
+                ElevatedButton(
+                  onPressed: () {},
+                  child: Text("Disconnect from Dropbox"),
+                  style: ButtonStyle(backgroundColor:  MaterialStateColor.resolveWith((states) => Colors.red),),
+                ),
+                ElevatedButton(
+                  onPressed: () => widget.controller.deleteAccount,
+                  child: Text("Delete User"),
+                  style: ButtonStyle(backgroundColor:  MaterialStateColor.resolveWith((states) => Colors.red),),
+                ),
+                MyDivider(),
+                ElevatedButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: Text("Back"),
+                  style: ButtonStyle(backgroundColor:  MaterialStateColor.resolveWith((states) => Colors.blueGrey),),
+                ),
+                Padding(padding: EdgeInsets.symmetric(vertical: 20)),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -587,17 +629,29 @@ class SetUsernameDialog extends StatelessWidget {
     TextEditingController _textEditingController = TextEditingController();
 
     return AlertDialog(
+      backgroundColor: Color.fromRGBO(36, 59, 85, 1),
       content: Container(
         width: 200,
         height: 170,
         child: Column(
           children: [
-            Text("Choose a new name for the Sampler", textAlign: TextAlign.center,),
+            Text(
+              "Choose a new name for the Sampler",
+              textAlign: TextAlign.center,
+              style: TextStyle(color: Colors.white),
+            ),
             Padding(padding: EdgeInsets.symmetric(vertical: 4),),
             TextField(
               controller: _textEditingController,
               decoration: InputDecoration(
+                enabledBorder: OutlineInputBorder(
+                  borderSide: new BorderSide(color: Colors.white, width: 2),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderSide: new BorderSide(color: Colors.white, width: 2),
+                ),
                 labelText: "New Username",
+                labelStyle: TextStyle(color: Colors.white),
               ),
             ),
             Padding(padding: EdgeInsets.symmetric(vertical: 4),),
@@ -606,14 +660,20 @@ class SetUsernameDialog extends StatelessWidget {
               children: [
                 ElevatedButton(onPressed: () {
                   Navigator.pop(context);
-                }, child: Text("Cancel")),
+                },
+                  child: Text("Cancel"),
+                  style: ButtonStyle(backgroundColor: MaterialStateColor.resolveWith((states) => Colors.blueGrey),)
+                ),
                 ElevatedButton(onPressed: () {
                   UserPageController().setUsername(_textEditingController.text).then((value) {
                     _textEditingController.text = ""; //resetting username field
                     Navigator.pop(context);
                     Navigator.pop(context);
                   });
-                  }, child: Text("Submit")),
+                  },
+                  child: Text("Submit"),
+                  style: ButtonStyle(backgroundColor: MaterialStateColor.resolveWith((states) => Colors.blueGrey),),
+                ),
               ],
             ),
           ],

@@ -280,14 +280,14 @@ class CloudStorageController {
     return [];
   }
 
-  Future<void> uploadProfileImage(String imagePath) async { //todo TEST //todo si può anche visualizzare un'immagine network senza dover scaricare
+  Future<void> uploadProfileImage(String imagePath) async {
     User? user = Model().getUser();
     if (user != null) {
 
       File toUpload = File(imagePath);
 
       String userID = user.uid;
-      String uploadPath = "profiles/"+userID+"profile_picture.jpeg";
+      String uploadPath = "profiles/"+userID+"/profile_picture.jpeg";
 
       try {
         await FirebaseStorage.instance.ref(uploadPath).putFile(toUpload);
@@ -303,11 +303,11 @@ class CloudStorageController {
 
   //Downloads firebase image profile
   //Called when user is logged in
-  Future<String?> downloadProfileImage() async { //todo TEST
+  Future<String?> downloadProfileImage() async {
 
     User? user = Model().getUser();
     if (user != null) {
-      String imageCloudPath = "profiles/"+user.uid+"profile_picture.jpeg";
+      String imageCloudPath = "profiles/"+user.uid+"/profile_picture.jpeg";
 
       String downloadedPath = Model().getExtDocPath() + "firebase_profile_picture.jpeg";
       File downloadedImage = File(downloadedPath);
@@ -344,8 +344,6 @@ class CloudStorageController {
 
   ///Adds record to user's favourites into firestore
   Future<void> addToFavourites(Record record) async {
-    print("CludStorageController -- addtofav");
-
     DocumentReference userDocRef = FirebaseFirestore.instance.collection("users").doc(Model().getUser()!.uid);
     CollectionReference favCollRef = userDocRef.collection("favourites");
     //By now, I'm uploading favourites with the path "[filename - ownerID]"
@@ -355,49 +353,93 @@ class CloudStorageController {
     DocumentSnapshot snapshot = await favCollRef.doc(path).get();
 
     //Assigning url into a field
-    if (!snapshot.exists) { //todo forse è sbagliato
+    if (!snapshot.exists) {
       DocumentReference userDocRef = favCollRef.doc(path);
       userDocRef.set({
         "url": record.getUrl(),
-      }).then((value) => print("Record saved into favourites"));
+      }).then((value) {
+        print("CloudStorage -- Record saved into favourites");
+
+        //Updating user's data
+        String ownerID = record.getRecordOwnerID();
+        if (ownerID != "") {
+          upgradeDownloads(ownerID);
+        } else {
+          print("CloudStorageController -- Unable to update downloads number because pwner ID is not defined");
+        }
+      });
+    } else {
+      print("CloudStorageController -- addtoFavourited:; Unable to save record into favourites");
+      //Quando si arriva qua è perchè probabilmente è già statp salvato --> cambiar stato
     }
-    print("CludStorageController -- addtofav FINEIENINEINE");
+  }
+
+
+  Future<void> removeFromFavourites(Record record) async {
+    DocumentReference userDocRef = FirebaseFirestore.instance.collection("users").doc(Model().getUser()!.uid);
+    CollectionReference favCollRef = userDocRef.collection("favourites");
+    String path = record.getFilename() + " - " + record.getRecordOwnerID();
+    favCollRef.doc(path).delete().then((value) => print("Delete completed"));
+  }
+
+  Future<void> upgradeDownloads(String ownerID) async {
+    DocumentReference userDocRef = FirebaseFirestore.instance.collection("users").doc(ownerID);
+    DocumentSnapshot snap = await userDocRef.get();
+
+    if (snap.exists) {
+      int newValue = snap.get("nDownloads") + 1;
+      //Setting up new value
+      userDocRef.update({"nDownloads": newValue}).then((value) => print("nDownloads updated"));
+    } else {
+      print("CloudStorageController -- upgradeDownalods -- snaposht doesn't exist");
+    }
+  }
+
+  Future<int> getDownloadsNumber() async {
+    User? user = Model().getUser();
+    if (user != null) {
+
+      DocumentReference userDocRef = FirebaseFirestore.instance.collection("users").doc(user.uid);
+      DocumentSnapshot snap = await userDocRef.get();
+      if (snap.exists) {
+        return snap.get("nDownloads");
+      }
+
+    } else {
+      print("CloudStorageController -- getDownloadsNumber -- user is null");
+    }
+    return 0;
   }
 
   ///Gets from the DB all the user's favourites and returns a list of all the queried urls
   Future<List<Record>> getFavouritesFromDB() async {
     List<Record> records = [];
 
-    //Getting favourites collection
-    DocumentReference userDocRef = FirebaseFirestore.instance.collection("users").doc(Model().getUser()!.uid);
-    CollectionReference favCollRef = userDocRef.collection("favourites");
-    QuerySnapshot favSnap = await favCollRef.get();
+    User? currentUser = Model().getUser();
+    if (currentUser != null) {//user is logged in
 
-    List<QueryDocumentSnapshot> docList = favSnap.docs;
-    for (int i = 0; i < docList.length; i ++) {
+      //Getting favourites collection
+      DocumentReference userDocRef = FirebaseFirestore.instance.collection("users").doc(Model().getUser()!.uid);
+      CollectionReference favCollRef = userDocRef.collection("favourites");
+      QuerySnapshot favSnap = await favCollRef.get();
 
-      //Composing record
-      Record newRecord = Record(docList[i].get("url").toString());
-      //Dividing filename and owner
-      var splitted = docList[i].id.split(" - ");
-      newRecord.setFilename(splitted[0]);
-      newRecord.setRecordOwnerID(splitted[1]);
-      records.add(newRecord);
+      List<QueryDocumentSnapshot> docList = favSnap.docs;
+      for (int i = 0; i < docList.length; i ++) {
+
+        //Composing record
+        Record newRecord = Record(docList[i].get("url").toString());
+        //Dividing filename and owner
+        var splitted = docList[i].id.split(" - ");
+        newRecord.setFilename(splitted[0]);
+        newRecord.setRecordOwnerID(splitted[1]);
+        records.add(newRecord);
+      }
+
+    } else {
+      print("CloudStorageController -- getFavpuritesFromDB -- user is not logged in, returning empty list");
     }
+
     return records;
-  }
-
-  Future<void> removeFromFavourites(Record record) async {
-
-    //Getting favourites collection
-    DocumentReference userDocRef = FirebaseFirestore.instance.collection("users").doc(Model().getUser()!.uid);
-    CollectionReference favCollRef = userDocRef.collection("favourites");
-    QuerySnapshot favSnap = await favCollRef.get();
-
-    String toRemove = record.getFilename() + " - "+ record.getRecordOwnerID();
-    favSnap.docs.remove(toRemove);
-
-
   }
 
   ///Sets up new username in firebase

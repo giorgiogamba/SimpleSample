@@ -26,6 +26,7 @@ class Model {
 
   //Storage
   String _storageUploadPath = "uploads/";
+  String _deviceToken = "";
 
   //Drive
   GoogleSignInAccount? _googleAccount;
@@ -46,31 +47,13 @@ class Model {
   //Called during initialization
   initModel() async {
     _records = HashMap();
-    //this._user = new User();
     this._counter = 0;
     this._docPath = await getDocFilePath();
     this._extDocPath = await getExternalStorageDoc();
     this._bpm = 60;
 
-    //initSequencerMap();
-
     print("*************** INIZIALIZZAZIONE MODELLO COMPLETATA ***********");
   }
-
-  /*void initSequencerMap() {
-    for (int i = 0; i < 8; i ++) {
-      HashMap<int, bool>? newMap = HashMap();
-      for (int j = 0; j < 16; j ++) {
-        newMap.putIfAbsent(j, () => false);
-      }
-      _sequencerMap?.putIfAbsent(i, () => newMap);
-    }
-    //printSequencerMap();
-  }
-
-  static HashMap<int, HashMap<int, bool>>? getSequencerMap() {
-    return _sequencerMap;
-  }*/
 
   void addRecord(Record newRecord, int index) {
     //Adding User's Unique ID
@@ -266,6 +249,14 @@ class Model {
     var lastSeparator = path.lastIndexOf(Platform.pathSeparator);
     var newPath = path.substring(0, lastSeparator + 1) + newFileName;
     return file.rename(newPath);
+  }
+
+  void setDeviceToken(String token) {
+    this._deviceToken = token;
+  }
+
+  String getDeviceToken() {
+    return this._deviceToken;
   }
 }
 
