@@ -4,8 +4,8 @@ import 'package:http/http.dart' as http;
 import 'package:simple_sample/main.dart';
 import 'package:googleapis/drive/v3.dart' as drive;
 import "dart:io";
-import 'Model.dart';
-import 'Record.dart';
+import '../Models/Model.dart';
+import '../Models/Record.dart';
 
 class GoogleDriveController {
 

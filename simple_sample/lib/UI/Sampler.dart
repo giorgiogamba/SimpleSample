@@ -1,19 +1,25 @@
+import 'dart:async';
+
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:overlay_support/overlay_support.dart';
-import 'package:simple_sample/AudioController.dart';
-import 'package:simple_sample/AuthenticationController.dart';
-import 'package:simple_sample/NotificationController.dart';
-import 'package:simple_sample/SamplerController.dart';
-import 'package:simple_sample/ShareDialogController.dart';
-import 'package:simple_sample/ToUpdateListController.dart';
+import 'package:simple_sample/Controllers/AudioController.dart';
+import 'package:simple_sample/Controllers/AuthenticationController.dart';
+import 'package:simple_sample/Controllers/NotificationController.dart';
+import 'package:simple_sample/Controllers/SamplerController.dart';
+import 'package:simple_sample/Controllers/ShareDialogController.dart';
+import 'package:simple_sample/Controllers/ToUpdateListController.dart';
+
+import 'package:flutter_sound/flutter_sound.dart';
+import 'package:intl/intl.dart';
+import 'package:intl/date_symbol_data_local.dart';
 
 import 'Explorer.dart';
-import 'Model.dart';
-import 'Record.dart';
-import 'Utils.dart';
+import '../Models/Model.dart';
+import '../Models/Record.dart';
+import '../Utils.dart';
 
 /// Class representing Sampler UI
 
@@ -33,6 +39,7 @@ class _SamplerState extends State<Sampler> {
 
   AudioController _audioController = AudioController();
   SamplerController _samplerController = SamplerController();
+  StreamSubscription? _recorderSubscription;
 
   @override
   void initState() {
@@ -42,6 +49,18 @@ class _SamplerState extends State<Sampler> {
     print("+++++USER CONNECTED ${AuthenticationController().checkIfUseConnected()}");
 
     //todo eseguire inizializzazione recorder
+
+    //Recording time initialization
+    initializeDateFormatting();
+    _recorderSubscription = AudioController().getRecorder().onProgress!.listen((e) {
+      var date = DateTime.fromMillisecondsSinceEpoch(e.duration.inMilliseconds, isUtc: true);
+      var txt = DateFormat('mm:ss:SS', 'en_GB').format(date);
+
+      setState(() {
+        _samplerController.setOperationInformationTxt(txt.substring(0, 8));
+      });
+    });
+
     _samplerController.disableItemSelection();
     super.initState();
   }
@@ -244,7 +263,7 @@ class _SamplerState extends State<Sampler> {
               child: Center(
                 child: Text(
                   _samplerController.getOperationInformationText(),
-                  style: TextStyle(fontSize: 30),
+                  style: TextStyle(fontSize: 30, color: Colors.white),
                 ),
               ),
             ),

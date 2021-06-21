@@ -2,8 +2,8 @@ import 'package:file_picker/file_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 
-import 'Model.dart';
-import 'Record.dart';
+import '../Models/Model.dart';
+import '../Models/Record.dart';
 import 'dart:io';
 
 class SamplerController {
@@ -168,5 +168,9 @@ class SamplerController {
 
   String getOperationInformationText() {
     return this._operationInformationText;
+  }
+
+  void setOperationInformationTxt(String text) {
+    this._operationInformationText = text;
   }
 }

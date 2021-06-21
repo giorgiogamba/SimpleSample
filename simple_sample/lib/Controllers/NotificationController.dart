@@ -3,7 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:overlay_support/overlay_support.dart';
 
-import 'Model.dart';
+import '../Models/Model.dart';
 
 class NotificationController {
 

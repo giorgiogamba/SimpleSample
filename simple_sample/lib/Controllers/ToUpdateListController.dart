@@ -1,7 +1,7 @@
-import 'package:simple_sample/CloudStorageController.dart';
+import 'package:simple_sample/Controllers/CloudStorageController.dart';
 
-import 'Model.dart';
-import 'Record.dart';
+import '../Models/Model.dart';
+import '../Models/Record.dart';
 
 class ToUpdateListController{
 

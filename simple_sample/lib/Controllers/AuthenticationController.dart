@@ -4,15 +4,15 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:googleapis/drive/v3.dart' as drive;
-import 'package:simple_sample/UserPageController.dart';
+import 'package:simple_sample/Controllers/UserPageController.dart';
 
 import 'CloudStorageController.dart';
-import 'Model.dart';
+import '../Models/Model.dart';
 
 class AuthenticationController {
 
   static final AuthenticationController _instance = AuthenticationController._internal();
-  String username = ""; //todo prelevare valore da finestra di dialogo
+  String username = "";
 
   AuthenticationController._internal() {
     print("Initializing AuthenticationController");
@@ -237,6 +237,15 @@ class AuthenticationController {
 
   }
 
+
+  Future<void> deleteUserAccount() async {
+    User? currentUser = FirebaseAuth.instance.currentUser;
+    if (currentUser != null) {
+      await currentUser.delete();
+    } else {
+      print("AuthenticationController -- deleteUserAccount -- currentUser is null, unable to delete account");
+    }
+  }
 
 
 

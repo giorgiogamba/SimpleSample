@@ -1,8 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:simple_sample/ExplorerController.dart';
+import 'package:simple_sample/Controllers/ExplorerController.dart';
 
-import 'Record.dart';
+import '../Models/Record.dart';
+import '../Utils.dart';
 
 const double elevationValue = 10;
 const double buttonSizeX = 30;
@@ -208,14 +209,20 @@ class ExplorerListItem extends StatefulWidget {
 
 class _ExplorerListItemState extends State<ExplorerListItem> {
 
-  bool add = true;
-
   ButtonStyle getButtonStyle() {
     return ButtonStyle(
       backgroundColor: MaterialStateColor.resolveWith((states) => Colors.teal),
       elevation: MaterialStateProperty.resolveWith((states) => elevationValue),
       minimumSize: MaterialStateProperty.resolveWith((states) => Size(buttonSizeX, buttonSizeY)),
     );
+  }
+
+  Icon chooseIcon(Record record) {
+    if (widget.controller.manageFavouritesIcon(record)) { //if it is in favourites
+      return Icon(Icons.star, color: Colors.yellow);
+    } else { //it is not into favourites
+      return Icon(Icons.star_border_sharp, color: Colors.yellow,);
+    }
   }
 
   Widget makeFirstRow() {
@@ -234,27 +241,16 @@ class _ExplorerListItemState extends State<ExplorerListItem> {
           ),
         ),
         ElevatedButton(
-          onPressed: () {
-            if (add) {
-              widget.controller.addToFavorites(widget.item).then((value) {
-                setState(() {
-                  add = false;
-                });
-              });
-            } else {
-              widget.controller.removeFromFavourites(widget.item).then((value) {
-                setState(() {
-                  add = true;
-                });
-              });
-            }
-          },
-          child: Icon(Icons.star, color: Colors.white,),
+          onPressed: () => widget.controller.manageFavouritesButton(widget.item).then((value) {setState(() {});}),
+          child: chooseIcon(widget.item),
           style: getButtonStyle(),
         ),
         ElevatedButton(
           onPressed: () {
-            widget.controller.downloadRecord(widget.item);
+            widget.controller.downloadRecord(widget.item).then((value) {
+              //_showToast(context, "Download Correctly executed");
+              Utils.showToast(context, "Download correctly executed");
+            });
             setState(() {});
           },
           child: Icon(Icons.arrow_circle_down, color: Colors.white,),
@@ -278,13 +274,61 @@ class _ExplorerListItemState extends State<ExplorerListItem> {
   }
 
   Widget makeSecondRow() {
-    return Row(
+
+    int max = 10;
+
+    //Supposto che in ogni righa ci stinao 15 caratteri di tag
+    String tagString = createTagString();
+    int restLength = tagString.length;
+    List<Widget> widgetList = [];
+    if (tagString.length > max) {
+      //Determining the number of tag rows
+      int nRows = tagString.length ~/ max;
+      for (int i = 0; i < nRows; i ++) {
+        if (i == 0) { //First Row
+          Row first = Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(tagString.substring(0, max), style: TextStyle(color: Colors.white)),
+              Text("Downloads: " + widget.item.getDownloadsNumber().toString(), style: TextStyle(color: Colors.white)),
+            ],
+          );
+          restLength -= max;
+          widgetList.add(first);
+        } else if (i == (nRows-1)) { //Last Row
+
+          print("Ultima: rest: $restLength");
+
+          String rest = tagString.substring(i*max, i*max + restLength);
+          Row newRow = Row(children: [Text(rest, style: TextStyle(color: Colors.white))],);
+          widgetList.add(newRow);
+
+        } else {
+          Text newText = Text(tagString.substring(i * max, (i+1) * max), style: TextStyle(color: Colors.white));
+          Row newRow = Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              newText
+            ],
+          );
+          restLength -= max;
+          widgetList.add(newRow);
+        }
+      }
+    }
+
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.start,
+      children: widgetList,
+    );
+
+    /*return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(createTagString(), style: TextStyle(color: Colors.white)),
+        Text(tagString, style: TextStyle(color: Colors.white)),
         Text("Downloads: " + widget.item.getDownloadsNumber().toString(), style: TextStyle(color: Colors.white)),
       ]
-    );
+    );*/
   }
 
   @override

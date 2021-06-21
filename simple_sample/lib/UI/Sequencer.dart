@@ -1,8 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:simple_sample/AudioController.dart';
-import 'package:simple_sample/SequencerController.dart';
+import 'package:simple_sample/Controllers/AudioController.dart';
+import 'package:simple_sample/Controllers/SequencerController.dart';
 
 /// Class representing Sequencer UI
 

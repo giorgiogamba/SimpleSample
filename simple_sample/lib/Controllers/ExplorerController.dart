@@ -1,9 +1,9 @@
 import 'package:flutter/cupertino.dart';
-import 'package:simple_sample/AudioController.dart';
-import 'package:simple_sample/CloudStorageController.dart';
-import 'package:simple_sample/GoogleDriveController.dart';
-import 'Record.dart';
-import 'Model.dart';
+import 'package:simple_sample/Controllers/AudioController.dart';
+import 'package:simple_sample/Controllers/CloudStorageController.dart';
+import 'package:simple_sample/Controllers/GoogleDriveController.dart';
+import '../Models/Record.dart';
+import '../Models/Model.dart';
 
 class ExplorerController {
   static final ExplorerController _instance = ExplorerController._internal();
@@ -19,9 +19,11 @@ class ExplorerController {
   List<Record> _entries = [];
   List<Record> _selectedEntries = [];
   ValueNotifier<bool> loaded = ValueNotifier(true);
+  List<String> _favourites = [];
 
   void getElementsList() async {
     loaded.value = false;
+    getFavourites(); //downloads favourites in order to manage buttons operations
     List<Record> records = await CloudStorageController().getOnlineRecords();
     this._entries = records;
     this._selectedEntries = this._entries;
@@ -44,12 +46,12 @@ class ExplorerController {
 
   Future<void> addToFavorites(Record record) async {
     print("ExplorerController: addToFavorites");
-    await CloudStorageController().addToFavourites(record);
+    await CloudStorageController().addToFavourites(record).then((value) => getFavourites(),);
   }
 
   Future<void> removeFromFavourites(Record record) async {
     print("ExplorerController: removeFromFavorites");
-    await CloudStorageController().removeFromFavourites(record);
+    await CloudStorageController().removeFromFavourites(record).then((value) => getFavourites(),);
   }
 
   Future<void> downloadRecord(Record record) async {
@@ -88,6 +90,35 @@ class ExplorerController {
 
   void setSelectedEntries(List<Record> newEntries) {
     this._selectedEntries = newEntries;
+  }
+
+  void getFavourites() async {
+    this._favourites = []; //resetting favourites
+    List<Record> temp = await CloudStorageController().getFavouritesFromDB();
+    for (int i = 0; i < temp.length; i ++) {
+      this._favourites.add(temp[i].getUrl());
+      print(temp[i].getFilename());
+    }
+    print("Updated favourites");
+  }
+
+  ///Manages "Favourites" action button
+  Future<void> manageFavouritesButton(Record record) async { //test, provo ad aggiungere async
+    String url = record.getUrl();
+    if (this._favourites.contains(url)) {
+      await removeFromFavourites(record);
+    } else {
+      await addToFavorites(record);
+    }
+  }
+
+  bool manageFavouritesIcon(Record record) {
+    String url = record.getUrl();
+    if (this._favourites.contains(url)) {
+      return true;
+    } else {
+      return false;
+    }
   }
 
 }

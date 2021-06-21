@@ -1,9 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:simple_sample/Sampler.dart';
-import 'package:simple_sample/UserPage.dart';
+import 'package:simple_sample/UI/Sampler.dart';
+import 'package:simple_sample/UI/UserPage.dart';
 
-import 'DirList.dart';
 import 'Explorer.dart';
 import 'Sequencer.dart';
 

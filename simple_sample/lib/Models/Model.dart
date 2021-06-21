@@ -32,7 +32,8 @@ class Model {
   GoogleSignInAccount? _googleAccount;
 
   //Tags
-  List<String> _tagsList = ["Dreamy", "HipHop", "SingleShot", "Pop", "Snare", "Kick"];
+  List<String> _tagsList = ["Dreamy", "HipHop", "SingleShot", "Pop", "Snare", "Kick", "HiHat", "RnB", "Rock", "Electronic", "Funk",
+                            "Disco", "Biologic", "Natural", "Tech", "House"];
 
 
   Model.internal() {

@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:simple_sample/CloudStorageController.dart';
+import 'package:simple_sample/Controllers/CloudStorageController.dart';
 
 import 'AudioController.dart';
-import 'Model.dart';
-import 'Record.dart';
+import '../Models/Model.dart';
+import '../Models/Record.dart';
 
 class ShareDialogController {
   static final ShareDialogController _instance = ShareDialogController._internal();

@@ -4,8 +4,8 @@ import 'dart:collection';
 import 'package:flutter/cupertino.dart';
 
 import 'AudioController.dart';
-import 'Model.dart';
-import 'Record.dart';
+import '../Models/Model.dart';
+import '../Models/Record.dart';
 
 const int bpmBase = 120;
 

@@ -1,12 +1,12 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:simple_sample/AuthenticationController.dart';
-import 'package:simple_sample/Record.dart';
+import 'package:simple_sample/Controllers/AuthenticationController.dart';
+import 'package:simple_sample/Models/Record.dart';
 
 import 'AudioController.dart';
 import 'CloudStorageController.dart';
-import 'Model.dart';
+import '../Models/Model.dart';
 
 class UserPageController {
 
@@ -100,10 +100,6 @@ class UserPageController {
 
   Future<void> initFavourites() async {
     List<Record> favs = await CloudStorageController().getFavouritesFromDB();
-    print("DOWNLOADED FAVS: ");
-    for (int i = 0; i < favs.length; i++) {
-      favs[i].printRecordInfo();
-    }
     this._favourites = favs;
   }
 
@@ -128,8 +124,17 @@ class UserPageController {
     return await CloudStorageController().getUsername();
   }
 
-  void deleteAccount() {
-    //todo listare tutte le cose da scollegare
+  Future<void> deleteAccount() async {
+    print("Method delete account");
+    AuthenticationController().signOutGoogle();
+    AuthenticationController().signOut();
+
+    //Deleting from firebase
+    await CloudStorageController().deleteUserDocument();
+
+    //Deleting from Firebase Authentication
+    await AuthenticationController().deleteUserAccount();
+    print("Account correctly deleted");
   }
 
   void signInWithEmailAndPassword(String email, String password) {
@@ -152,6 +157,13 @@ class UserPageController {
   Future<int> getDownloadsNumber() async {
     int value = await CloudStorageController().getDownloadsNumber();
     return value;
+  }
+
+  Future<void> handleRemoveFromFavourites(int index) async {
+    Record record = this._favourites[index];
+    await CloudStorageController().removeFromFavourites(record);
+    print("UserPageController -- fine handleRemvoeFromFavourites");
+    this._favourites.remove(record);
   }
 
 }

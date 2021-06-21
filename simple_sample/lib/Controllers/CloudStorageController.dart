@@ -2,9 +2,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter_sound/flutter_sound.dart';
-import 'package:simple_sample/Model.dart';
+import 'package:simple_sample/Models/Model.dart';
 
-import 'Record.dart';
+import '../Models/Record.dart';
 import 'dart:io';
 import 'package:firebase_auth/firebase_auth.dart';
 
@@ -85,7 +85,6 @@ class CloudStorageController {
       Record newRec = Record(temp);
       newRec.setRecordOwnerID(getOwnerID(element.fullPath));
       newRec.setFilename(element.name);
-      newRec.printRecordInfo();
 
       //Getting files metadata and adding tags to the new record
       FullMetadata metadata = await element.getMetadata();
@@ -101,7 +100,6 @@ class CloudStorageController {
       if (metadata.customMetadata == null) {
         print("+++++++++ NULLO"); //non ci arriva
       }
-      print("+++++ DOWNLOADS: "+metadata.customMetadata.toString());
       newRec.setDownloadsNumber(int.parse(metadata.customMetadata!["downloads"]!));
 
       records.add(newRec);
@@ -209,9 +207,7 @@ class CloudStorageController {
   String updateDownloadNumber(String? oldNumber) {
     if (oldNumber != null) {
       int parsed = int.parse(oldNumber);
-      print("CloudStorageController -- updateDownloadNummber: OLD $parsed");
       parsed ++;
-      print("CloudStorageController -- updateDownloadNummber: NEW $parsed");
       return parsed.toString();
     } else {
       print("CloudStorageController -- updateDownloadNummber: aegument is null, returnin \"\"");
@@ -273,7 +269,6 @@ class CloudStorageController {
       String sharedDirectoryPath = "shared/"+user.uid.toString()+"/";
       Reference sharedDirectoryRef = FirebaseStorage.instance.ref(sharedDirectoryPath);
       List<Record> sharedRecords = await getElementsIntoDirectory(sharedDirectoryRef);
-      print("sto ritornando, la lista ha lunghezza "+sharedRecords.length.toString());
       return sharedRecords;
     }
     print("Sto ritornando con utente scollegato");
@@ -469,6 +464,18 @@ class CloudStorageController {
       print("CloudStorageController -- getUsername: user nullo, utente non collegato");
     }
     return res;
+  }
+
+  Future<void> deleteUserDocument() async {
+    User? user = Model().getUser();
+    if (user != null) {
+
+      CollectionReference usersDoc = FirebaseFirestore.instance.collection('users');
+      await usersDoc.doc(user.uid).delete().then((value) => print("User document correctly deleted"));
+
+    } else {
+      print("CloudStorageController -- deleteUserDocument -- user is null");
+    }
   }
 
 }

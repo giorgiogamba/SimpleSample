@@ -1,10 +1,10 @@
 import 'package:audio_service/audio_service.dart';
 import 'package:flutter/material.dart';
-import 'package:simple_sample/Model.dart';
+import 'package:simple_sample/Models/Model.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:overlay_support/overlay_support.dart';
 
-import 'MyBottomNavigationBar.dart';
+import 'UI/MyBottomNavigationBar.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();

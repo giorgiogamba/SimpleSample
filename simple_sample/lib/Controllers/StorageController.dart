@@ -1,4 +1,4 @@
-import 'package:simple_sample/Model.dart';
+import 'package:simple_sample/Models/Model.dart';
 
 class StorageController {
 

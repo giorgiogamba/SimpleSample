@@ -2,11 +2,11 @@ import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:simple_sample/Explorer.dart';
-import 'package:simple_sample/UserPageController.dart';
+import 'package:simple_sample/UI/Explorer.dart';
+import 'package:simple_sample/Controllers/UserPageController.dart';
 import 'package:simple_sample/Utils.dart';
-import 'AuthenticationController.dart';
-import 'CloudStorageController.dart';
+import '../Controllers/AuthenticationController.dart';
+import '../Controllers/CloudStorageController.dart';
 
 ///Class representing the user Interface
 
@@ -356,10 +356,9 @@ class _SquareListItemState extends State<SquareListItem> {
           IconButton(icon: Icon(
             Icons.star,
             color: Colors.white,
-          ), onPressed: () => widget.controller.playRecordAt(widget.itemIndex))
+          ), onPressed: () => widget.controller.handleRemoveFromFavourites(widget.itemIndex).then((value) {setState(() {});}))
         ],
       );
-
     } else {
       return IconButton(
         icon: Icon(Icons.play_arrow, color: Colors.white),
@@ -598,7 +597,15 @@ class _SettingsPageState extends State<SettingsPage> {
                   style: ButtonStyle(backgroundColor:  MaterialStateColor.resolveWith((states) => Colors.red),),
                 ),
                 ElevatedButton(
-                  onPressed: () => widget.controller.deleteAccount,
+                  onPressed: () {
+                    showDialog(
+                      context: context,
+                      builder: (context) => DeleteAccountWidget(
+                        controller: widget.controller,
+                        key: Key("CIAO"),
+                      ),
+                    );
+                  },
                   child: Text("Delete User"),
                   style: ButtonStyle(backgroundColor:  MaterialStateColor.resolveWith((states) => Colors.red),),
                 ),
@@ -672,6 +679,62 @@ class SetUsernameDialog extends StatelessWidget {
                   });
                   },
                   child: Text("Submit"),
+                  style: ButtonStyle(backgroundColor: MaterialStateColor.resolveWith((states) => Colors.blueGrey),),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+
+
+class DeleteAccountWidget extends StatefulWidget {
+
+  final UserPageController controller;
+  final Key key;
+
+  const DeleteAccountWidget({required this.controller, required this.key}) : super(key: key);
+
+  @override
+  _DeleteAccountWidgetState createState() => _DeleteAccountWidgetState();
+}
+
+class _DeleteAccountWidgetState extends State<DeleteAccountWidget> {
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      backgroundColor: Color.fromRGBO(36, 59, 85, 1),
+      content: Container(
+        width: 200,
+        height: 100,
+        child: Column(
+          children: [
+            Text(
+              "Are you sure you want to delete your account?",
+              textAlign: TextAlign.center,
+              style: TextStyle(color: Colors.white),
+            ),
+            Padding(padding: EdgeInsets.symmetric(vertical: 4),),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                ElevatedButton(onPressed: () {
+                  Navigator.pop(context);
+                },
+                  child: Text("No"),
+                  style: ButtonStyle(backgroundColor: MaterialStateColor.resolveWith((states) => Colors.blueGrey),),
+                ),
+                ElevatedButton(onPressed: () {
+                  widget.controller.deleteAccount().then((value) {
+                    Navigator.pop(context);
+                    Navigator.pop(context);
+                  });
+                },
+                  child: Text("Yes"),
                   style: ButtonStyle(backgroundColor: MaterialStateColor.resolveWith((states) => Colors.blueGrey),),
                 ),
               ],
