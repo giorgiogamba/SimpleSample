@@ -17,15 +17,13 @@ import 'dart:io';
 
 const int playersNumber = 16;
 
-///todo la versione di esempio fa uso del setState
-///todo pensare se sia il caso di creare uno stateful wodget
 class AudioController {
 
   static final AudioController _instance = AudioController._internal();
 
   List<AudioPlayer?> _players = List.empty();
   List<bool> _isPlayerInited = List.filled(16, false);
-  FlutterSoundRecorder _recorder = FlutterSoundRecorder();
+  late FlutterSoundRecorder _recorder;
   bool _isRecorderInited = false;
   bool _playbackReady = false;
 
@@ -49,15 +47,19 @@ class AudioController {
   }
 
   void initAudioController() {
-
-    _recorder = FlutterSoundRecorder();
-    openRecorder().then((value) => _isRecorderInited = true);
     _players = createPlayersList();
-
     print("********** AudioController Initialization Completed **********");
   }
 
-  //TEST
+  Future<void> initRecorder() async {
+    _recorder = FlutterSoundRecorder();
+    await openRecorder();
+  }
+
+  void disposeRecorder() {
+    _recorder.closeAudioSession();
+  }
+
   FlutterSoundRecorder getRecorder() {
     return this._recorder;
   }
@@ -118,7 +120,6 @@ class AudioController {
           if (toPlay != null) {
             File file = new File(toPlay.getUrl());
             print("******************* file ha lunghezza: "+file.lengthSync().toString());
-            print("******************* last mod: "+file.lastModifiedSync().toString());
             print("******************* path path: "+file.path);
             _players[index]?.play(toPlay.getUrl());
             print("***** ha suonato il player "+index.toString());
@@ -136,7 +137,6 @@ class AudioController {
   }
 
   void playAtURL(String URL) {
-    print("AudioController: playAtURL");
     AudioPlayer player = AudioPlayer();
     player.play(URL);
   }

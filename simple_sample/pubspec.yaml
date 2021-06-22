@@ -48,6 +48,7 @@ dependencies:
   platform_device_id: ^1.0.1 #for firebase messaging
   overlay_support: ^1.2.1 #for toasts and In_app Notifications
   audio_service: ^0.17.1 #for lock screen usage
+  animations: ^2.0.0 #for animations
 
 dev_dependencies:
   flutter_test:
@@ -76,6 +77,7 @@ flutter:
     - assets/userlogo.png
     - assets/google_logo.png
     - assets/userlogo_white.png
+    - assets/sounds/
     - assets/
 
   # An image asset can refer to one or more resolution-specific "variants", see

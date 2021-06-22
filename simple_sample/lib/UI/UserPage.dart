@@ -70,7 +70,11 @@ class _UserPageState extends State<UserPage> {
                 }
             ),
           ),
-          color: Colors.white,
+          decoration: new BoxDecoration( //Rounded shape
+            color: Colors.white,
+            borderRadius: BorderRadius.all(const Radius.circular(50.0)),
+            border: Border.all(color: const Color(0xFF28324E)),
+          ),
         ),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,

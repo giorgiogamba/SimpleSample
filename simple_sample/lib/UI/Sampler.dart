@@ -45,33 +45,41 @@ class _SamplerState extends State<Sampler> {
   void initState() {
     NotificationController();
 
-    //Executing Login
-    print("+++++USER CONNECTED ${AuthenticationController().checkIfUseConnected()}");
+    _audioController.initRecorder().then((value) {
 
-    //todo eseguire inizializzazione recorder
+      //Recording time initialization
+      initializeDateFormatting();
+      _recorderSubscription = _audioController.getRecorder().onProgress!.listen((e) {
+        var date = DateTime.fromMillisecondsSinceEpoch(e.duration.inMilliseconds, isUtc: true);
+        var txt = DateFormat('mm:ss:SS', 'en_GB').format(date);
 
-    //Recording time initialization
-    initializeDateFormatting();
-    _recorderSubscription = AudioController().getRecorder().onProgress!.listen((e) {
-      var date = DateTime.fromMillisecondsSinceEpoch(e.duration.inMilliseconds, isUtc: true);
-      var txt = DateFormat('mm:ss:SS', 'en_GB').format(date);
-
-      setState(() {
-        _samplerController.setOperationInformationTxt(txt.substring(0, 8));
+        setState(() {
+          _samplerController.setOperationInformationTxt(txt.substring(0, 8));
+        });
       });
+
     });
+
+
 
     _samplerController.disableItemSelection();
     super.initState();
   }
 
-  /*@override
+  @override
   void dispose() {
-  //todo eseguire dispose recorder
     print("Dispose sampler");
-    //_controller?.disposeSampler();
+    _audioController.disposeRecorder();
     super.dispose();
-  }*/
+  }
+
+  Color chooseIconColor(int index) {
+    if (_samplerController.checkIsButtonIsFull(index)) {
+      return Colors.teal;
+    } else {
+      return Colors.pink;
+    }
+  }
 
   ButtonStyle getSamplerButtonStyle(int index) {
     return ButtonStyle(
@@ -121,6 +129,7 @@ class _SamplerState extends State<Sampler> {
                     print("Associating button to record");
                     _samplerController.associateFileToButton(index);
                     _samplerController.disableItemSelection();
+                    _samplerController.disableLoading();
                     _audioController.enablePlayback();
                   });
                 } else if (_samplerController.isRenameRunning()) { //Renaming
@@ -143,6 +152,8 @@ class _SamplerState extends State<Sampler> {
                         print("No selected item, rename is not possible");
                       }
                     });
+                  } else {
+                    Utils.showToast(context, "This item cannot be shared. First record something");
                   }
                 } else if (_samplerController.isSharingRunning()) { //sharing
                   print("Associating button for sharing");
@@ -159,6 +170,7 @@ class _SamplerState extends State<Sampler> {
 
                   } else {
                     print("Sampler -- Share Button -- sleected item is null");
+                    Utils.showToast(context, "This item cannot be selected. First record something");
                   }
                 }
               }
@@ -176,7 +188,7 @@ class _SamplerState extends State<Sampler> {
                 padding: const EdgeInsets.all(0.0),
                 child: Icon(
                   Icons.check_circle,
-                  color: Colors.pink,
+                  color: chooseIconColor(index),
                 ),
               ),
             )
@@ -201,6 +213,14 @@ class _SamplerState extends State<Sampler> {
     }
   }
 
+  Widget getLoadButtonName() {
+    if (_samplerController.isLoadingRunning()) {
+      return Text("Cancel");
+    } else {
+      return Text("Load");
+    }
+  }
+
   ButtonStyle getRenameButtonStyle() {
     if (_samplerController.isRenameRunning()) {
       return ButtonStyle(backgroundColor: MaterialStateColor.resolveWith((states) => Colors.red),);
@@ -216,6 +236,15 @@ class _SamplerState extends State<Sampler> {
       return ButtonStyle(backgroundColor: MaterialStateColor.resolveWith((states) => Colors.blueGrey),);
     }
   }
+
+  ButtonStyle getLoadingButtonStyle() {
+    if (_samplerController.isLoadingRunning()) {
+      return ButtonStyle(backgroundColor: MaterialStateColor.resolveWith((states) => Colors.red),);
+    } else {
+      return ButtonStyle(backgroundColor: MaterialStateColor.resolveWith((states) => Colors.blueGrey),);
+    }
+  }
+
 
   ///Create a sampler Row
   Widget createSamplerRow(int startIndex) {
@@ -242,7 +271,7 @@ class _SamplerState extends State<Sampler> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      resizeToAvoidBottomInset: true, //to avoid keyboard overflow
+      resizeToAvoidBottomInset: false, //to avoid keyboard overflow
       body: Container(
         decoration: new BoxDecoration(
           gradient: new LinearGradient(
@@ -282,7 +311,9 @@ class _SamplerState extends State<Sampler> {
                 ElevatedButton(onPressed: () {
                   if (!_samplerController.isSharingRunning() && !_samplerController.isRenameRunning()) {
                     _samplerController.pickFile().then((value) {
+                      _samplerController.setOperationInformationTxt("Select the button");
                       setState(() {
+                        _samplerController.enableLoading();
                         _samplerController.enableItemSelection();
                         if (value != null && value != "") {
                           _samplerController.setSelectedURL(value);
@@ -295,8 +326,8 @@ class _SamplerState extends State<Sampler> {
                     print("Another operation is running");
                   }
                 },
-                  child: Text("Load"),
-                  style: ButtonStyle(backgroundColor:  MaterialStateColor.resolveWith((states) => Colors.blueGrey),),
+                  child: getLoadButtonName(),
+                  style: getLoadingButtonStyle(),
                 ),
                 Padding(padding: EdgeInsets.symmetric(horizontal: 10)),
                 ElevatedButton(onPressed: () {
@@ -312,6 +343,7 @@ class _SamplerState extends State<Sampler> {
                     }
                   } else {
                     print("User is not connected");
+                    Utils.showToast(context, "User is not connected");
                   }
                 },
                   child: Text("Upload"),
@@ -338,6 +370,7 @@ class _SamplerState extends State<Sampler> {
                     }
                   } else { //user is not connected
                     print("User is not connected");
+                    Utils.showToast(context, "User is not connected");
                   }
                 },
                   child: selectSharingButtonName(),
@@ -371,8 +404,6 @@ class _SamplerState extends State<Sampler> {
     );
   }
 
-
-
 }
 
 
@@ -382,7 +413,7 @@ class SharingDialog extends StatefulWidget {
   final Record record;
   final Key key;
 
-  const SharingDialog({/*required this.controller*/ required this.record, required this.key}) : super(key: key);
+  const SharingDialog({required this.record, required this.key}) : super(key: key);
 
   @override
   _SharingDialogState createState() => _SharingDialogState();
@@ -395,27 +426,44 @@ class _SharingDialogState extends State<SharingDialog> {
 
   Widget makePage() {
     return AlertDialog (
+      backgroundColor: Color.fromRGBO(36, 59, 85, 1),
       content: Container(
         width: 250,
         height: 470,
         child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text("Insert Sample Infos:"),
-            SizedBox(height: 20,),
+            Text("Insert Sample Infos:", style: TextStyle(color: Colors.white)),
             TextField(
               controller: _textFieldController,
-              decoration: InputDecoration (
-                border: OutlineInputBorder(),
-                labelText: "Sample Name",
+              style: TextStyle(color: Colors.white),
+              decoration: InputDecoration(
+                enabledBorder: OutlineInputBorder(
+                  borderSide: new BorderSide(color: Colors.white, width: 2),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderSide: new BorderSide(color: Colors.white, width: 2),
+                ),
+                labelText: "New Sample Name",
+                labelStyle: TextStyle(color: Colors.white),
               ),
             ),
-            SizedBox(height: 20),
-            Text("Choose one or more tags"),
-            SizedBox(height: 20),
+            Text("Choose one or more tags", style: TextStyle(color: Colors.white)),
             makeTagList(),
-            ElevatedButton(
-              onPressed: () => _controller.share(_textFieldController.text).then((value) => Navigator.pop(context)),
-              child: Text("Share"),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                ElevatedButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: Text("Cancel"),
+                  style: ButtonStyle(backgroundColor: MaterialStateColor.resolveWith((states) => Colors.blueGrey),),
+                ),
+                ElevatedButton(
+                  onPressed: () => _controller.share(_textFieldController.text).then((value) => Navigator.pop(context)),
+                  child: Text("Share"),
+                  style: ButtonStyle(backgroundColor: MaterialStateColor.resolveWith((states) => Colors.blueGrey),),
+                ),
+              ],
             ),
           ],
         ),
@@ -430,7 +478,7 @@ class _SharingDialogState extends State<SharingDialog> {
       height: 250,
       decoration: BoxDecoration(
         border: Border.all(
-          color: Colors.teal,
+          color: Colors.white,
         ),
       ),
       child: ListView.separated(
@@ -482,9 +530,10 @@ class _TagListButtonState extends State<TagListButton> {
 
   Color getColor() {
     if (isSelected) {
-      return Colors.red;
+      return Colors.pink;
     } else {
-      return Colors.white;
+      //return Colors.teal;
+      return  Color.fromRGBO(36, 59, 85, 1);
     }
   }
 
@@ -495,7 +544,7 @@ class _TagListButtonState extends State<TagListButton> {
         decoration: BoxDecoration(
           color: getColor(),
         ),
-        child: Text(widget.controller.getTagAt(widget.item)),
+        child: Text(widget.controller.getTagAt(widget.item), style: TextStyle(color: Colors.white), textAlign: TextAlign.center,),
       ),
       onTap: () {
         setState(() {
@@ -536,30 +585,42 @@ class RenamePage extends StatelessWidget {
     samplerController.setRenameSubmitted(false);
 
     return AlertDialog(
+      backgroundColor: Color.fromRGBO(36, 59, 85, 1),
       content: Container(
         width: 200,
-        height: 150,
+        height: 180,
         child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text("Choose a new name for the Sampler",),
-            Padding(padding: EdgeInsets.symmetric(vertical: 4),),
+            Text("Choose a new name for the Sampler", style:TextStyle(color: Colors.white), textAlign: TextAlign.center,),
             TextField(
               controller: samplerController.getTextEditingController(),
               decoration: InputDecoration(
+                enabledBorder: OutlineInputBorder(
+                  borderSide: new BorderSide(color: Colors.white, width: 2),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderSide: new BorderSide(color: Colors.white, width: 2),
+                ),
                 labelText: "New Sample Name",
+                labelStyle: TextStyle(color: Colors.white),
               ),
             ),
-            Padding(padding: EdgeInsets.symmetric(vertical: 4),),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 ElevatedButton(onPressed: () {
                   Navigator.pop(context);
-                }, child: Text("Cancel")),
+                },
+                  child: Text("Cancel"),
+                  style: ButtonStyle(backgroundColor: MaterialStateColor.resolveWith((states) => Colors.blueGrey),),
+                ),
                 ElevatedButton(onPressed: () {
                   samplerController.setRenameSubmitted(true);
                   Navigator.pop(context);
-                }, child: Text("Submit")),
+                },
+                  child: Text("Submit"),
+                  style: ButtonStyle(backgroundColor: MaterialStateColor.resolveWith((states) => Colors.blueGrey),),),
               ],
             ),
           ],
@@ -718,6 +779,57 @@ class _ToUploadItemState extends State<ToUploadItem> {
     );
   }
 }
+
+
+class LoadingDialog extends StatelessWidget {
+
+  final SamplerController controller;
+  final Key key;
+
+  const LoadingDialog({required this.controller, required this.key}) : super(key: key);
+
+  final String[] titles = [
+    "Load elements from filesystem",
+    "Load built-it elements",
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      backgroundColor: Color.fromRGBO(36, 59, 85, 1),
+      content: Container(
+        width: 200,
+        height: 100,
+        child: ListView.separated(
+          itemBuilder:  (BuildContext context, int index) {
+            return LoadingListItem(
+              index: index,
+              controller: controller,
+              key: Key(index.toString()),
+            );},
+          separatorBuilder:  (BuildContext context, int index) => const MyDivider(),
+          itemCount: 2,
+        ),
+      ),
+    );
+  }
+}
+
+class LoadingListItem extends StatelessWidget {
+
+  final String title;
+  final SamplerController controller;
+  final Key key;
+
+  const LoadingListItem({required this.title, required this.controller, required this.key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container();
+  }
+}
+
+
 
 
 

@@ -20,6 +20,7 @@ class _ExplorerState extends State<Explorer> {
 
   ExplorerController _controller = ExplorerController();
   TextEditingController _textEditingController = TextEditingController();
+  bool onFiltering = false;
 
   Widget makeListView() {
     return Expanded(
@@ -49,6 +50,7 @@ class _ExplorerState extends State<Explorer> {
       padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
       child: TextField(
         controller: _textEditingController,
+        style: TextStyle(color: Colors.white),
         decoration: InputDecoration(
           enabledBorder: OutlineInputBorder(
             borderSide: new BorderSide(color: Colors.white, width: 2),
@@ -65,8 +67,11 @@ class _ExplorerState extends State<Explorer> {
   }
 
   onItemChanged(String value) {
+    onFiltering = true;
+    print("ObìnFiltering vale : $onFiltering");
     setState(() {
       List<Record> selectedEntries = _controller.getSelectedEntries();
+      print("preso selectedEntries");
       selectedEntries = selectedEntries.where((record) => record.getFilename().toLowerCase().contains(value.toLowerCase())).toList();
       if (value == "") {
         List<Record> entries = _controller.getEntries();
@@ -75,6 +80,8 @@ class _ExplorerState extends State<Explorer> {
         _controller.setSelectedEntries(selectedEntries);
       }
     });
+    onFiltering = false;
+    print("ObìnFiltering vale : $onFiltering");
   }
 
   onFilterChanged(String value) {
@@ -127,6 +134,7 @@ class _ExplorerState extends State<Explorer> {
                 padding: EdgeInsets.symmetric(horizontal: 10, vertical: 2),
                 child: TextField(
                   onChanged: onFilterChanged,
+                  style: TextStyle(color: Colors.white),
                   decoration: InputDecoration(
                     enabledBorder: OutlineInputBorder(
                       borderSide: new BorderSide(color: Colors.white, width: 2),
@@ -175,7 +183,9 @@ class _ExplorerState extends State<Explorer> {
   @override
   Widget build(BuildContext context) {
 
-    _controller.getElementsList(); //updating elements
+    if (!onFiltering) {
+      _controller.getElementsList(); //updating elements
+    }
 
     return Scaffold(
       body: Container(
@@ -241,14 +251,16 @@ class _ExplorerListItemState extends State<ExplorerListItem> {
           ),
         ),
         ElevatedButton(
-          onPressed: () => widget.controller.manageFavouritesButton(widget.item).then((value) {setState(() {});}),
+          onPressed: () => widget.controller.manageFavouritesButton(widget.item).then((value) {
+            setState(() {});
+            Utils.showToast(context, "Sample saved into favourites");
+          }),
           child: chooseIcon(widget.item),
           style: getButtonStyle(),
         ),
         ElevatedButton(
           onPressed: () {
             widget.controller.downloadRecord(widget.item).then((value) {
-              //_showToast(context, "Download Correctly executed");
               Utils.showToast(context, "Download correctly executed");
             });
             setState(() {});
@@ -265,6 +277,7 @@ class _ExplorerListItemState extends State<ExplorerListItem> {
     );
   }
 
+  ///Converts Record's tags list into a single row
   String createTagString() {
     String res = "Tags: ";
     for (String tag in widget.item.getTagList()) {
@@ -273,15 +286,15 @@ class _ExplorerListItemState extends State<ExplorerListItem> {
     return res;
   }
 
+  ///Creates rows fro tags display
   Widget makeSecondRow() {
 
-    int max = 10;
+    int max = 40; //maximum number of characters for row
 
-    //Supposto che in ogni righa ci stinao 15 caratteri di tag
     String tagString = createTagString();
     int restLength = tagString.length;
     List<Widget> widgetList = [];
-    if (tagString.length > max) {
+    if (tagString.length > max) { //tags must be placed in multiple rows
       //Determining the number of tag rows
       int nRows = tagString.length ~/ max;
       for (int i = 0; i < nRows; i ++) {
@@ -296,8 +309,6 @@ class _ExplorerListItemState extends State<ExplorerListItem> {
           restLength -= max;
           widgetList.add(first);
         } else if (i == (nRows-1)) { //Last Row
-
-          print("Ultima: rest: $restLength");
 
           String rest = tagString.substring(i*max, i*max + restLength);
           Row newRow = Row(children: [Text(rest, style: TextStyle(color: Colors.white))],);
@@ -315,6 +326,15 @@ class _ExplorerListItemState extends State<ExplorerListItem> {
           widgetList.add(newRow);
         }
       }
+    } else { //All the tags in one single row
+      Row row = Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(tagString, style: TextStyle(color: Colors.white),),
+          Text("Downloads: " + widget.item.getDownloadsNumber().toString(), style: TextStyle(color: Colors.white)),
+        ],
+      );
+      widgetList.add(row);
     }
 
     return Column(
@@ -322,13 +342,6 @@ class _ExplorerListItemState extends State<ExplorerListItem> {
       children: widgetList,
     );
 
-    /*return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Text(tagString, style: TextStyle(color: Colors.white)),
-        Text("Downloads: " + widget.item.getDownloadsNumber().toString(), style: TextStyle(color: Colors.white)),
-      ]
-    );*/
   }
 
   @override

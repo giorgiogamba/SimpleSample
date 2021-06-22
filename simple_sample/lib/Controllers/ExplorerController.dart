@@ -22,6 +22,7 @@ class ExplorerController {
   List<String> _favourites = [];
 
   void getElementsList() async {
+    print("Richiamato getElementsList");
     loaded.value = false;
     getFavourites(); //downloads favourites in order to manage buttons operations
     List<Record> records = await CloudStorageController().getOnlineRecords();

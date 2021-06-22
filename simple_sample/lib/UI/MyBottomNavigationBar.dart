@@ -1,3 +1,4 @@
+import 'package:animations/animations.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:simple_sample/UI/Sampler.dart';
@@ -30,8 +31,19 @@ class _MyBottomNavigationBarState extends State<MyBottomNavigationBar> {
     final List<Widget> children = [Sampler(), Sequencer(), UserPage(), Explorer()];
 
     return Scaffold(
-      body: children[_selectedIndex],
+      //body: children[_selectedIndex],
+      body: PageTransitionSwitcher(
+        transitionBuilder: (child, primaryAnimation, secondaryAnimation) =>
+            FadeThroughTransition(
+              animation: primaryAnimation,
+              secondaryAnimation: secondaryAnimation,
+              child: child,
+            ),
+        child: children[_selectedIndex],
+      ),
       bottomNavigationBar: BottomNavigationBar(
+        showSelectedLabels: false, //for hiding BottonNavigationBarItem's labels
+        showUnselectedLabels: false, //for hiding BottonNavigationBarItem's labels
         type: BottomNavigationBarType.fixed,
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(icon: Icon(Icons.apps_sharp,), label: "Sampler", ),
