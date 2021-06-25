@@ -242,6 +242,8 @@ class CloudStorageController {
       try {
         // Pass metadata to any file upload method e.g putFile.
         await FirebaseStorage.instance.ref('shared/'+user.uid.toString()+"/"+newName+".wav").putFile(file, metadata);
+        //await updateAllUsersField("toUpdateExplorer", true.toString());
+        //await updateUserField("toUpdateUserPage", true.toString());
         return true;
       } on FirebaseException catch (e) {
         print("share Record exception");
@@ -254,10 +256,12 @@ class CloudStorageController {
 
   String parseTags(List<String> tags) {
     String res = "";
-    for (int i = 0; i < tags.length-2; i ++) {
-      res = res + tags[i] + "|";
+    if (tags.length > 0) {
+      for (int i = 0; i < tags.length - 2; i ++) {
+        res = res + tags[i] + "|";
+      }
+      res = res + tags[tags.length - 1];
     }
-    res = res + tags[tags.length-1];
     return res;
   }
 
@@ -477,6 +481,35 @@ class CloudStorageController {
       print("CloudStorageController -- deleteUserDocument -- user is null");
     }
   }
+
+  /*///Updates all users' "field" field in firestore
+  ///"field" value can be "toUpdateExplorer" or "ToUpdateUserPage"
+  Future<void> updateAllUsersField(String field, String value) async {
+    QuerySnapshot usersSnap = await FirebaseFirestore.instance.collection("users").get();
+    List<QueryDocumentSnapshot> docsSnap = usersSnap.docs; //contiene tutti gli id degli utenti
+    for (QueryDocumentSnapshot temp in docsSnap) {
+      if (temp.exists) {
+        print(temp.id);
+        FirebaseFirestore.instance.collection("users").doc(temp.id).update({field: value})
+            .then((value) => print("${temp.id} updated"));
+      }
+    }
+  }
+
+  Future<String?> getFieldValue(String field) async {
+    DocumentSnapshot userSnap = await FirebaseFirestore.instance.collection("users").doc(Model().getUser()!.uid).get();
+    if (userSnap.exists) {
+      return userSnap.get(field);
+    } else {
+      return null;
+    }
+  }
+
+  ///Sets to "value" the field "field" for the current user
+  Future<void> updateUserField(String field, String value) async {
+    await FirebaseFirestore.instance.collection("users").doc(Model().getUser()!.uid).update({field: value});
+  }*/
+
 
 }
 

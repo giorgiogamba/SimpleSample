@@ -20,15 +20,21 @@ class ExplorerController {
   List<Record> _selectedEntries = [];
   ValueNotifier<bool> loaded = ValueNotifier(true);
   List<String> _favourites = [];
+  //bool _isToUpdate = false;
 
+  ///Downloads all the online records
   void getElementsList() async {
-    print("Richiamato getElementsList");
-    loaded.value = false;
-    getFavourites(); //downloads favourites in order to manage buttons operations
-    List<Record> records = await CloudStorageController().getOnlineRecords();
-    this._entries = records;
-    this._selectedEntries = this._entries;
-    loaded.value = true;
+    //isToUpdate();
+    //print(this._isToUpdate);
+    //if (this._isToUpdate) {
+      loaded.value = false;
+      getFavourites(); //downloads favourites in order to manage buttons operations
+      List<Record> records = await CloudStorageController().getOnlineRecords();
+      this._entries = records;
+      this._selectedEntries = this._entries;
+      loaded.value = true;
+      //updateCompleted();
+    //}
   }
 
   bool checkIfUserLogged() {
@@ -111,6 +117,7 @@ class ExplorerController {
     } else {
       await addToFavorites(record);
     }
+    //CloudStorageController().updateUserField("toUpdateUserPage" , true.toString());
   }
 
   bool manageFavouritesIcon(Record record) {
@@ -121,5 +128,14 @@ class ExplorerController {
       return false;
     }
   }
+
+  /*void isToUpdate() async {
+    String? val = await CloudStorageController().getFieldValue("toUpdateExplorer");
+    this._isToUpdate = val == "true";
+  }
+
+  void updateCompleted() async {
+    CloudStorageController().updateUserField("toUpdateExplorer", false.toString());
+  }*/
 
 }

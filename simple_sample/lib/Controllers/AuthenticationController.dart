@@ -8,6 +8,7 @@ import 'package:simple_sample/Controllers/UserPageController.dart';
 
 import 'CloudStorageController.dart';
 import '../Models/Model.dart';
+import 'DropboxController.dart';
 
 class AuthenticationController {
 
@@ -91,6 +92,10 @@ class AuthenticationController {
 
         firestoreAuthentication(_user);
 
+
+        //Test
+        //DropboxController();
+
       } on FirebaseAuthException catch (e) {
         if (e.code == "account-exists-woth-different-credential") {
           print("linkGoogle: account exists with different credential");
@@ -118,6 +123,8 @@ class AuthenticationController {
         "nDownloads": 0,
         "username": username,
         "device_token" : Model().getDeviceToken(),
+        "toUpdateExplorer" : false.toString(),
+        "toUpdateUserPage" : false.toString(),
       }).then((value) => print("+++ Created Firestore document for the User +++"));
 
     } else {
@@ -144,73 +151,57 @@ class AuthenticationController {
   }
 
 
-  /*static Future<UserCredential?> signInWithFacebook() async {
-    final LoginResult result = await FacebookAuth.instance.login();
-    if (result.status == LoginStatus.success) {
-      //User logged in
-      final AccessToken? accessToken = result.accessToken;
-      final facebookAuthCredential = FacebookAuthProvider.credential(accessToken!.token);
-      return await FirebaseAuth.instance.signInWithCredential(facebookAuthCredential);
-    } else {
-      print("USer not logged in to facebook");
-    }
-  }
-
-  static Future<bool> checkUserFacebookLogged() async {
-    final AccessToken? accessToken = await FacebookAuth.instance.accessToken;
-    if (accessToken != null) {
-      print("User is loggd in");
-      return true;
-    } else {
-      print("User is not logged in");
-      return false;
-    }
-  }
-
-  void signOutFromFacebook() async {
-    await FacebookAuth.instance.logOut();
-  }*/
-
-  /*void addUsername() {
-    CollectionReference users = FirebaseFirestore.instance.collection('users');
-    users.add()
-  }*/
-
-
   ///Creates a new user with email and password infos
   ///NB automatically signs in the new user
-  void createUserWithEmailAndPassword(String newEmail, String newPassword) async {
-    print("MEtodo creatre");
+  Future<String> createUserWithEmailAndPassword(String newEmail, String newPassword) async {
     try {
       UserCredential credentials = await FirebaseAuth.instance.createUserWithEmailAndPassword(
         email: newEmail,
         password: newPassword,
       );
-      print("credentiale: $credentials");
-      print("DOpo await");
 
       User? user = credentials.user;
-      if (user != null) {
+      if (user != null) { //ACCESS CORRECTLY EXECUTED
+
         Model().setUser(user);
-      } else {
-        print("Authentication Controller -- createUserWithemail... -- user is null, cannot assign it to Model");
+        String? imagePath = await CloudStorageController().downloadProfileImage();
+        if (imagePath != null) {
+          UserPageController().setProfileImagePath(imagePath);
+        } else {
+          print("******* Profile image download not completed ********");
+        }
+        firestoreAuthentication(user);
+        return "true";
+
+      } else { //ACCESS NOT CORRECTLY EXECUTED
+        return "Error during registration, user not valid";
       }
 
-      //todo inserire tutte le informazioni
+    } on FirebaseAuthException catch (error) {
+      switch (error.code) {
 
-    } on FirebaseAuthException catch (e) {
-      if (e.code == 'weak-password') {
-        print('The password provided is too weak.');
-      } else if (e.code == 'email-already-in-use') {
-        print('The account already exists for that email.');
+        case "email-already-in-use":
+          return "This email address is already in use.";
+
+        case "invalid-email":
+          return "Invalid Email";
+
+        case "operation-not-allowed":
+          return "This operation is not allowed";
+
+        case "weak-password":
+          return "Your password is weak";
+
+        default:
+          return "unknown error during registration";
       }
     } catch (e) {
       print(e);
     }
+    return "unknown error during registration";
   }
 
-  void signInWithEmailAndPassword(String newEmail, String newPassword) async {
-
+  Future<String> signInWithEmailAndPassword(String newEmail, String newPassword) async {
     try {
       UserCredential credentials = await FirebaseAuth.instance.signInWithEmailAndPassword(
           email: newEmail,
@@ -218,23 +209,26 @@ class AuthenticationController {
       );
 
       User? user = credentials.user;
-      if (user != null) {
+      if (user != null) { //Access correctly executed
         Model().setUser(user);
-      } else {
-        print("Authentication Controller -- signInWithemail... -- user is null, cannot assign it to Model");
+        return "true";
+      } else { //Access not executed
+        return "Error during access user is not valid";
       }
-
-      //todo inserire tutte le informazioni
-
     } on FirebaseAuthException catch (e) {
       if (e.code == 'user-not-found') {
-        print('No user found for that email.');
+        return "No user found for that email.";
       } else if (e.code == 'wrong-password') {
-        print('Wrong password provided for that user.');
+        return "Wrong password provided for that user.";
+      } else if (e.code == "invalid-email") {
+        return "Invalid email";
+      } else if (e.code == "user-disabled") {
+        return "This user is disabled";
+      } else if (e.toString() == "[firebase_auth/unknown] Given String is empty or null") {
+        return "[firebase_auth/unknown] Given String is empty or null";
       }
     }
-
-
+    return "Sign-In: Unknown error";
   }
 
 

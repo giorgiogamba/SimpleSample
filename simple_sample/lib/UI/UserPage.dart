@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -24,7 +25,7 @@ class _UserPageState extends State<UserPage> {
   UserPageController _userPageController = UserPageController();
   bool auth = false;
 
-  TextEditingController _emailConttoller = TextEditingController();
+  TextEditingController _emailController = TextEditingController();
   TextEditingController _passwordController = TextEditingController();
 
   @override
@@ -120,6 +121,7 @@ class _UserPageState extends State<UserPage> {
                     key: Key(_userPageController.getUserSharedRecordsLength().toString()),
                     controller: _userPageController,
                     isFavourite: false,
+                    callback: () {setState(() {});},
                   );
                 },
                 separatorBuilder:  (BuildContext context, int index) => MyDivider(),
@@ -143,6 +145,7 @@ class _UserPageState extends State<UserPage> {
                     key: Key(_userPageController.getFavouritesLength().toString()),
                     controller: _userPageController,
                     isFavourite: true,
+                    callback: () { setState(() {});},
                   );
                 },
                 separatorBuilder:  (BuildContext context, int index) => MyDivider(),
@@ -183,6 +186,7 @@ class _UserPageState extends State<UserPage> {
               content: Column(
                 children: [
                   TextField(
+                    style: TextStyle(color: Colors.white),
                     decoration: InputDecoration(
                       enabledBorder: OutlineInputBorder(
                         borderSide: new BorderSide(color: Colors.white, width: 2),
@@ -193,9 +197,11 @@ class _UserPageState extends State<UserPage> {
                       labelText: 'email',
                       labelStyle: TextStyle(color: Colors.white),
                     ),
+                    controller: _emailController,
                   ),
                   Padding(padding: EdgeInsets.all(5)),
                   TextField(
+                    style: TextStyle(color: Colors.white),
                     obscureText: true,
                     decoration: InputDecoration(
                       enabledBorder: OutlineInputBorder(
@@ -207,24 +213,47 @@ class _UserPageState extends State<UserPage> {
                       labelText: 'Password',
                       labelStyle: TextStyle(color: Colors.white),
                     ),
+                    controller: _passwordController,
                   ),
                   Padding(padding: EdgeInsets.all(5)),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       ElevatedButton(
-                        onPressed: () => _userPageController.createUserWithEmailAndPassword(
-                          _emailConttoller.text,
-                          _passwordController.text,
-                        ),
+                        onPressed: () {
+                          _userPageController.createUserWithEmailAndPassword(
+                            _emailController.text,
+                            _passwordController.text,
+                          ).then((value) {
+                            print("VALUE< REGISTER $value");
+                            if (value == "true") {
+                              setState(() {
+                                auth = true;
+                              });
+                            } else {
+                              showDialog(context: context, builder: (builder) => AccessErrorPage(key: Key(value)));
+                            }
+                          });
+                        },
                         child: Text("Register"),
                         style: ButtonStyle(backgroundColor:  MaterialStateColor.resolveWith((states) => Colors.blueGrey),),
                       ),
                       ElevatedButton(
-                        onPressed: () => _userPageController.signInWithEmailAndPassword(
-                          _emailConttoller.text,
-                          _passwordController.text,
-                        ),
+                        onPressed: () {
+                          _userPageController.signInWithEmailAndPassword(
+                            _emailController.text,
+                            _passwordController.text,
+                          ).then((value) {
+                            print("VLAUE USER PAGE; $value");
+                            if (value == "true") {
+                              setState(() {
+                                auth = true;
+                              });
+                            } else {
+                              showDialog(context: context, builder: (builder) => AccessErrorPage(key: Key(value)));
+                            }
+                          });
+                        },
                         child: Text("Login"),
                         style: ButtonStyle(backgroundColor:  MaterialStateColor.resolveWith((states) => Colors.blueGrey),),
                       ),
@@ -334,12 +363,14 @@ class SquareListItem extends StatefulWidget {
   final Key key;
   final UserPageController controller;
   final bool isFavourite;
+  final VoidCallback callback;
 
   const SquareListItem({
     required this.itemIndex,
     required this.key,
     required this.controller,
     required this.isFavourite,
+    required this.callback,
   }) : super(key: key);
 
   @override
@@ -360,7 +391,10 @@ class _SquareListItemState extends State<SquareListItem> {
           IconButton(icon: Icon(
             Icons.star,
             color: Colors.white,
-          ), onPressed: () => widget.controller.handleRemoveFromFavourites(widget.itemIndex).then((value) {setState(() {});}))
+          ), onPressed: () => widget.controller.handleRemoveFromFavourites(widget.itemIndex).then((value) {
+            setState(() {}); //inutile
+            widget.callback();
+          }))
         ],
       );
     } else {
@@ -385,7 +419,7 @@ class _SquareListItemState extends State<SquareListItem> {
                 child: Padding(
                   padding: EdgeInsets.symmetric(vertical: 10),
                   child: Text(
-                      Utils.removeExtension(widget.controller.getUserSharedRecordAt(widget.itemIndex).getFilename()),
+                      Utils.wrapText(Utils.removeExtension(widget.controller.getUserSharedRecordAt(widget.itemIndex).getFilename()), 12),
                       style: TextStyle(
                         fontSize: 16,
                         color: Colors.white,
@@ -751,6 +785,43 @@ class _DeleteAccountWidgetState extends State<DeleteAccountWidget> {
 }
 
 
+class AccessErrorPage extends StatelessWidget {
+
+  const AccessErrorPage({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      backgroundColor:  Color.fromRGBO(36, 59, 85, 1),
+      content: Container(
+        width: 200,
+        height: 150,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text("ERROR DURING ACCESS",
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: Colors.red,
+                fontSize: 20,
+              ),
+            ),
+            Text(
+              Utils.remove3(key.toString()),
+              style: TextStyle(color: Colors.white),
+              textAlign: TextAlign.center,
+            ),
+            ElevatedButton(
+              onPressed: () {Navigator.pop(context);},
+              child: Text("Back"),
+              style: ButtonStyle(backgroundColor: MaterialStateColor.resolveWith((states) => Colors.blueGrey),),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
 
 
 

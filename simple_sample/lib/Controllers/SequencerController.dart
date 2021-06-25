@@ -7,7 +7,8 @@ import 'AudioController.dart';
 import '../Models/Model.dart';
 import '../Models/Record.dart';
 
-const int bpmBase = 120;
+const int bpmBase = 60;
+const int maxBpm = 200;
 
 class SequencerController {
 
@@ -94,9 +95,22 @@ class SequencerController {
 
   void calculateTick() {
     int? currentBPM = getBPM();
-    _tick = bpmBase ~/ currentBPM;
-    _remainder = bpmBase % currentBPM;
-    _dur = Duration(seconds: _tick, milliseconds: _remainder);
+    double value = bpmBase / currentBPM;
+    print(value);
+
+    //Parsificazione in due parti
+    var splitted = value.toString().split("."); //splits in 2 parts
+    int seconds = int.parse(splitted[0]);
+    int decimal = int.parse(splitted[1]);
+    if (decimal < 10) {
+      decimal = decimal * 100;
+    } else if (decimal > 10 && decimal < 100) {
+      decimal = decimal * 10;
+    } else if (decimal > 1000) {
+      //Possibile duration overflow, truncating result
+      decimal = int.parse(decimal.toString().substring(0, 3));
+    }
+    _dur = Duration(seconds: seconds, milliseconds: decimal);
   }
 
   void startTimeout() {
@@ -178,6 +192,10 @@ class SequencerController {
     } else {
       return true;
     }
+  }
+
+  int getMaxBpm() {
+    return maxBpm;
   }
 
 }

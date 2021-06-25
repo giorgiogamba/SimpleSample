@@ -42,6 +42,16 @@
                 <action android:name="FLUTTER_NOTIFICATION_CLICK" />
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
+            <intent-filter> <!--DROPBOX-->
+
+                <!-- Change this to be db- followed by your app key -->
+                <data android:scheme="db-1ardts67mhrvvbr" />
+
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.BROWSABLE" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
         </activity>
 
         <activity

@@ -1,12 +1,16 @@
 import 'dart:collection';
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:flutter/foundation.dart';
+import 'package:simple_sample/Controllers/DropboxController.dart';
+import '../Utils.dart';
 import 'Record.dart';
 
 class Model {
@@ -35,6 +39,21 @@ class Model {
   List<String> _tagsList = ["Dreamy", "HipHop", "SingleShot", "Pop", "Snare", "Kick", "HiHat", "RnB", "Rock", "Electronic", "Funk",
                             "Disco", "Biologic", "Natural", "Tech", "House"];
 
+  //Built-in assets
+  List<String> _assets = [
+    "assets/sounds/Clap.wav",
+    "assets/sounds/Crash.wav",
+    "assets/sounds/Hat.wav",
+    "assets/sounds/High Tom.wav",
+    "assets/sounds/Kick 1.wav",
+    "assets/sounds/Kick 2.wav",
+    "assets/sounds/Low Tom.wav",
+    "assets/sounds/Mid Tom.wav",
+    "assets/sounds/Open Hat.wav",
+    "assets/sounds/Ride.wav",
+    "assets/sounds/Rim Job.wav",
+    "assets/sounds/Snare.wav",
+  ];
 
   Model.internal() {
     print("Inizializzazione model");
@@ -52,6 +71,8 @@ class Model {
     this._docPath = await getDocFilePath();
     this._extDocPath = await getExternalStorageDoc();
     this._bpm = 60;
+
+    writeAssetsIntoFilesystem();
 
     print("*************** INIZIALIZZAZIONE MODELLO COMPLETATA ***********");
   }
@@ -259,6 +280,22 @@ class Model {
   String getDeviceToken() {
     return this._deviceToken;
   }
+
+  List<String> getAssets() {
+    return this._assets;
+  }
+
+  void writeAssetsIntoFilesystem() async {
+    for (int i = 0; i < this._assets.length; i ++) {
+      final encryptedByteData = await rootBundle.load(this._assets[i]);
+      Uint8List bytes = encryptedByteData.buffer.asUint8List();
+      String filename = Utils.getFilenameFromURL(this._assets[i]);
+      String newPath = this._extDocPath+"/"+filename;
+      File(newPath).writeAsBytesSync(bytes, mode: FileMode.write, flush: true);
+      this._assets[i] = newPath; //verwriting the new path
+    }
+  }
+
 }
 
 

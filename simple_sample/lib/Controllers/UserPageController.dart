@@ -69,10 +69,13 @@ class UserPageController {
 
   //Gets all the records shared by the user in order to display them into user page
   Future<void> getUserSharedRecords() async {
-    print("UserPageController -- getUserSharedController method");
-    await CloudStorageController().downloadUserSharedRecords().then((value) {
-      _userSharedRecords = value;
-    });
+    //String? toUpdate = await CloudStorageController().getFieldValue("toUpdateUserPage");
+    //if ( toUpdate != null && toUpdate == "true") {
+      await CloudStorageController().downloadUserSharedRecords().then((value) {
+        _userSharedRecords = value;
+        //CloudStorageController().updateUserField("toUpdateUserPage", false.toString());
+      });
+    //} //else the page has not to be updated
   }
 
   int getUserSharedRecordsLength() {
@@ -137,13 +140,12 @@ class UserPageController {
     print("Account correctly deleted");
   }
 
-  void signInWithEmailAndPassword(String email, String password) {
-    AuthenticationController().signInWithEmailAndPassword(email, password);
+  Future<String> signInWithEmailAndPassword(String email, String password) async {
+    return await AuthenticationController().signInWithEmailAndPassword(email, password);
   }
 
-  void createUserWithEmailAndPassword(String email, String password) {
-    print("USerPageController: metodo create User");
-    AuthenticationController().createUserWithEmailAndPassword(email, password);
+  Future<String> createUserWithEmailAndPassword(String email, String password) async {
+    return await AuthenticationController().createUserWithEmailAndPassword(email, password);
   }
 
   void updateUserPage() async {

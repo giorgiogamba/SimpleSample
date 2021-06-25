@@ -77,7 +77,18 @@ flutter:
     - assets/userlogo.png
     - assets/google_logo.png
     - assets/userlogo_white.png
-    - assets/sounds/
+    - assets/sounds/Clap.wav
+    - assets/sounds/Crash.wav
+    - assets/sounds/Hat.wav
+    - assets/sounds/High Tom.wav
+    - assets/sounds/Kick 1.wav
+    - assets/sounds/Kick 2.wav
+    - assets/sounds/Low Tom.wav
+    - assets/sounds/Mid Tom.wav
+    - assets/sounds/Open Hat.wav
+    - assets/sounds/Ride.wav
+    - assets/sounds/Rim Job.wav
+    - assets/sounds/Snare.wav
     - assets/
 
   # An image asset can refer to one or more resolution-specific "variants", see

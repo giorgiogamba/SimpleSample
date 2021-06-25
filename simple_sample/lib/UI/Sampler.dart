@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:overlay_support/overlay_support.dart';
 import 'package:simple_sample/Controllers/AudioController.dart';
 import 'package:simple_sample/Controllers/AuthenticationController.dart';
+import 'package:simple_sample/Controllers/CloudStorageController.dart';
 import 'package:simple_sample/Controllers/NotificationController.dart';
 import 'package:simple_sample/Controllers/SamplerController.dart';
 import 'package:simple_sample/Controllers/ShareDialogController.dart';
@@ -60,8 +61,6 @@ class _SamplerState extends State<Sampler> {
 
     });
 
-
-
     _samplerController.disableItemSelection();
     super.initState();
   }
@@ -85,8 +84,7 @@ class _SamplerState extends State<Sampler> {
     return ButtonStyle(
       backgroundColor: getSamplerColor(index),
       elevation: MaterialStateProperty.resolveWith((states) => elevationValue),
-      shadowColor: MaterialStateProperty.resolveWith((states) =>
-      Colors.pinkAccent),
+      shadowColor: MaterialStateProperty.resolveWith((states) => Colors.pinkAccent),
       enableFeedback: true,
       minimumSize: MaterialStateProperty.resolveWith((states) =>
           Size(buttonSize, buttonSize)),
@@ -115,16 +113,13 @@ class _SamplerState extends State<Sampler> {
             setState(() {});
           },
           child: ElevatedButton(
-            child: Text(Utils.wrapText(Utils.removeExtension(_samplerController.getButtonName(index)))),
+            child: Text(Utils.wrapText(Utils.removeExtension(_samplerController.getButtonName(index)), 5)),
             onPressed: () {
               if (!_samplerController.isEnabledItemSelection()) { //Item selection not enablesd playing record
                 _audioController.play(index);
               } else { //Item selection enabled
 
-                print("siRenameRunning; "+_samplerController.isRenameRunning().toString());
-                print("siSharingRunning; "+_samplerController.isSharingRunning().toString());
-
-                if (!_samplerController.isRenameRunning() && !_samplerController.isSharingRunning()) { //Loading
+                if (_samplerController.isLoadingRunning()) { //Loading
                   setState(() {
                     print("Associating button to record");
                     _samplerController.associateFileToButton(index);
@@ -138,6 +133,7 @@ class _SamplerState extends State<Sampler> {
                   if (_samplerController.isRenamePossible(index)) {
                     _samplerController.setSelectedItemForRename(index);
                     showDialog(
+                      barrierDismissible: false,
                         context: context,
                         builder: (context) =>
                             RenamePage(samplerController: _samplerController,))
@@ -150,6 +146,10 @@ class _SamplerState extends State<Sampler> {
                         });
                       } else {
                         print("No selected item, rename is not possible");
+                        setState(() {
+                          _samplerController.disableRenaming();
+                          _samplerController.disableItemSelection();
+                        });
                       }
                     });
                   } else {
@@ -163,9 +163,14 @@ class _SamplerState extends State<Sampler> {
                   if (toShare != null) {
                     _samplerController.disableItemSelection();
                     showDialog(
+                      barrierDismissible: false,
                       context: context,
                       builder: (context) => SharingDialog(record: toShare, key: Key(toShare.getFilename())),
-                    ).then((value) => _samplerController.disableSharing());
+                    ).then((value) {
+                      setState(() {
+                        _samplerController.disableSharing();
+                      });
+                    });
                     print("Sono dpo il dialog");
 
                   } else {
@@ -178,7 +183,8 @@ class _SamplerState extends State<Sampler> {
             style: getSamplerButtonStyle(index),
           ),
         ),
-        _samplerController.isEnabledItemSelection() ?
+        (_samplerController.isEnabledItemSelection() &&
+            (_samplerController.checkIsButtonIsFull(index) || _samplerController.isLoadingRunning())) ?
         Container(
             width: 10,
             height: 10,
@@ -308,20 +314,33 @@ class _SamplerState extends State<Sampler> {
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                ElevatedButton(onPressed: () {
+                ElevatedButton(onPressed: () async { //LOADING BUTTON
                   if (!_samplerController.isSharingRunning() && !_samplerController.isRenameRunning()) {
-                    _samplerController.pickFile().then((value) {
-                      _samplerController.setOperationInformationTxt("Select the button");
+                    var result = await showDialog(
+                      barrierDismissible: false,
+                      context: context,
+                      builder: (context) => LoadingDialog(
+                        controller: _samplerController,
+                        key: Key("key"),
+                      ),
+                    );
+
+                    print("result vale: $result");
+
+                    if (result != "NO SELECTION") {
+                      _samplerController.setOperationInformationTxt(
+                          "Select the button");
                       setState(() {
                         _samplerController.enableLoading();
                         _samplerController.enableItemSelection();
-                        if (value != null && value != "") {
-                          _samplerController.setSelectedURL(value);
+                        if (result != null && result != "") {
+                          _samplerController.setSelectedURL(result);
                         } else {
                           print("ERROR: the selected URL is null");
                         }
                       });
-                    });
+                    }
+
                   } else {
                     print("Another operation is running");
                   }
@@ -330,11 +349,12 @@ class _SamplerState extends State<Sampler> {
                   style: getLoadingButtonStyle(),
                 ),
                 Padding(padding: EdgeInsets.symmetric(horizontal: 10)),
-                ElevatedButton(onPressed: () {
+                ElevatedButton(onPressed: () { //UPLOAD BUTTON
                   if (_samplerController.checkIfUserConnected()) {
                     if (!_samplerController.isSharingRunning() &&
                         !_samplerController.isRenameRunning()) {
                       showDialog(
+                        barrierDismissible: false,
                         context: context,
                         builder: (context) => ToUploadList(),
                       );
@@ -346,11 +366,11 @@ class _SamplerState extends State<Sampler> {
                     Utils.showToast(context, "User is not connected");
                   }
                 },
-                  child: Text("Upload"),
+                  child: Icon(Icons.add_to_drive),
                   style: ButtonStyle(backgroundColor:  MaterialStateColor.resolveWith((states) => Colors.blueGrey),),
                 ),
                 Padding(padding: EdgeInsets.symmetric(horizontal: 10)),
-                ElevatedButton( onPressed: () {
+                ElevatedButton( onPressed: () { //SHARE BUTTON
                   if (_samplerController.checkIfUserConnected()) { //user is connected
                     if (!_samplerController.isRenameRunning()) {
                       setState(() {
@@ -377,7 +397,7 @@ class _SamplerState extends State<Sampler> {
                   style: getSharingButtonStyle(),
                 ),
                 Padding(padding: EdgeInsets.symmetric(horizontal: 10)),
-                ElevatedButton(onPressed: () {
+                ElevatedButton(onPressed: () { //RENAME BUTTON
                   if (!_samplerController.isSharingRunning()) {
                     if (!_samplerController.isRenameRunning()) { //Enable Renaming
                       setState(() {
@@ -398,6 +418,7 @@ class _SamplerState extends State<Sampler> {
                   style: getRenameButtonStyle(),),
               ],
             ),
+            //ElevatedButton(onPressed: () => CloudStorageController().toUpdateExplorer(), child: Text("SUm")),
           ],
         ),
       ),
@@ -456,7 +477,7 @@ class _SharingDialogState extends State<SharingDialog> {
                 ElevatedButton(
                   onPressed: () => Navigator.pop(context),
                   child: Text("Cancel"),
-                  style: ButtonStyle(backgroundColor: MaterialStateColor.resolveWith((states) => Colors.blueGrey),),
+                  style: ButtonStyle(backgroundColor: MaterialStateColor.resolveWith((states) => Colors.red),),
                 ),
                 ElevatedButton(
                   onPressed: () => _controller.share(_textFieldController.text).then((value) => Navigator.pop(context)),
@@ -613,7 +634,7 @@ class RenamePage extends StatelessWidget {
                   Navigator.pop(context);
                 },
                   child: Text("Cancel"),
-                  style: ButtonStyle(backgroundColor: MaterialStateColor.resolveWith((states) => Colors.blueGrey),),
+                  style: ButtonStyle(backgroundColor: MaterialStateColor.resolveWith((states) => Colors.red),),
                 ),
                 ElevatedButton(onPressed: () {
                   samplerController.setRenameSubmitted(true);
@@ -659,6 +680,7 @@ class _ToUploadListState extends State<ToUploadList> {
     _toUpdateListController.getElementsList();
 
     return AlertDialog(
+      backgroundColor: Color.fromRGBO(36, 59, 85, 1),
       content: Column(
         children: [
           Container(
@@ -670,20 +692,15 @@ class _ToUploadListState extends State<ToUploadList> {
               itemCount: _toUpdateListController.getElementsListLength(),
               itemBuilder: (BuildContext context, int index) {
                 return ToUploadItem(
-                  //item: entries[index].getFilename(),
                   itemIndex: index,
                   isSelected: (bool value) {
                     setState(() {
                       if (value) {
-                        //selectedEntries.add(entries[index]);
                         _toUpdateListController.addElement(index);
                       } else {
-                        //selectedEntries.remove(entries[index]);
-                        //_toUpdateListController.removeElement(entries[index]);
                         _toUpdateListController.removeElement(index);
                       }
                     });},
-                  //key: Key(entries.length.toString()),
                   key: Key(_toUpdateListController.getElementsListLength().toString()),
                   controller: _toUpdateListController,
                 );
@@ -699,7 +716,7 @@ class _ToUploadListState extends State<ToUploadList> {
                   Navigator.pop(context);
                 },
                 child: Text("Cancel"),
-                style: ButtonStyle(backgroundColor:  MaterialStateColor.resolveWith((states) => Colors.blueGrey),),
+                style: ButtonStyle(backgroundColor:  MaterialStateColor.resolveWith((states) => Colors.red),),
               ),
               Padding(padding: EdgeInsets.all(5)),
               ElevatedButton(
@@ -751,14 +768,27 @@ class _ToUploadItemState extends State<ToUploadItem> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Padding(padding: EdgeInsets.symmetric(horizontal: 5)),
-          Text(Utils.removeExtension(widget.controller.getElementAt(widget.itemIndex).getFilename())),
+          Container(
+            width: 180,
+            child: Text(
+              Utils.removeExtension(widget.controller.getElementAt(widget.itemIndex).getFilename()),
+              style: TextStyle(color: Colors.white),
+            ),
+          ),
+          ElevatedButton(
+            onPressed: () => widget.controller.playRecord(widget.controller.getElementAt(widget.itemIndex).getUrl()),
+            child: Icon(Icons.play_arrow),
+            style: ButtonStyle(
+              minimumSize:MaterialStateProperty.resolveWith((states) => Size(20, 20)),
+              backgroundColor:  MaterialStateColor.resolveWith((states) => Colors.blueGrey),
+            ),
+          ),
           Stack(
             children: [
               isSelected ? Center(
                 child: Container(
-                    width: 50,
-                    height: 50,
+                    width: 30,
+                    height: 30,
                     child: Align( //se lo seleziono aggiunge il pallino blu
                       alignment: Alignment.centerRight,
                       child: Padding(
@@ -770,10 +800,9 @@ class _ToUploadItemState extends State<ToUploadItem> {
                       ),
                     )
                 ),
-              ) : Container(width: 50, height: 50), //se lo deseleziono sostituisco il pallino bli con un container vuoto
+              ) : Container(width: 30, height: 30),
             ],
           ),
-          Padding(padding: EdgeInsets.symmetric(horizontal: 5)),
         ],
       ),
     );
@@ -786,11 +815,11 @@ class LoadingDialog extends StatelessWidget {
   final SamplerController controller;
   final Key key;
 
-  const LoadingDialog({required this.controller, required this.key}) : super(key: key);
+  LoadingDialog({required this.controller, required this.key}) : super(key: key);
 
-  final String[] titles = [
+  final List<String> titles = [
     "Load elements from filesystem",
-    "Load built-it elements",
+    "Load built-in elements",
   ];
 
   @override
@@ -799,16 +828,31 @@ class LoadingDialog extends StatelessWidget {
       backgroundColor: Color.fromRGBO(36, 59, 85, 1),
       content: Container(
         width: 200,
-        height: 100,
-        child: ListView.separated(
-          itemBuilder:  (BuildContext context, int index) {
-            return LoadingListItem(
-              index: index,
-              controller: controller,
-              key: Key(index.toString()),
-            );},
-          separatorBuilder:  (BuildContext context, int index) => const MyDivider(),
-          itemCount: 2,
+        height: 150,
+        child: Column(
+          children: [
+            Container(
+              width: 200,
+              height: 100,
+              child: ListView.separated(
+                itemBuilder:  (BuildContext context, int index) {
+                  return LoadingListItem(
+                    title: titles[index],
+                    index: index,
+                    controller: controller,
+                    key: Key(index.toString()),
+                  );
+                },
+                separatorBuilder: (BuildContext context, int index) => const MyDivider(),
+                itemCount: 2,
+              ),
+            ),
+            ElevatedButton(
+              onPressed: () => Navigator.pop(context, "NO SELECTION"),
+              child: Text("Cancel",),
+              style: ButtonStyle(backgroundColor: MaterialStateProperty.resolveWith((states) => Colors.red),),
+            ),
+          ],
         ),
       ),
     );
@@ -818,19 +862,130 @@ class LoadingDialog extends StatelessWidget {
 class LoadingListItem extends StatelessWidget {
 
   final String title;
+  final int index;
   final SamplerController controller;
   final Key key;
 
-  const LoadingListItem({required this.title, required this.controller, required this.key}) : super(key: key);
+  const LoadingListItem({required this.title, required this.index, required this.controller, required this.key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return Container();
+    return InkWell(
+      onTap: () async {
+        if (index == 0) { //loading with filepicker
+          controller.pickFile().then((value) {
+            Navigator.pop(context, value); //returning selection result di Sampler UUI
+          });
+        } else if (index == 1){ //loadinf assets
+
+          var result = await showDialog(
+            context: context,
+            builder: (builder) => AssetsLoadingDialog(
+              controller: controller,
+              key: Key("key"),
+            ),
+          );
+
+          print("Result vale $result");
+          Navigator.pop(context, result);
+
+        }
+      },
+      child: Container(
+        width: 200,
+        height: 40,
+        child: Center(
+          child: Text(title, style: TextStyle(color: Colors.white),),
+        ),
+      ),
+    );
+  }
+}
+
+
+class AssetsLoadingDialog extends StatefulWidget {
+
+  final SamplerController controller;
+  final Key key;
+
+  const AssetsLoadingDialog({required this.controller, required this.key}) : super(key: key);
+
+  @override
+  _AssetsLoadingDialogState createState() => _AssetsLoadingDialogState();
+}
+
+class _AssetsLoadingDialogState extends State<AssetsLoadingDialog> {
+
+  @override
+  Widget build(BuildContext context) {
+
+    widget.controller.loadAssets();
+
+    return AlertDialog(
+      backgroundColor: Color.fromRGBO(36, 59, 85, 1),
+      content: Container(
+        width: 200,
+        height: 450,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            //Padding(padding: EdgeInsets.symmetric(vertical: 2)),
+            Text("Select an asset to Load", style: TextStyle(color: Colors.white, fontSize: 20),),
+            Container(
+              height: 300,
+              child: ListView.separated(
+                itemBuilder: (BuildContext context, int index) {
+                  return AssetsLoadingDialogListItem(
+                    itemName: widget.controller.getAssetAt(index),
+                    index: index,
+                    key: Key(index.toString()),
+                  );
+                },
+                separatorBuilder: (BuildContext context, int index) => const MyDivider(),
+                itemCount: widget.controller.getAssetsLength(),
+              ),
+            ),
+            ElevatedButton(
+              onPressed: () => Navigator.pop(context, "NO SELECTION"),
+              child: Text("Cancel"),
+              style: ButtonStyle(backgroundColor: MaterialStateColor.resolveWith((states) => Colors.red),),),
+            //Padding(padding: EdgeInsets.symmetric(vertical: 1)),
+          ],
+        ),
+
+      ),
+    );
   }
 }
 
 
 
+class AssetsLoadingDialogListItem extends StatefulWidget {
+
+  final String itemName;
+  final int index;
+  final Key key;
+
+  const AssetsLoadingDialogListItem({required this.itemName, required this.index, required this.key}) : super(key: key);
+
+  @override
+  _AssetsLoadingDialogListItemState createState() => _AssetsLoadingDialogListItemState();
+}
+
+class _AssetsLoadingDialogListItemState extends State<AssetsLoadingDialogListItem> {
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: () {
+        Navigator.pop(context, widget.itemName);
+      },
+      child: Text(
+        Utils.removeExtension(Utils.getFilenameFromURL(widget.itemName)),
+        textAlign: TextAlign.center, style: TextStyle(color: Colors.white),
+      ),
+    );
+  }
+}
 
 
 

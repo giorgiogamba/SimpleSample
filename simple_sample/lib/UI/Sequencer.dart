@@ -336,7 +336,7 @@ class _BPMSelectorState extends State<BPMSelector> {
 
   void increment() {
     setState(() {
-      if (counter < 120) {
+      if (counter < widget.controller.getMaxBpm()) {
         counter ++;
         widget.controller.setBPM(counter);
       }

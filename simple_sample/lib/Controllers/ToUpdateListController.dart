@@ -1,3 +1,4 @@
+import 'package:simple_sample/Controllers/AudioController.dart';
 import 'package:simple_sample/Controllers/CloudStorageController.dart';
 
 import '../Models/Model.dart';
@@ -52,6 +53,10 @@ class ToUpdateListController{
 
   int getSelectedElementsListLength() {
     return this._selectedElements.length;
+  }
+
+  void playRecord(String URL) {
+    AudioController().playAtURL(URL);
   }
 
 }

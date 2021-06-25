@@ -243,7 +243,7 @@ class _ExplorerListItemState extends State<ExplorerListItem> {
         Container(
           width: 180,
           child: Text(
-            widget.item.getFilename(),
+            Utils.wrapText(widget.item.getFilename(), 32),
             style: TextStyle(
               fontSize: 20,
               color: Colors.white,

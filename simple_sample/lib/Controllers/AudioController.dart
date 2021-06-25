@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:typed_data';
 
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/cupertino.dart';
@@ -39,7 +40,7 @@ class AudioController {
   List<AudioPlayer?> createPlayersList() {
     List<AudioPlayer?> players = List.generate(16, (index) => null);
     for (int i = 0; i < playersNumber; i ++) {
-      players.insert(i, AudioPlayer());
+      players.insert(i, AudioPlayer(mode: PlayerMode.LOW_LATENCY)); //aggiunta lwlatency
       _isPlayerInited[i] = true;
       print("Player " +i.toString()+" inizializzato");
     }
@@ -139,6 +140,27 @@ class AudioController {
   void playAtURL(String URL) {
     AudioPlayer player = AudioPlayer();
     player.play(URL);
+  }
+
+  void sumTest() async {
+    //Reading two records ad bytes
+    String url1 = Model().getRecordAt(0)!.getUrl();
+    print(url1);
+    File firstFile = File(url1);
+    Uint8List first = firstFile.readAsBytesSync();
+    print(first.toString());
+    String url2 = Model().getRecordAt(1)!.getUrl();
+    print(url2);
+    File secondFile = File(url2);
+    Uint8List second = secondFile.readAsBytesSync();
+    print("inizio secondo");
+    print(second.toString());
+    print("Fine secondo");
+    List<int> sum = first + second;
+    Uint8List correctSum = Uint8List.fromList(sum);
+    print(correctSum.toString());
+    File newFile = await File(Model().getExtDocPath()+"/"+"nuovo.wav").writeAsBytes(correctSum, mode: FileMode.write, flush: true);
+    print("FINE SOMMA");
   }
 
 

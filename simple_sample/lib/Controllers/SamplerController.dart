@@ -29,6 +29,7 @@ class SamplerController {
   bool _isLoadingRunning = false;
   int? _selectedItemForSharing;
   String _operationInformationText = "";
+  List<String> _assets = [];
 
   bool checkIfUserConnected() {
     return Model().isUserConnected();
@@ -37,8 +38,6 @@ class SamplerController {
   ///Picks up an audio file from a filesystem and then saves it into the samples' location
   Future<String?> pickFile() async {
     List<String> ext = ["wav", "mp3"];
-    //Todo è anche possibile user FileType.audio, ,ma bisogna fare un controllo incrociato con
-    //il player e il recorder per capire quali estensioni sono supportate
     FilePickerResult? result = await FilePicker.platform.pickFiles(type: FileType.custom, allowedExtensions: ext);
     if (result != null) {
       String res = moveFile(result.paths.single.toString());
@@ -204,4 +203,17 @@ class SamplerController {
   bool isLoadingRunning() {
     return this._isLoadingRunning;
   }
+
+  void loadAssets() {
+    this._assets = Model().getAssets();
+  }
+
+  String getAssetAt(int index) {
+    return this._assets[index];
+  }
+
+  int getAssetsLength() {
+    return this._assets.length;
+  }
+
 }
