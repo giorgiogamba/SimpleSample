@@ -168,4 +168,8 @@ class UserPageController {
     this._favourites.remove(record);
   }
 
+  ValueNotifier getModelAuth () {
+    return Model().getAuth();
+  }
+
 }

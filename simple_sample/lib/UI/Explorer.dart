@@ -18,8 +18,14 @@ class Explorer extends StatefulWidget {
 
 class _ExplorerState extends State<Explorer> {
 
+  @override
+  void initState() {
+    _controller.getElementsList(); //updating elements
+    super.initState();
+  }
+
+
   ExplorerController _controller = ExplorerController();
-  TextEditingController _textEditingController = TextEditingController();
   bool onFiltering = false;
 
   Widget makeListView() {
@@ -45,66 +51,48 @@ class _ExplorerState extends State<Explorer> {
     );
   }
 
-  Widget makeSearchBar() {
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-      child: TextField(
-        controller: _textEditingController,
-        style: TextStyle(color: Colors.white),
-        decoration: InputDecoration(
-          enabledBorder: OutlineInputBorder(
-            borderSide: new BorderSide(color: Colors.white, width: 2),
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderSide: new BorderSide(color: Colors.white, width: 2),
-          ),
-          labelText: 'Search by name',
-          labelStyle: TextStyle(color: Colors.white),
-        ),
-        onChanged: onItemChanged,
-      ),
-    );
-  }
-
-  onItemChanged(String value) {
-    onFiltering = true;
-    print("ObìnFiltering vale : $onFiltering");
+  onSearch(String value) {
     setState(() {
-      List<Record> selectedEntries = _controller.getSelectedEntries();
-      print("preso selectedEntries");
-      selectedEntries = selectedEntries.where((record) => record.getFilename().toLowerCase().contains(value.toLowerCase())).toList();
-      if (value == "") {
-        List<Record> entries = _controller.getEntries();
-        _controller.setSelectedEntries(entries);
-      } else {
-        _controller.setSelectedEntries(selectedEntries);
-      }
+      onFiltering = true;
     });
-    onFiltering = false;
-    print("ObìnFiltering vale : $onFiltering");
-  }
 
-  onFilterChanged(String value) {
-    setState(() {
-      List<Record> selectedEntries = _controller.getEntries();
-      List<Record> newList = [];
-      for (Record rec in selectedEntries) {
-        List<String> tags = rec.getTagList();
-        for (String tag in tags) {
-          if (tag.toLowerCase().contains(value.toLowerCase())) {
-            newList.add(rec);
-            break;
+    if (dropdownValue == "Tags") {
+      setState(() {
+        List<Record> selectedEntries = _controller.getEntries();
+        List<Record> newList = [];
+        for (Record rec in selectedEntries) {
+          List<String> tags = rec.getTagList();
+          for (String tag in tags) {
+            if (tag.toLowerCase().contains(value.toLowerCase())) {
+              newList.add(rec);
+              break;
+            }
           }
         }
-      }
-      selectedEntries = newList;
+        selectedEntries = newList;
 
-      if (value == "") {
-        List<Record> entries = _controller.getEntries();
-        _controller.setSelectedEntries(entries);
-      } else {
-        _controller.setSelectedEntries(selectedEntries);
-      }
+        if (value == "") {
+          List<Record> entries = _controller.getEntries();
+          _controller.setSelectedEntries(entries);
+        } else {
+          _controller.setSelectedEntries(selectedEntries);
+        }
+      });
+    } else if (dropdownValue == "Name") {
+      setState(() {
+        List<Record> selectedEntries = _controller.getSelectedEntries();
+        selectedEntries = selectedEntries.where((record) => record.getFilename().toLowerCase().contains(value.toLowerCase())).toList();
+        if (value == "") {
+          List<Record> entries = _controller.getEntries();
+          _controller.setSelectedEntries(entries);
+        } else {
+          _controller.setSelectedEntries(selectedEntries);
+        }
+      });
+
+    }
+    setState(() {
+      onFiltering = false;
     });
   }
 
@@ -126,14 +114,15 @@ class _ExplorerState extends State<Explorer> {
                 });
               },
               items: [
-                DropdownMenuItem<String>(value: "Tags", child: Text("Tags", style: TextStyle(color: Colors.white)))
+                DropdownMenuItem<String>(value: "Tags", child: Text("Tags", style: TextStyle(color: Colors.white))),
+                DropdownMenuItem<String>(value: "Name", child: Text("Name", style: TextStyle(color: Colors.white)))
               ],
             ),
             Expanded(
               child: Padding(
                 padding: EdgeInsets.symmetric(horizontal: 10, vertical: 2),
                 child: TextField(
-                  onChanged: onFilterChanged,
+                  onChanged: onSearch,
                   style: TextStyle(color: Colors.white),
                   decoration: InputDecoration(
                     enabledBorder: OutlineInputBorder(
@@ -155,37 +144,32 @@ class _ExplorerState extends State<Explorer> {
   }
 
   Widget chooseBody() {
-    return ValueListenableBuilder (
-        valueListenable: _controller.loaded,
-        builder: (context, value, _) {
-          if (!_controller.checkIfUserLogged()) {
-            return Center(
-              child: Text("USER IS NOT LOGGED IN", style: TextStyle(color: Colors.white),),
-            );
-          } else {
+    if (!_controller.checkIfUserLogged()) {
+      return Center(
+        child: Text("USER IS NOT LOGGED IN", style: TextStyle(color: Colors.white),),
+      );
+    } else {
+      return ValueListenableBuilder(
+          valueListenable: _controller.loaded,
+          builder: (context, value, _) {
             if (value == false) {
               return makeProgressBar();
             } else {
               return Column(
                 children: [
-                  Padding(padding: EdgeInsets.symmetric(vertical: 5)),
+                  Padding(padding: EdgeInsets.symmetric(vertical: 10)),
                   makeCommands(),
-                  makeSearchBar(),
                   makeListView(),
                 ],
               );
             }
           }
-        }
-        );
+      );
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-
-    if (!onFiltering) {
-      _controller.getElementsList(); //updating elements
-    }
 
     return Scaffold(
       body: Container(

@@ -32,7 +32,6 @@ class _UserPageState extends State<UserPage> {
   void initState() {
     _userPageController.getUserSharedRecords();
     _userPageController.initFavourites();
-    print("Chiamato initstate USERPAGE");
     super.initState();
   }
 
@@ -225,7 +224,6 @@ class _UserPageState extends State<UserPage> {
                             _emailController.text,
                             _passwordController.text,
                           ).then((value) {
-                            print("VALUE< REGISTER $value");
                             if (value == "true") {
                               setState(() {
                                 auth = true;
@@ -244,13 +242,16 @@ class _UserPageState extends State<UserPage> {
                             _emailController.text,
                             _passwordController.text,
                           ).then((value) {
-                            print("VLAUE USER PAGE; $value");
                             if (value == "true") {
                               setState(() {
                                 auth = true;
                               });
                             } else {
-                              showDialog(context: context, builder: (builder) => AccessErrorPage(key: Key(value)));
+                              showDialog(
+                                barrierDismissible: false,
+                                context: context,
+                                builder: (builder) => AccessErrorPage(key: Key(value)),
+                              );
                             }
                           });
                         },
@@ -323,37 +324,40 @@ class _UserPageState extends State<UserPage> {
   @override
   Widget build(BuildContext context) {
 
-    auth = _authenticationController.checkIfAuthorized();
+    return ValueListenableBuilder(
+      valueListenable: _userPageController.getModelAuth(),
+      builder: (context, value, _) {
+        if (_userPageController.getModelAuth().value == true) {
+          _userPageController.updateUserPage();
 
-    if (auth) {
+          return Container(
+            child: ValueListenableBuilder(
+              valueListenable: _userPageController.loaded,
+              builder: (context, value, _) {
+                if (value == true) {
+                  return makeUserPage();
+                } else {
+                  return makeProgressBar();
+                }
+              },
+            ),
+            decoration: new BoxDecoration(
+              gradient: new LinearGradient(
+                colors: [
+                  Color.fromRGBO(20, 30, 48, 1),
+                  Color.fromRGBO(36, 59, 85, 1),
+                ],
+                begin: Alignment.topRight,
+                end: Alignment.bottomLeft,
+              ),
+            ),
+          );
+        } else {
+          return makeAccessPage();
+        }
+      },
+    );
 
-      _userPageController.updateUserPage();
-
-      return Container(
-        child: ValueListenableBuilder(
-          valueListenable: _userPageController.loaded,
-          builder: (context, value, _) {
-            if (value == true) {
-              return makeUserPage();
-            } else {
-              return makeProgressBar();
-            }
-          },
-        ),
-        decoration: new BoxDecoration(
-          gradient: new LinearGradient(
-            colors: [
-              Color.fromRGBO(20, 30, 48, 1),
-              Color.fromRGBO(36, 59, 85, 1),
-            ],
-            begin: Alignment.topRight,
-            end: Alignment.bottomLeft,
-          ),
-        ),
-      );
-    } else {
-      return makeAccessPage();
-    }
   }
 }
 
@@ -621,17 +625,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   onPressed: () => UserPageController().disconnect().then((value) {
                     Navigator.pop(context);
                   }),
-                  child: Text("Logout from Google"),
-                  style: ButtonStyle(backgroundColor:  MaterialStateColor.resolveWith((states) => Colors.red),),
-                ),
-                ElevatedButton(
-                  onPressed: () {},
-                  child: Text("Disconnect from Drive"),
-                  style: ButtonStyle(backgroundColor:  MaterialStateColor.resolveWith((states) => Colors.red),),
-                ),
-                ElevatedButton(
-                  onPressed: () {},
-                  child: Text("Disconnect from Dropbox"),
+                  child: Text("Logout"),
                   style: ButtonStyle(backgroundColor:  MaterialStateColor.resolveWith((states) => Colors.red),),
                 ),
                 ElevatedButton(
@@ -756,7 +750,7 @@ class _DeleteAccountWidgetState extends State<DeleteAccountWidget> {
               textAlign: TextAlign.center,
               style: TextStyle(color: Colors.white),
             ),
-            Padding(padding: EdgeInsets.symmetric(vertical: 4),),
+            Padding(padding: EdgeInsets.symmetric(vertical: 6),),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [

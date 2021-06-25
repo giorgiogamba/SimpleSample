@@ -1,10 +1,6 @@
 import 'dart:convert';
-import 'dart:typed_data';
-
 import 'package:audioplayers/audioplayers.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_sound/flutter_sound.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:simple_sample/Models/Model.dart';
@@ -33,7 +29,6 @@ class AudioController {
   }
 
   AudioController._internal() {
-    print("Inizializzazione Audio Controller");
     initAudioController();
   }
 
@@ -42,14 +37,14 @@ class AudioController {
     for (int i = 0; i < playersNumber; i ++) {
       players.insert(i, AudioPlayer(mode: PlayerMode.LOW_LATENCY)); //aggiunta lwlatency
       _isPlayerInited[i] = true;
-      print("Player " +i.toString()+" inizializzato");
+      print("Player " +i.toString()+" initialized");
     }
     return players;
   }
 
   void initAudioController() {
     _players = createPlayersList();
-    print("********** AudioController Initialization Completed **********");
+    print("*** AudioController Initialization Completed ***");
   }
 
   Future<void> initRecorder() async {
@@ -67,7 +62,6 @@ class AudioController {
 
 
   Future<void> openRecorder() async {
-    print("Inizio metodo openRecorder");
     if (!kIsWeb) {
       var status = await Permission.microphone.request();
       if (status != PermissionStatus.granted) {
@@ -120,10 +114,8 @@ class AudioController {
           Record? toPlay = Model().getRecordAt(index);
           if (toPlay != null) {
             File file = new File(toPlay.getUrl());
-            print("******************* file ha lunghezza: "+file.lengthSync().toString());
-            print("******************* path path: "+file.path);
+            print("*** Play path: "+file.path);
             _players[index]?.play(toPlay.getUrl());
-            print("***** ha suonato il player "+index.toString());
           }
         } else {
           throw Exception("Recorder o player not stoppati");
@@ -141,28 +133,6 @@ class AudioController {
     AudioPlayer player = AudioPlayer();
     player.play(URL);
   }
-
-  void sumTest() async {
-    //Reading two records ad bytes
-    String url1 = Model().getRecordAt(0)!.getUrl();
-    print(url1);
-    File firstFile = File(url1);
-    Uint8List first = firstFile.readAsBytesSync();
-    print(first.toString());
-    String url2 = Model().getRecordAt(1)!.getUrl();
-    print(url2);
-    File secondFile = File(url2);
-    Uint8List second = secondFile.readAsBytesSync();
-    print("inizio secondo");
-    print(second.toString());
-    print("Fine secondo");
-    List<int> sum = first + second;
-    Uint8List correctSum = Uint8List.fromList(sum);
-    print(correctSum.toString());
-    File newFile = await File(Model().getExtDocPath()+"/"+"nuovo.wav").writeAsBytes(correctSum, mode: FileMode.write, flush: true);
-    print("FINE SOMMA");
-  }
-
 
 }
 

@@ -84,6 +84,7 @@ class ExplorerController {
   }
 
   List<Record> getEntries() {
+    print(this._entries.length);
     return this._entries;
   }
 

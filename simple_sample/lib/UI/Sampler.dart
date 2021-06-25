@@ -418,7 +418,6 @@ class _SamplerState extends State<Sampler> {
                   style: getRenameButtonStyle(),),
               ],
             ),
-            //ElevatedButton(onPressed: () => CloudStorageController().toUpdateExplorer(), child: Text("SUm")),
           ],
         ),
       ),
@@ -818,7 +817,7 @@ class LoadingDialog extends StatelessWidget {
   LoadingDialog({required this.controller, required this.key}) : super(key: key);
 
   final List<String> titles = [
-    "Load elements from filesystem",
+    "Load elements from filesystem or Drive",
     "Load built-in elements",
   ];
 
@@ -828,7 +827,7 @@ class LoadingDialog extends StatelessWidget {
       backgroundColor: Color.fromRGBO(36, 59, 85, 1),
       content: Container(
         width: 200,
-        height: 150,
+        height: 180,
         child: Column(
           children: [
             Container(
@@ -847,6 +846,7 @@ class LoadingDialog extends StatelessWidget {
                 itemCount: 2,
               ),
             ),
+            Padding(padding: EdgeInsets.symmetric(vertical: 15)),
             ElevatedButton(
               onPressed: () => Navigator.pop(context, "NO SELECTION"),
               child: Text("Cancel",),
@@ -895,7 +895,7 @@ class LoadingListItem extends StatelessWidget {
         width: 200,
         height: 40,
         child: Center(
-          child: Text(title, style: TextStyle(color: Colors.white),),
+          child: Text(title, style: TextStyle(color: Colors.white), textAlign: TextAlign.center,),
         ),
       ),
     );

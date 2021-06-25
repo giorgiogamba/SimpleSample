@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:collection';
-
 import 'package:flutter/cupertino.dart';
 
 import 'AudioController.dart';
@@ -17,8 +16,6 @@ class SequencerController {
   //mappa con 16 righe e 8 colonne. La mappa esterna contiene colonne, la seconda righe
   HashMap<int, HashMap<int, bool>>? _sequencerMap = HashMap();
   AudioController? _audioController;
-  int _tick = 0;
-  int _remainder = 0;
   Duration _dur = new Duration();
   Timer? _timer;
   final counter = ValueNotifier(0);
@@ -114,7 +111,6 @@ class SequencerController {
   }
 
   void startTimeout() {
-    print("Duration vale: "+_dur.toString());
     _timer = Timer.periodic(_dur, (Timer t) => handleTimeout());
   }
 
@@ -197,5 +193,4 @@ class SequencerController {
   int getMaxBpm() {
     return maxBpm;
   }
-
 }

@@ -7,6 +7,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:googleapis/cloudsearch/v1.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:flutter/foundation.dart';
 import 'package:simple_sample/Controllers/DropboxController.dart';
@@ -19,7 +20,8 @@ class Model {
 
   //Authorization variables
   //They == null if user not logged in
-  User? _user; //todo fare in modo che non possa essere cambiato a meno che non si faccia un login
+  User? _user;
+  ValueNotifier<bool> auth = ValueNotifier(false);
 
   HashMap<int, Record> _records = HashMap(); //It maintains a map representing the sampler buttons
   //If a new record is done on a full button, the record is replaced NB the old record should already be saved into filesystem
@@ -123,10 +125,12 @@ class Model {
 
   void setUser(User newUser) {
     this._user = newUser;
+    this.auth.value = true;
   }
 
   void clearUser() {
     _user = null;
+    this.auth.value = false;
   }
 
   bool isUserConnected() {
@@ -294,6 +298,10 @@ class Model {
       File(newPath).writeAsBytesSync(bytes, mode: FileMode.write, flush: true);
       this._assets[i] = newPath; //verwriting the new path
     }
+  }
+
+  ValueNotifier getAuth() {
+    return this.auth;
   }
 
 }
