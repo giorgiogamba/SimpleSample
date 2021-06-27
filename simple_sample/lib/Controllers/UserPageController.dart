@@ -3,6 +3,8 @@ import 'package:flutter/foundation.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:simple_sample/Controllers/AuthenticationController.dart';
 import 'package:simple_sample/Models/Record.dart';
+import 'package:simple_sample/Utils.dart';
+import 'package:simple_sample/Utils/LocaleConstant.dart';
 
 import 'AudioController.dart';
 import 'CloudStorageController.dart';
@@ -26,6 +28,9 @@ class UserPageController {
 
   ValueNotifier profileImagePath = ValueNotifier("assets/userlogo_white.png"); //!!! NON PRIVATIZZARE
   ValueNotifier<bool> loaded = ValueNotifier(false);
+
+  List<String> _languagesList = ["English", "Italiano", "Francais"];
+  List<String> _languagesCode = ["en", "it", "fr"];
 
   String getElementAt(int index) {
     return this._elements[index];
@@ -170,6 +175,22 @@ class UserPageController {
 
   ValueNotifier getModelAuth () {
     return Model().getAuth();
+  }
+
+  void handleChangeLanguage(BuildContext context, String key) {
+    changeLanguage(context, Utils.remove3(key));
+  }
+
+  String getLanguageName(int index) {
+    return this._languagesList[index];
+  }
+
+  String getLanguagesCode(int index) {
+    return this._languagesCode[index];
+  }
+
+  int getLanguagesListLength() {
+    return this._languagesList.length;
   }
 
 }

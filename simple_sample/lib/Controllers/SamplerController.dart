@@ -5,6 +5,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:permission_handler/permission_handler.dart';
 
+import '../Utils/Languages.dart';
 import '../Models/Model.dart';
 import '../Models/Record.dart';
 import 'dart:io';
@@ -114,8 +115,8 @@ class SamplerController {
     return this._renameRunning;
   }
 
-  void enableRenaming() {
-    _operationInformationText = "Choose a Record to Rename";
+  void enableRenaming(BuildContext context) {
+    _operationInformationText = Languages.of(context)!.renameInstructionsName;
     this._renameRunning = true;
   }
 
@@ -162,8 +163,8 @@ class SamplerController {
     this._renameSubmitted = value;
   }
 
-  void enableSharing() {
-    _operationInformationText = "Choose a Record to Share";
+  void enableSharing(BuildContext context) {
+    _operationInformationText = Languages.of(context)!.shareInstructionsName;
     this._isSharingRunning = true;
   }
 

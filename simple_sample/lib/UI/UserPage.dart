@@ -6,6 +6,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:simple_sample/UI/Explorer.dart';
 import 'package:simple_sample/Controllers/UserPageController.dart';
 import 'package:simple_sample/Utils.dart';
+import 'package:simple_sample/Utils/Languages.dart';
 import '../Controllers/AuthenticationController.dart';
 import '../Controllers/CloudStorageController.dart';
 
@@ -107,7 +108,7 @@ class _UserPageState extends State<UserPage> {
         ),
         Column(
           children: [
-            Text("SHARED SAMPLES", style: TextStyle(fontSize: 20, color: Colors.white),),
+            Text(Languages.of(context)!.sharedSamplesName, style: TextStyle(fontSize: 20, color: Colors.white),),
             Padding(padding: EdgeInsets.symmetric(vertical: 2)),
             Container(
               width: 380,
@@ -131,7 +132,7 @@ class _UserPageState extends State<UserPage> {
         ),
         Column(
           children: [
-            Text("FAVOURITES", style: TextStyle(fontSize: 20, color: Colors.white),),
+            Text(Languages.of(context)!.favouritesName, style: TextStyle(fontSize: 20, color: Colors.white),),
             Padding(padding: EdgeInsets.symmetric(vertical: 2)),
             Container(
               width: 380,
@@ -179,7 +180,7 @@ class _UserPageState extends State<UserPage> {
           child: AlertDialog(
               backgroundColor: Color.fromRGBO(20, 30, 48, 1),
               title: Center(
-                child:  Text("You are not logged in", style: TextStyle(color: Colors.white)),
+                child:  Text(Languages.of(context)!.notLoggedIn, style: TextStyle(color: Colors.white)),
               ),
               elevation: 20,
               content: Column(
@@ -193,7 +194,7 @@ class _UserPageState extends State<UserPage> {
                       focusedBorder: OutlineInputBorder(
                         borderSide: new BorderSide(color: Colors.white, width: 2),
                       ),
-                      labelText: 'email',
+                      labelText: 'Email',
                       labelStyle: TextStyle(color: Colors.white),
                     ),
                     controller: _emailController,
@@ -233,7 +234,7 @@ class _UserPageState extends State<UserPage> {
                             }
                           });
                         },
-                        child: Text("Register"),
+                        child: Text(Languages.of(context)!.register),
                         style: ButtonStyle(backgroundColor:  MaterialStateColor.resolveWith((states) => Colors.blueGrey),),
                       ),
                       ElevatedButton(
@@ -255,7 +256,7 @@ class _UserPageState extends State<UserPage> {
                             }
                           });
                         },
-                        child: Text("Login"),
+                        child: Text(Languages.of(context)!.login),
                         style: ButtonStyle(backgroundColor:  MaterialStateColor.resolveWith((states) => Colors.blueGrey),),
                       ),
                     ],
@@ -286,7 +287,7 @@ class _UserPageState extends State<UserPage> {
                                     shape: BoxShape.circle,
                                   ),
                                 ),
-                                Text('Sign in with Google',
+                                Text(Languages.of(context)!.signInWithGoogle,
                                   style: TextStyle(
                                       fontSize: 16.0,
                                       fontWeight: FontWeight.bold,
@@ -549,7 +550,6 @@ class _ChooseImageOperationDialogItemState extends State<ChooseImageOperationDia
               PickedFile? pickedImage = await widget.controller.executeOperation(widget.index);
               setState(() {
                 if (pickedImage != null) {
-                  print("Pickedimage non è nulla, top");
                   widget.controller.setProfileImagePath(pickedImage.path);
                   Navigator.pop(context);
                 } else {
@@ -599,7 +599,7 @@ class _SettingsPageState extends State<SettingsPage> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Padding(padding: EdgeInsets.symmetric(vertical: 20)),
-                Text("Settings", style: TextStyle(fontSize: 30, color: Colors.white ),),
+                Text( Languages.of(context)!.settingsPageName, style: TextStyle(fontSize: 30, color: Colors.white ),),
                 ElevatedButton(onPressed: () => showDialog(
                   context: context,
                   builder: (context) => ChooseImageOperationDialog(
@@ -607,7 +607,7 @@ class _SettingsPageState extends State<SettingsPage> {
                     key: Key(1.toString()),
                   ),
                 ),
-                  child: Text("Set Profile Image"),
+                  child: Text(Languages.of(context)!.setProfileImageName),
                   style: ButtonStyle(backgroundColor:  MaterialStateColor.resolveWith((states) => Colors.blueGrey),),
                 ),
                 ElevatedButton(
@@ -617,15 +617,23 @@ class _SettingsPageState extends State<SettingsPage> {
                       builder: (context) => SetUsernameDialog(),
                     );
                   },
-                  child: Text("Set username"),
+                  child: Text(Languages.of(context)!.setUsernameName),
                   style: ButtonStyle(backgroundColor:  MaterialStateColor.resolveWith((states) => Colors.blueGrey),),
+                ),
+                ElevatedButton(onPressed: () {
+                  showDialog(
+                    context: context,
+                    builder: (context) => ChangeLanguageDialog(controller: widget.controller,),
+                  );
+                },
+                  child: Text(Languages.of(context)!.changeLanguageName),
                 ),
                 MyDivider(),
                 ElevatedButton(
                   onPressed: () => UserPageController().disconnect().then((value) {
                     Navigator.pop(context);
                   }),
-                  child: Text("Logout"),
+                  child: Text(Languages.of(context)!.logoutName),
                   style: ButtonStyle(backgroundColor:  MaterialStateColor.resolveWith((states) => Colors.red),),
                 ),
                 ElevatedButton(
@@ -638,13 +646,13 @@ class _SettingsPageState extends State<SettingsPage> {
                       ),
                     );
                   },
-                  child: Text("Delete User"),
+                  child: Text(Languages.of(context)!.deleteUserName),
                   style: ButtonStyle(backgroundColor:  MaterialStateColor.resolveWith((states) => Colors.red),),
                 ),
                 MyDivider(),
                 ElevatedButton(
                   onPressed: () => Navigator.pop(context),
-                  child: Text("Back"),
+                  child: Text(Languages.of(context)!.backName),
                   style: ButtonStyle(backgroundColor:  MaterialStateColor.resolveWith((states) => Colors.blueGrey),),
                 ),
                 Padding(padding: EdgeInsets.symmetric(vertical: 20)),
@@ -675,7 +683,7 @@ class SetUsernameDialog extends StatelessWidget {
         child: Column(
           children: [
             Text(
-              "Choose a new name for the Sampler",
+              Languages.of(context)!.newUsernameInstructions,
               textAlign: TextAlign.center,
               style: TextStyle(color: Colors.white),
             ),
@@ -700,7 +708,7 @@ class SetUsernameDialog extends StatelessWidget {
                 ElevatedButton(onPressed: () {
                   Navigator.pop(context);
                 },
-                  child: Text("Cancel"),
+                  child: Text(Languages.of(context)!.cancelName),
                   style: ButtonStyle(backgroundColor: MaterialStateColor.resolveWith((states) => Colors.blueGrey),)
                 ),
                 ElevatedButton(onPressed: () {
@@ -710,7 +718,7 @@ class SetUsernameDialog extends StatelessWidget {
                     Navigator.pop(context);
                   });
                   },
-                  child: Text("Submit"),
+                  child: Text(Languages.of(context)!.submitName),
                   style: ButtonStyle(backgroundColor: MaterialStateColor.resolveWith((states) => Colors.blueGrey),),
                 ),
               ],
@@ -746,7 +754,7 @@ class _DeleteAccountWidgetState extends State<DeleteAccountWidget> {
         child: Column(
           children: [
             Text(
-              "Are you sure you want to delete your account?",
+              Languages.of(context)!.deleteUserName,
               textAlign: TextAlign.center,
               style: TextStyle(color: Colors.white),
             ),
@@ -766,7 +774,7 @@ class _DeleteAccountWidgetState extends State<DeleteAccountWidget> {
                     Navigator.pop(context);
                   });
                 },
-                  child: Text("Yes"),
+                  child: Text(Languages.of(context)!.yes),
                   style: ButtonStyle(backgroundColor: MaterialStateColor.resolveWith((states) => Colors.blueGrey),),
                 ),
               ],
@@ -793,7 +801,7 @@ class AccessErrorPage extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text("ERROR DURING ACCESS",
+            Text(Languages.of(context)!.errorDuringAccess,
               textAlign: TextAlign.center,
               style: TextStyle(
                 color: Colors.red,
@@ -807,7 +815,7 @@ class AccessErrorPage extends StatelessWidget {
             ),
             ElevatedButton(
               onPressed: () {Navigator.pop(context);},
-              child: Text("Back"),
+              child: Text(Languages.of(context)!.backName),
               style: ButtonStyle(backgroundColor: MaterialStateColor.resolveWith((states) => Colors.blueGrey),),
             ),
           ],
@@ -817,6 +825,69 @@ class AccessErrorPage extends StatelessWidget {
   }
 }
 
+class ChangeLanguageDialog extends StatelessWidget {
+
+  final UserPageController controller;
+
+  const ChangeLanguageDialog({Key? key, required this.controller}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      backgroundColor:  Color.fromRGBO(36, 59, 85, 1),
+      content: Container(
+        width: 200,
+        height: 150,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Container(
+              width: 180,
+              height: 100,
+              child: ListView.separated(
+                itemBuilder: (BuildContext context, int index) {
+                  return ChangeLanguageDialogListItem(
+                    key: Key(controller.getLanguagesCode(index)),
+                    controller: controller,
+                    index: index,
+                  );
+                },
+                separatorBuilder: (BuildContext context, int index) => const MyDivider(),
+                itemCount: controller.getLanguagesListLength(),
+              ),
+            ),
+            ElevatedButton(onPressed: () => Navigator.pop(context), child: Text(Languages.of(context)!.cancelName)),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+
+class ChangeLanguageDialogListItem extends StatelessWidget {
+
+  final Key key;
+  final UserPageController controller;
+  final int index;
+
+  const ChangeLanguageDialogListItem({required this.key, required this.controller, required this.index}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: () {
+        controller.handleChangeLanguage(context, key.toString());
+        Navigator.pop(context);
+      },
+      child: Row(
+        children: [
+          Text(controller.getLanguageName(index), textAlign: TextAlign.center, style: TextStyle(color: Colors.white),),
+        ],
+      ),
+    );
+  }
+}
 
 
 

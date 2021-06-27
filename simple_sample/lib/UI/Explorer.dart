@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:simple_sample/Controllers/ExplorerController.dart';
+import 'package:simple_sample/Utils/Languages.dart';
 
 import '../Models/Record.dart';
 import '../Utils.dart';
@@ -78,7 +79,7 @@ class _ExplorerState extends State<Explorer> {
           _controller.setSelectedEntries(selectedEntries);
         }
       });
-    } else if (dropdownValue == "Name") {
+    } else if (dropdownValue == Languages.of(context)!.nameName) {
       setState(() {
         List<Record> selectedEntries = _controller.getSelectedEntries();
         selectedEntries = selectedEntries.where((record) => record.getFilename().toLowerCase().contains(value.toLowerCase())).toList();
@@ -105,7 +106,7 @@ class _ExplorerState extends State<Explorer> {
         padding: EdgeInsets.symmetric(vertical: 15),
         child: Row(
           children: [
-            Text("Filter by: ", style: TextStyle(fontSize: 18, color: Colors.white),),
+            Text(Languages.of(context)!.filterBy, style: TextStyle(fontSize: 18, color: Colors.white),),
             DropdownButton<String>(
               value: dropdownValue,
               onChanged: (String? newValue) {
@@ -115,7 +116,7 @@ class _ExplorerState extends State<Explorer> {
               },
               items: [
                 DropdownMenuItem<String>(value: "Tags", child: Text("Tags", style: TextStyle(color: Colors.white))),
-                DropdownMenuItem<String>(value: "Name", child: Text("Name", style: TextStyle(color: Colors.white)))
+                DropdownMenuItem<String>(value: "Name", child: Text(Languages.of(context)!.nameName, style: TextStyle(color: Colors.white)))
               ],
             ),
             Expanded(
@@ -146,7 +147,7 @@ class _ExplorerState extends State<Explorer> {
   Widget chooseBody() {
     if (!_controller.checkIfUserLogged()) {
       return Center(
-        child: Text("USER IS NOT LOGGED IN", style: TextStyle(color: Colors.white),),
+        child: Text(Languages.of(context)!.userNotConnected, style: TextStyle(color: Colors.white),),
       );
     } else {
       return ValueListenableBuilder(
@@ -237,7 +238,7 @@ class _ExplorerListItemState extends State<ExplorerListItem> {
         ElevatedButton(
           onPressed: () => widget.controller.manageFavouritesButton(widget.item).then((value) {
             setState(() {});
-            Utils.showToast(context, "Sample saved into favourites");
+            Utils.showToast(context, Languages.of(context)!.sampleSaved);
           }),
           child: chooseIcon(widget.item),
           style: getButtonStyle(),
@@ -245,7 +246,7 @@ class _ExplorerListItemState extends State<ExplorerListItem> {
         ElevatedButton(
           onPressed: () {
             widget.controller.downloadRecord(widget.item).then((value) {
-              Utils.showToast(context, "Download correctly executed");
+              Utils.showToast(context, Languages.of(context)!.downloadCorrect);
             });
             setState(() {});
           },

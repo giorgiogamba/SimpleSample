@@ -16,6 +16,9 @@ import 'package:simple_sample/Controllers/ToUpdateListController.dart';
 import 'package:flutter_sound/flutter_sound.dart';
 import 'package:intl/intl.dart';
 import 'package:intl/date_symbol_data_local.dart';
+import 'package:simple_sample/Utils/Languages.dart';
+import 'package:simple_sample/Utils/LocaleConstant.dart';
+import 'package:simple_sample/main.dart';
 
 import 'Explorer.dart';
 import '../Models/Model.dart';
@@ -205,25 +208,31 @@ class _SamplerState extends State<Sampler> {
 
   Widget selectButtonWidgetChild() {
     if (!_samplerController.isRenameRunning()) {
-      return Text("Rename");
+      //return Text("Rename");
+      return Text(Languages.of(context)!.renameName); //todo forse da scambiare
     } else {
-      return Text("Cancel");
+      //return Text("Cancel");
+      return Text(Languages.of(context)!.cancelName);
     }
   }
 
   Widget selectSharingButtonName() {
     if (_samplerController.isSharingRunning()) {
-      return Text("Cancel");
+      //return Text("Cancel");
+      return Text(Languages.of(context)!.cancelName);
     } else {
-      return Text("Share");
+      //return Text("Share");
+      return Text(Languages.of(context)!.shareName);
     }
   }
 
   Widget getLoadButtonName() {
     if (_samplerController.isLoadingRunning()) {
-      return Text("Cancel");
+      //return Text("Cancel");
+      return Text(Languages.of(context)!.cancelName);
     } else {
-      return Text("Load");
+      //return Text("Load");
+      return Text(Languages.of(context)!.loadName);
     }
   }
 
@@ -376,7 +385,7 @@ class _SamplerState extends State<Sampler> {
                       setState(() {
                         if (!_samplerController.isSharingRunning()) {
                           _samplerController.enableItemSelection();
-                          _samplerController.enableSharing();
+                          _samplerController.enableSharing(context);
                         } else {
                           //Disabling sharing
                           setState(() {
@@ -390,7 +399,7 @@ class _SamplerState extends State<Sampler> {
                     }
                   } else { //user is not connected
                     print("User is not connected");
-                    Utils.showToast(context, "User is not connected");
+                    Utils.showToast(context, Languages.of(context)!.userNotConnected);
                   }
                 },
                   child: selectSharingButtonName(),
@@ -402,7 +411,7 @@ class _SamplerState extends State<Sampler> {
                     if (!_samplerController.isRenameRunning()) { //Enable Renaming
                       setState(() {
                         _samplerController.enableItemSelection();
-                        _samplerController.enableRenaming();
+                        _samplerController.enableRenaming(context);
                       });
                     } else { //Disable renaming
                       setState(() {
@@ -418,6 +427,7 @@ class _SamplerState extends State<Sampler> {
                   style: getRenameButtonStyle(),),
               ],
             ),
+            //ElevatedButton(onPressed: () => changeLanguage(context, 'en'), child: Text("Cambia")),
           ],
         ),
       ),
@@ -475,12 +485,12 @@ class _SharingDialogState extends State<SharingDialog> {
               children: [
                 ElevatedButton(
                   onPressed: () => Navigator.pop(context),
-                  child: Text("Cancel"),
+                  child: /*Text("Cancel")*/ Text(Languages.of(context)!.cancelName),
                   style: ButtonStyle(backgroundColor: MaterialStateColor.resolveWith((states) => Colors.red),),
                 ),
                 ElevatedButton(
                   onPressed: () => _controller.share(_textFieldController.text).then((value) => Navigator.pop(context)),
-                  child: Text("Share"),
+                  child: /*Text("Share")*/ Text(Languages.of(context)!.shareName),
                   style: ButtonStyle(backgroundColor: MaterialStateColor.resolveWith((states) => Colors.blueGrey),),
                 ),
               ],
@@ -586,7 +596,7 @@ class LoadDialog extends StatelessWidget {
       content: Column(
         children: [
           Text("File Loading Dialog, implement"),
-          ElevatedButton(onPressed: () => SamplerController().pickFile(), child: Text("LOAD")),
+          ElevatedButton(onPressed: () => SamplerController().pickFile(), child: /*Text("LOAD")*/ Text(Languages.of(context)!.loadName),),
         ],
       ),
     );
@@ -612,7 +622,7 @@ class RenamePage extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text("Choose a new name for the Sampler", style:TextStyle(color: Colors.white), textAlign: TextAlign.center,),
+            Text(/*"Choose a new name for the Sampler"*/ Languages.of(context)!.renameInstructionsName, style:TextStyle(color: Colors.white), textAlign: TextAlign.center,),
             TextField(
               controller: samplerController.getTextEditingController(),
               decoration: InputDecoration(
@@ -632,14 +642,14 @@ class RenamePage extends StatelessWidget {
                 ElevatedButton(onPressed: () {
                   Navigator.pop(context);
                 },
-                  child: Text("Cancel"),
+                  child: /*Text("Cancel")*/ Text(Languages.of(context)!.cancelName),
                   style: ButtonStyle(backgroundColor: MaterialStateColor.resolveWith((states) => Colors.red),),
                 ),
                 ElevatedButton(onPressed: () {
                   samplerController.setRenameSubmitted(true);
                   Navigator.pop(context);
                 },
-                  child: Text("Submit"),
+                  child: /*Text("Submit")*/ Text(Languages.of(context)!.submitName),
                   style: ButtonStyle(backgroundColor: MaterialStateColor.resolveWith((states) => Colors.blueGrey),),),
               ],
             ),
@@ -714,7 +724,7 @@ class _ToUploadListState extends State<ToUploadList> {
                 onPressed: () {
                   Navigator.pop(context);
                 },
-                child: Text("Cancel"),
+                child: /*Text("Cancel")*/ Text(Languages.of(context)!.cancelName),
                 style: ButtonStyle(backgroundColor:  MaterialStateColor.resolveWith((states) => Colors.red),),
               ),
               Padding(padding: EdgeInsets.all(5)),
@@ -849,7 +859,7 @@ class LoadingDialog extends StatelessWidget {
             Padding(padding: EdgeInsets.symmetric(vertical: 15)),
             ElevatedButton(
               onPressed: () => Navigator.pop(context, "NO SELECTION"),
-              child: Text("Cancel",),
+              child: /*Text("Cancel",)*/ Text(Languages.of(context)!.cancelName),
               style: ButtonStyle(backgroundColor: MaterialStateProperty.resolveWith((states) => Colors.red),),
             ),
           ],
@@ -947,7 +957,7 @@ class _AssetsLoadingDialogState extends State<AssetsLoadingDialog> {
             ),
             ElevatedButton(
               onPressed: () => Navigator.pop(context, "NO SELECTION"),
-              child: Text("Cancel"),
+              child: /*Text("Cancel")*/ Text(Languages.of(context)!.cancelName),
               style: ButtonStyle(backgroundColor: MaterialStateColor.resolveWith((states) => Colors.red),),),
             //Padding(padding: EdgeInsets.symmetric(vertical: 1)),
           ],
