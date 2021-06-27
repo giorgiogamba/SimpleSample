@@ -115,7 +115,7 @@ class CloudStorageController {
 
   //Todo cancellare quando finiti i test
   //Uploads record to the cloud storage
-  Future<void> upload(/*Record record*/ String? path) async {
+  /*Future<void> upload(/*Record record*/ String? path) async {
     //String recURL = record.getUrl(); //absolute path
 
     //var splitted = recURL.split("/");
@@ -132,7 +132,7 @@ class CloudStorageController {
     } on FirebaseException catch (e) {
       print(e.toString());
     }
-  }
+  }*/
 
   //Uploads record to the cloud storage
   Future<void> uploadRecord(Record record) async {
@@ -153,7 +153,7 @@ class CloudStorageController {
     }
   }
 
-  Future<void> download() async { //FUNZIONANTE
+  /*Future<void> download() async { //FUNZIONANTE
     File newFile = File(Model().getExtDocPath()+"download_ex.wav");
     try {
       await FirebaseStorage.instance.ref("uploads/example.wav").writeToFile(newFile);
@@ -162,7 +162,7 @@ class CloudStorageController {
     }
 
     print("FIne esecuzione metodo download");
-  }
+  }*/
 
   void downloadRecord(Record record) async {
     print("CloudStorageController -- downloadRecord method");

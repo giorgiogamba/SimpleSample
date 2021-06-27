@@ -10,11 +10,10 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:googleapis/cloudsearch/v1.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:flutter/foundation.dart';
-import 'package:simple_sample/Controllers/DropboxController.dart';
 import '../Utils.dart';
 import 'Record.dart';
 
-class Model {
+class Model { ///TESTING COMPLETED
 
   static final Model _instance = Model.internal();
 
@@ -79,7 +78,7 @@ class Model {
     print("*************** INIZIALIZZAZIONE MODELLO COMPLETATA ***********");
   }
 
-  void addRecord(Record newRecord, int index) {
+  void addRecord(Record newRecord, int index) { ///TESTED
     //Adding User's Unique ID
     User? currentUser = this.getUser();
     if (currentUser != null) {
@@ -89,23 +88,12 @@ class Model {
     print("addRecord: added new record to: " + newRecord.getUrl());
   }
 
-  Record? getRecordAt(int index) {
+  Record? getRecordAt(int index) { ///TESTED
     if (index > 15) {
       return null;
     }
     return _records[index];
   }
-
-  /*Record? getRecordWithID(int ID) {
-    for (int i = 0; i < _recordsList!.length; i ++) {
-      Record temp = _recordsList![i];
-      int tempID = temp.getID();
-      if (tempID == ID) {
-        return temp;
-      }
-    }
-    return null;
-  }*/
 
   String getExtDocPath() {
     return this._extDocPath;
@@ -147,27 +135,22 @@ class Model {
     print(_user?.displayName);
   }
 
-  String getNewPath() {
+  String getNewPath() { ///TESTED
     this._counter ++;
-    //return docPath+"/"+counter.toString();
     String path = this._extDocPath + "/" + this._counter.toString() + ".wav";
     File file = new File(path);
     file.create();
     return path;
   }
 
-  Future<String> getDocFilePath() async {
+  Future<String> getDocFilePath() async { ///TESTED
     Directory appDocumentsDirectory = await getApplicationDocumentsDirectory();
     return appDocumentsDirectory.absolute.path;
   }
 
-  Future<String> getExternalStorageDoc() async {
+  Future<String> getExternalStorageDoc() async { ///TESTED
     Directory? dir = await getExternalStorageDirectory();
     return dir!.absolute.path;
-  }
-
-  Future<void> loadAssets() async {
-    //print(getA.toString());
   }
 
   List<String> getDirElementsList() {
@@ -183,7 +166,7 @@ class Model {
     return res;
   }
 
-  //Takes all the audio files into the externalDir
+  ///Takes all the audio files into the externalDir
   List<String> getExtDirElementsList() {
     List<String> res = [];
     var dir = Directory(this._extDocPath);
@@ -197,8 +180,8 @@ class Model {
     return res;
   }
 
-  //Returns all the
-  List<Record> getAllCurrentRecords() {
+  ///Returns a list containing all the records currently into the sampler map
+  List<Record> getAllCurrentRecords() { ///TESTED
     List<Record> res = [];
     for (Record r in _records.values) {
       res.add(r);
@@ -223,8 +206,7 @@ class Model {
     return this.getStorageUploadPath() + "/" + this.getUser()!.uid.toString() + "/" + recordName;
   }
 
-  Record? getRecordWithPath(String path) {
-    print("***** URL ANALIZZATI; ********");
+  Record? getRecordWithPath(String path) { ///TESTED
     for (Record r in _records.values) {
       print(r.getUrl());
       if (r.getUrl() == path) {
@@ -246,7 +228,7 @@ class Model {
     return this._tagsList[index];
   }
 
-  bool isButtonFull(int index) {
+  bool isButtonFull(int index) { ///TESTED
     Record? record = _records[index];
     if (record == null) {
       return false;
@@ -302,6 +284,10 @@ class Model {
 
   ValueNotifier getAuth() {
     return this.auth;
+  }
+
+  int getCounter() {
+    return this._counter;
   }
 
 }

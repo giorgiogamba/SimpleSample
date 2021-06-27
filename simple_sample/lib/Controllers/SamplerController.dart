@@ -47,7 +47,7 @@ class SamplerController {
     return "";
   }
 
-  ///Utility method that oved the file to the samples' location
+  ///Utility method that moves the file to the samples' location
   String moveFile(String path) {
     //Reading original file
     Uint8List readOriginalFile = File(path).readAsBytesSync();
@@ -66,6 +66,7 @@ class SamplerController {
     return newPath;
   }
 
+  ///Item selection
   bool isEnabledItemSelection() {
     return this._selectAnItem;
   }
@@ -78,6 +79,7 @@ class SamplerController {
     this._selectAnItem = false;
   }
 
+  ///SELECTED URL
   void setSelectedURL(String newURL) {
     this._selectedURL = newURL;
     print("Selected URL vale: "+this._selectedURL);
@@ -102,7 +104,7 @@ class SamplerController {
     return Model().isButtonFull(index);
   }
 
-  String getButtonName(int index) {
+  String getButtonName(int index) { ///TESTED
     Record? record = Model().getRecordAt(index);
     if (record != null) {
       return record.getFilename();
@@ -111,6 +113,7 @@ class SamplerController {
     }
   }
 
+  ///RENAMING
   bool isRenameRunning() {
     return this._renameRunning;
   }
@@ -148,8 +151,7 @@ class SamplerController {
   Future<void> renameRecord() async {
     if (this._selectedItemForRename != null) {
       await Model().renameRecord(this._selectedItemForRename!, _textEditingController.text);
-      //resetting TextEditingController
-      _textEditingController.text = "";
+      _textEditingController.text = ""; //resetting TextEditingController
     } else {
       print("Item selected is null");
     }
@@ -163,6 +165,7 @@ class SamplerController {
     this._renameSubmitted = value;
   }
 
+  ///SHARING
   void enableSharing(BuildContext context) {
     _operationInformationText = Languages.of(context)!.shareInstructionsName;
     this._isSharingRunning = true;
@@ -193,6 +196,7 @@ class SamplerController {
     this._operationInformationText = text;
   }
 
+  ///LOADING
   void enableLoading() {
     this._isLoadingRunning = true;
   }
@@ -205,6 +209,7 @@ class SamplerController {
     return this._isLoadingRunning;
   }
 
+  ///ASSETS
   void loadAssets() {
     this._assets = Model().getAssets();
   }

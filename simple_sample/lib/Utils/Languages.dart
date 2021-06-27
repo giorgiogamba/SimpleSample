@@ -74,6 +74,8 @@ abstract class Languages {
 
   String get sampleSaved;
 
-  //todo creare un metodo per ognu stringa che bisogna tradurre
+  String get selectButton;
+
+  String get cannotSelect;
 
 }

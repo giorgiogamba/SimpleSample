@@ -156,7 +156,7 @@ class _SamplerState extends State<Sampler> {
                       }
                     });
                   } else {
-                    Utils.showToast(context, "This item cannot be shared. First record something");
+                    Utils.showToast(context, Languages.of(context)!.cannotSelect);
                   }
                 } else if (_samplerController.isSharingRunning()) { //sharing
                   print("Associating button for sharing");
@@ -174,11 +174,10 @@ class _SamplerState extends State<Sampler> {
                         _samplerController.disableSharing();
                       });
                     });
-                    print("Sono dpo il dialog");
 
                   } else {
                     print("Sampler -- Share Button -- sleected item is null");
-                    Utils.showToast(context, "This item cannot be selected. First record something");
+                    Utils.showToast(context, Languages.of(context)!.cannotSelect);
                   }
                 }
               }
@@ -208,10 +207,8 @@ class _SamplerState extends State<Sampler> {
 
   Widget selectButtonWidgetChild() {
     if (!_samplerController.isRenameRunning()) {
-      //return Text("Rename");
-      return Text(Languages.of(context)!.renameName); //todo forse da scambiare
+      return Text(Languages.of(context)!.renameName);
     } else {
-      //return Text("Cancel");
       return Text(Languages.of(context)!.cancelName);
     }
   }
@@ -228,10 +225,8 @@ class _SamplerState extends State<Sampler> {
 
   Widget getLoadButtonName() {
     if (_samplerController.isLoadingRunning()) {
-      //return Text("Cancel");
       return Text(Languages.of(context)!.cancelName);
     } else {
-      //return Text("Load");
       return Text(Languages.of(context)!.loadName);
     }
   }
@@ -334,11 +329,8 @@ class _SamplerState extends State<Sampler> {
                       ),
                     );
 
-                    print("result vale: $result");
-
                     if (result != "NO SELECTION") {
-                      _samplerController.setOperationInformationTxt(
-                          "Select the button");
+                      _samplerController.setOperationInformationTxt(Languages.of(context)!.selectButton);
                       setState(() {
                         _samplerController.enableLoading();
                         _samplerController.enableItemSelection();
@@ -372,7 +364,7 @@ class _SamplerState extends State<Sampler> {
                     }
                   } else {
                     print("User is not connected");
-                    Utils.showToast(context, "User is not connected");
+                    Utils.showToast(context, Languages.of(context)!.userNotConnected);
                   }
                 },
                   child: Icon(Icons.add_to_drive),
@@ -427,7 +419,6 @@ class _SamplerState extends State<Sampler> {
                   style: getRenameButtonStyle(),),
               ],
             ),
-            //ElevatedButton(onPressed: () => changeLanguage(context, 'en'), child: Text("Cambia")),
           ],
         ),
       ),

@@ -1,22 +1,6 @@
 import 'Languages.dart';
 
 class LanguageIT extends Languages {
-
-  /*@override
-  String get appName => "Multi-languages";
-
-  @override
-  String get labelWelcome => "Welcome";
-
-  @override
-  String get labelSelectLanguage => "Select Language";
-
-  @override
-  String get labelInfo => "This is multi-languages demo application";
-
-  @override
-  String get prova => "cari";*/
-
   @override
   String get settingsPageName => "Impostazioni";
 
@@ -119,4 +103,9 @@ class LanguageIT extends Languages {
   @override
   String get sampleSaved => "Sample salvato nei preferiti";
 
+  @override
+  String get selectButton => "Seleziona il bottone";
+
+  @override
+  String get cannotSelect => "Questo bottone non può essere selezionato, prima registra qualcosa";
 }

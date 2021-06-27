@@ -9,7 +9,7 @@ import '../Models/Record.dart';
 const int bpmBase = 60;
 const int maxBpm = 200;
 
-class SequencerController {
+class SequencerController { ///TESTING COMPLETED
 
   static final SequencerController _instance = SequencerController._internal();
 
@@ -37,7 +37,7 @@ class SequencerController {
   }
 
 
-  void initSequencerMap() {
+  void initSequencerMap() { ///TESTED
     for (int i = 0; i < 8; i ++) {
       HashMap<int, bool>? newMap = HashMap();
       for (int j = 0; j < 16; j ++) {
@@ -63,7 +63,7 @@ class SequencerController {
   }
 
 
-  void manageButtonPress(int row, int col) {
+  void manageButtonPress(int row, int col) { ///TESTED
     print("Managing row "+row.toString() + " on col "+col.toString());
     HashMap<int, bool>? tempMap = _sequencerMap?[col];
     if (tempMap?[row] == true) {
@@ -73,7 +73,7 @@ class SequencerController {
     }
   }
 
-  void playPosition(int pos) {
+  void playPosition(int pos) { ///TESTED
     print("Playing position "+pos.toString());
     HashMap<int, bool>? posList = _sequencerMap?[pos];
     if (posList != null) {
@@ -85,15 +85,14 @@ class SequencerController {
     }
   }
 
-  bool? getSequencerMapValue(int row, int col) {
+  bool? getSequencerMapValue(int row, int col) { ///TESTED
     HashMap<int, bool>? tempMap = _sequencerMap?[col];
     return tempMap?[row];
   }
 
-  void calculateTick() {
+  void calculateTick() { ///TESTED
     int? currentBPM = getBPM();
     double value = bpmBase / currentBPM;
-    print(value);
 
     //Parsificazione in due parti
     var splitted = value.toString().split("."); //splits in 2 parts
@@ -134,7 +133,7 @@ class SequencerController {
   void handlePause() {
     _timer?.cancel();
   }
-  void resetCounter() {
+  void resetCounter() { ///TESTED
     counter.value = 0;
   }
 
@@ -143,14 +142,14 @@ class SequencerController {
     playPosition(counter.value);
   }
 
-  void incrementCounter() {
+  void incrementCounter() { ///TESTED
     counter.value ++;
     if (counter.value > 7) {
       counter.value = 0;
     }
   }
 
-  void resetSequencer() {
+  void resetSequencer() { ///TESTED
     for (int i = 0; i < 8; i ++) {
       HashMap<int, bool>? newMap = _sequencerMap?[i];
       for (int j = 0; j < 16; j ++) {
@@ -177,7 +176,7 @@ class SequencerController {
     this._isRunning = value;
   }
 
-  bool isRecordAtPositionNull(int index) {
+  bool isRecordAtPositionNull(int index) { ///TESTED
     Record? record = Model().getRecordAt(index);
     if (record != null) {
       if (record.getFilename() == null) {
@@ -193,4 +192,17 @@ class SequencerController {
   int getMaxBpm() {
     return maxBpm;
   }
+
+  HashMap<int, HashMap<int, bool>>? getSequencerMap() {
+    return this._sequencerMap;
+  }
+
+  int getCounterValue() {
+    return this.counter.value;
+  }
+
+  Duration getDur() {
+    return this._dur;
+  }
+
 }

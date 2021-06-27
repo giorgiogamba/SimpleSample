@@ -13,46 +13,6 @@ Future<void> main() async {
   runApp(MyApp());
 }
 
-/*class MyApp extends StatelessWidget {
-
-  final Future<FirebaseApp> _firebaseApp = Firebase.initializeApp();
-
-  @override
-  Widget build(BuildContext context) {
-
-    Model();
-
-    return OverlaySupport( //for notificaiton test
-      child: MaterialApp(
-        title: 'Simple Sample',
-        home: FutureBuilder(
-          future: _firebaseApp,
-          builder: (context, snapshot) {
-            if (snapshot.hasError) {
-              print("Error: ${snapshot.error.toString()}");
-              return Text("Something ent wrong");
-            } else if (snapshot.hasData) {
-              return Scaffold(
-                body:
-                new Theme(
-                  data: Theme.of(context).copyWith(
-                    canvasColor: Color.fromRGBO(20, 30, 48, 1),
-                  ),
-                  child: MyBottomNavigationBar(),
-                ),
-              );
-            } else {
-              return Center(
-                child: CircularProgressIndicator(),
-              );
-            }
-          },
-        )
-      ),
-    );
-  }
-}*/
-
 class MyApp extends StatefulWidget {
   const MyApp({Key? key}) : super(key: key);
 
