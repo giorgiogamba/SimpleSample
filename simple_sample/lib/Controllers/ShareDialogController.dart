@@ -5,7 +5,7 @@ import 'AudioController.dart';
 import '../Models/Model.dart';
 import '../Models/Record.dart';
 
-class ShareDialogController {
+class ShareDialogController { ///TESTED
   static final ShareDialogController _instance = ShareDialogController._internal();
   List<Record> _entries = [];
   Record? _selectedEntry; //if null non si può procedere alla pagina successiva
@@ -17,82 +17,72 @@ class ShareDialogController {
     return _instance;
   }
 
-  void initElements() {
+  void initElements() { ///OK
     _selectedEntry = null;
     _entries = Model().getAllCurrentRecords();
     _selectedTags = Model().getTagsList();
-    print("Eseguita inizializzazione elementi");
   }
 
-  Record getEntryAt(int position) {
-    print("Prelievo elemento alla posizione $position");
+  Record getEntryAt(int position) { ///OK
     return _entries[position];
   }
 
-  Record? getSelectedEntry() {
+  Record? getSelectedEntry() { ///OK
     return this._selectedEntry;
   }
 
-  Record? setSelectedEntry(Record? record) {
-    print("Inserisco selectect entry con informazione: ");
-    record?.printRecordInfo();
+  Record? setSelectedEntry(Record? record) { ///OK
     this._selectedEntry = record;
   }
 
-  int getEntriesLength() {
+  int getEntriesLength() { ///OK
     return this._entries.length;
   }
 
-  void playRecord(int itemIndex) {
-    print("ShareDialogController: playRecord method");
+  void playRecord(int itemIndex) { ///OK
     Record toPlayRecord = getEntryAt(itemIndex);
     String URL = toPlayRecord.getUrl();
     AudioController().playAtURL(URL);
   }
 
   Future<bool> share(String newName) {
-    print("SgareDialogController -- share method");
-    print("Selected tags: ");
-
     //_selectedEntry è l'elemento da cricare
     if (newName != "") {
-      print("newname diverso da null");
       if (_selectedEntry != null) {
-        print("selected entru diverso da null");
-        print("ShareDialogController -- share Method: uploadign record with name $newName amd tags");
-        for (int i = 0; i < _selectedTags.length; i ++) {
-          print(_selectedTags[i]);
-        }
-
+        print("ShareDialogController -- share Method: uploadign record with name $newName");
         return CloudStorageController().shareRecord(_selectedEntry!, _selectedTags, newName);
       } else {
-        throw Exception ("_selectedEntry è null");
+        throw Exception ("ShareDialogController -- share method -- The element to be shared is null");
       }
     } else {
-      throw Exception ("newName non è stato inserito");
+      throw Exception ("ShareDialogController -- share method -- the new name has not been inserted");
     }
   }
 
-  int getTagsListLength() {
+  int getTagsListLength() { ///OK
     return Model().getTagsList().length;
   }
 
-  String getTagAt(int index) {
+  String getTagAt(int index) { ///OK
     return Model().getTagAt(index);
   }
 
-  void addToSelectedTags(int index) {
+  void addToSelectedTags(int index) { ///TESTED
     String selectedTag = getTagAt(index);
     _selectedTags.add(selectedTag);
   }
 
-  void removeFromSelectedTags(int index) {
+  void removeFromSelectedTags(int index) { ///TESTED
     String toRemove = getTagAt(index);
     _selectedTags.remove(toRemove);
   }
 
-  void resetSelectedTags() {
+  void resetSelectedTags() { ///OK
     this._selectedTags = [];
+  }
+
+  List<String> getSelectedTags() { ///OK
+    return this._selectedTags;
   }
 
 }

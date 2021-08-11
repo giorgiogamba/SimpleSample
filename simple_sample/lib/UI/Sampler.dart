@@ -8,6 +8,7 @@ import 'package:overlay_support/overlay_support.dart';
 import 'package:simple_sample/Controllers/AudioController.dart';
 import 'package:simple_sample/Controllers/AuthenticationController.dart';
 import 'package:simple_sample/Controllers/CloudStorageController.dart';
+import 'package:simple_sample/Controllers/GoogleDriveController.dart';
 import 'package:simple_sample/Controllers/NotificationController.dart';
 import 'package:simple_sample/Controllers/SamplerController.dart';
 import 'package:simple_sample/Controllers/ShareDialogController.dart';
@@ -44,10 +45,13 @@ class _SamplerState extends State<Sampler> {
   AudioController _audioController = AudioController();
   SamplerController _samplerController = SamplerController();
   StreamSubscription? _recorderSubscription;
+  double _screenHeight = 0;
+  double _screenWidth = 0;
 
   @override
   void initState() {
     NotificationController();
+    //GoogleDriveController(); //so I'm sure it's already initialized
 
     _audioController.initRecorder().then((value) {
 
@@ -90,7 +94,7 @@ class _SamplerState extends State<Sampler> {
       shadowColor: MaterialStateProperty.resolveWith((states) => Colors.pinkAccent),
       enableFeedback: true,
       minimumSize: MaterialStateProperty.resolveWith((states) =>
-          Size(buttonSize, buttonSize)),
+          /*Size(buttonSize, buttonSize))*/ Size(/*70*/ _screenWidth/5.85, /*70*/ _screenWidth/5.85)),
     );
   }
 
@@ -188,8 +192,8 @@ class _SamplerState extends State<Sampler> {
         (_samplerController.isEnabledItemSelection() &&
             (_samplerController.checkIsButtonIsFull(index) || _samplerController.isLoadingRunning())) ?
         Container(
-            width: 10,
-            height: 10,
+            width: /*10*/ _screenWidth/41,
+            height: /*10*/ _screenWidth/41,
             child: Align(
               alignment: Alignment.bottomLeft,
               child: Padding(
@@ -200,7 +204,7 @@ class _SamplerState extends State<Sampler> {
                 ),
               ),
             )
-        ) : Container(width: 10, height: 10,),
+        ) : Container(width: /*10*/ _screenWidth/41, height: /*10*/ _screenWidth/41,),
       ],
     );
   }
@@ -268,11 +272,11 @@ class _SamplerState extends State<Sampler> {
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         createButton(indexes[0]),
-        Padding(padding: EdgeInsets.symmetric(horizontal: 10)),
+        Padding(padding: EdgeInsets.symmetric(horizontal: /*10*/ _screenWidth/41)),
         createButton(indexes[1]),
-        Padding(padding: EdgeInsets.symmetric(horizontal: 10)),
+        Padding(padding: EdgeInsets.symmetric(horizontal: /*10*/ _screenWidth/41)),
         createButton(indexes[2]),
-        Padding(padding: EdgeInsets.symmetric(horizontal: 10)),
+        Padding(padding: EdgeInsets.symmetric(horizontal: /*10*/ _screenWidth/41)),
         createButton(indexes[3]),
       ],
     );
@@ -280,6 +284,11 @@ class _SamplerState extends State<Sampler> {
 
   @override
   Widget build(BuildContext context) {
+
+    //Getting sceen's size
+    _screenHeight = MediaQuery.of(context).size.height;
+    _screenWidth = MediaQuery.of(context).size.width;
+
     return Scaffold(
       resizeToAvoidBottomInset: false, //to avoid keyboard overflow
       body: Container(
@@ -297,8 +306,8 @@ class _SamplerState extends State<Sampler> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Container(
-              height: 30,
-              width: 400,
+              height: /*30*/ _screenHeight/22.76,
+              width: /*300*/ _screenWidth/1.37, //prima era 400
               child: Center(
                 child: Text(
                   _samplerController.getOperationInformationText(),
@@ -306,19 +315,19 @@ class _SamplerState extends State<Sampler> {
                 ),
               ),
             ),
-            Padding(padding: EdgeInsets.symmetric(vertical: 20)),
+            Padding(padding: EdgeInsets.symmetric(vertical: /*20*/_screenWidth/20.55)),
             createSamplerRow(0),
-            Padding(padding: EdgeInsets.symmetric(vertical: 10)),
+            Padding(padding: EdgeInsets.symmetric(vertical: /*10*/ _screenWidth/41)),
             createSamplerRow(4),
-            Padding(padding: EdgeInsets.symmetric(vertical: 10)),
+            Padding(padding: EdgeInsets.symmetric(vertical: /*10*/ _screenWidth/41)),
             createSamplerRow(8),
-            Padding(padding: EdgeInsets.symmetric(vertical: 10)),
+            Padding(padding: EdgeInsets.symmetric(vertical: /*10*/ _screenWidth/41)),
             createSamplerRow(12),
-            Padding(padding: EdgeInsets.symmetric(vertical: 10)),
+            Padding(padding: EdgeInsets.symmetric(vertical: /*10*/ _screenWidth/41)),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                ElevatedButton(onPressed: () async { //LOADING BUTTON
+                ElevatedButton(onPressed: () async { //LOAD BUTTON
                   if (!_samplerController.isSharingRunning() && !_samplerController.isRenameRunning()) {
                     var result = await showDialog(
                       barrierDismissible: false,
@@ -337,7 +346,7 @@ class _SamplerState extends State<Sampler> {
                         if (result != null && result != "") {
                           _samplerController.setSelectedURL(result);
                         } else {
-                          print("ERROR: the selected URL is null");
+                          throw("ERROR: the selected URL is null");
                         }
                       });
                     }
@@ -349,8 +358,8 @@ class _SamplerState extends State<Sampler> {
                   child: getLoadButtonName(),
                   style: getLoadingButtonStyle(),
                 ),
-                Padding(padding: EdgeInsets.symmetric(horizontal: 10)),
-                ElevatedButton(onPressed: () { //UPLOAD BUTTON
+                Padding(padding: EdgeInsets.symmetric(horizontal: /*10*/ _screenWidth/41)),
+                ElevatedButton(onPressed: () { //UPLOAD ON DRIVE BUTTON
                   if (_samplerController.checkIfUserConnected()) {
                     if (!_samplerController.isSharingRunning() &&
                         !_samplerController.isRenameRunning()) {
@@ -370,7 +379,7 @@ class _SamplerState extends State<Sampler> {
                   child: Icon(Icons.add_to_drive),
                   style: ButtonStyle(backgroundColor:  MaterialStateColor.resolveWith((states) => Colors.blueGrey),),
                 ),
-                Padding(padding: EdgeInsets.symmetric(horizontal: 10)),
+                Padding(padding: EdgeInsets.symmetric(horizontal: /*10*/ _screenWidth/41)),
                 ElevatedButton( onPressed: () { //SHARE BUTTON
                   if (_samplerController.checkIfUserConnected()) { //user is connected
                     if (!_samplerController.isRenameRunning()) {
@@ -397,7 +406,7 @@ class _SamplerState extends State<Sampler> {
                   child: selectSharingButtonName(),
                   style: getSharingButtonStyle(),
                 ),
-                Padding(padding: EdgeInsets.symmetric(horizontal: 10)),
+                Padding(padding: EdgeInsets.symmetric(horizontal: /*10*/ _screenWidth/41)),
                 ElevatedButton(onPressed: () { //RENAME BUTTON
                   if (!_samplerController.isSharingRunning()) {
                     if (!_samplerController.isRenameRunning()) { //Enable Renaming
@@ -444,13 +453,15 @@ class _SharingDialogState extends State<SharingDialog> {
 
   ShareDialogController _controller = ShareDialogController();
   TextEditingController _textFieldController = TextEditingController();
+  double _screenHeight = 0;
+  double _screenWidth = 0;
 
   Widget makePage() {
     return AlertDialog (
       backgroundColor: Color.fromRGBO(36, 59, 85, 1),
       content: Container(
-        width: 250,
-        height: 470,
+        width: /*250*/ _screenWidth/1.644,
+        height: /*470*/ _screenHeight/1.54,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -476,12 +487,12 @@ class _SharingDialogState extends State<SharingDialog> {
               children: [
                 ElevatedButton(
                   onPressed: () => Navigator.pop(context),
-                  child: /*Text("Cancel")*/ Text(Languages.of(context)!.cancelName),
+                  child: Text(Languages.of(context)!.cancelName),
                   style: ButtonStyle(backgroundColor: MaterialStateColor.resolveWith((states) => Colors.red),),
                 ),
                 ElevatedButton(
                   onPressed: () => _controller.share(_textFieldController.text).then((value) => Navigator.pop(context)),
-                  child: /*Text("Share")*/ Text(Languages.of(context)!.shareName),
+                  child: Text(Languages.of(context)!.shareName),
                   style: ButtonStyle(backgroundColor: MaterialStateColor.resolveWith((states) => Colors.blueGrey),),
                 ),
               ],
@@ -495,8 +506,8 @@ class _SharingDialogState extends State<SharingDialog> {
 
   Widget makeTagList() {
     return Container(
-      width: 200,
-      height: 250,
+      width: /*200*/ _screenWidth/2,
+      height: /*250*/ _screenHeight/2.732,
       decoration: BoxDecoration(
         border: Border.all(
           color: Colors.white,
@@ -526,6 +537,11 @@ class _SharingDialogState extends State<SharingDialog> {
 
   @override
   Widget build(BuildContext context) {
+
+    //Getting sceen's size
+    _screenHeight = MediaQuery.of(context).size.height;
+    _screenWidth = MediaQuery.of(context).size.width;
+
     _controller.setSelectedEntry(widget.record);
     return makePage();
   }
@@ -553,7 +569,6 @@ class _TagListButtonState extends State<TagListButton> {
     if (isSelected) {
       return Colors.pink;
     } else {
-      //return Colors.teal;
       return  Color.fromRGBO(36, 59, 85, 1);
     }
   }
@@ -578,7 +593,7 @@ class _TagListButtonState extends State<TagListButton> {
 }
 
 
-class LoadDialog extends StatelessWidget {
+/*class LoadDialog extends StatelessWidget {
   const LoadDialog({Key? key}) : super(key: key);
 
   @override
@@ -587,12 +602,12 @@ class LoadDialog extends StatelessWidget {
       content: Column(
         children: [
           Text("File Loading Dialog, implement"),
-          ElevatedButton(onPressed: () => SamplerController().pickFile(), child: /*Text("LOAD")*/ Text(Languages.of(context)!.loadName),),
+          ElevatedButton(onPressed: () => SamplerController().pickFile(), child: Text(Languages.of(context)!.loadName),),
         ],
       ),
     );
   }
-}
+}*/
 
 
 class RenamePage extends StatelessWidget {
@@ -603,17 +618,21 @@ class RenamePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
 
+    //Getting sceen's size
+    double _screenHeight = MediaQuery.of(context).size.height;
+    double _screenWidth = MediaQuery.of(context).size.width;
+
     samplerController.setRenameSubmitted(false);
 
     return AlertDialog(
       backgroundColor: Color.fromRGBO(36, 59, 85, 1),
       content: Container(
-        width: 200,
-        height: 180,
+        width: /*200*/ _screenWidth/2,
+        height: /*180*/ _screenHeight/3.79,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(/*"Choose a new name for the Sampler"*/ Languages.of(context)!.renameInstructionsName, style:TextStyle(color: Colors.white), textAlign: TextAlign.center,),
+            Text(Languages.of(context)!.renameInstructionsName, style:TextStyle(color: Colors.white), textAlign: TextAlign.center,),
             TextField(
               controller: samplerController.getTextEditingController(),
               decoration: InputDecoration(
@@ -633,14 +652,14 @@ class RenamePage extends StatelessWidget {
                 ElevatedButton(onPressed: () {
                   Navigator.pop(context);
                 },
-                  child: /*Text("Cancel")*/ Text(Languages.of(context)!.cancelName),
+                  child: Text(Languages.of(context)!.cancelName),
                   style: ButtonStyle(backgroundColor: MaterialStateColor.resolveWith((states) => Colors.red),),
                 ),
                 ElevatedButton(onPressed: () {
                   samplerController.setRenameSubmitted(true);
                   Navigator.pop(context);
                 },
-                  child: /*Text("Submit")*/ Text(Languages.of(context)!.submitName),
+                  child: Text(Languages.of(context)!.submitName),
                   style: ButtonStyle(backgroundColor: MaterialStateColor.resolveWith((states) => Colors.blueGrey),),),
               ],
             ),
@@ -663,6 +682,8 @@ class _ToUploadListState extends State<ToUploadList> {
 
   ToUpdateListController _toUpdateListController = ToUpdateListController();
   List<Record> selectedEntries = [];
+  double _screenHeight = 0;
+  double _screenWidth = 0;
 
   @override
   void initState() {
@@ -677,6 +698,10 @@ class _ToUploadListState extends State<ToUploadList> {
   @override
   Widget build(BuildContext context) {
 
+    //Getting sceen's size
+    _screenHeight = MediaQuery.of(context).size.height;
+    _screenWidth = MediaQuery.of(context).size.width;
+
     _toUpdateListController.getElementsList();
 
     return AlertDialog(
@@ -684,10 +709,10 @@ class _ToUploadListState extends State<ToUploadList> {
       content: Column(
         children: [
           Container(
-            width: 300,
-            height: 500,
+            width: /*300*/ _screenWidth/1.37,
+            height: /*500*/ _screenHeight/1.366,
             child: ListView.separated(
-              padding: const EdgeInsets.all(8), //porre a 0 se si vuole che riempa tutto lo spazion padre
+              padding: const EdgeInsets.all(5), //non può essere relativo
               physics: ClampingScrollPhysics(),
               itemCount: _toUpdateListController.getElementsListLength(),
               itemBuilder: (BuildContext context, int index) {
@@ -718,7 +743,7 @@ class _ToUploadListState extends State<ToUploadList> {
                 child: /*Text("Cancel")*/ Text(Languages.of(context)!.cancelName),
                 style: ButtonStyle(backgroundColor:  MaterialStateColor.resolveWith((states) => Colors.red),),
               ),
-              Padding(padding: EdgeInsets.all(5)),
+              Padding(padding: EdgeInsets.all(_screenWidth/82)),
               ElevatedButton(
                 onPressed: () {
                   if (_toUpdateListController.getElementsListLength() >0) {
@@ -754,9 +779,15 @@ class ToUploadItem extends StatefulWidget {
 class _ToUploadItemState extends State<ToUploadItem> {
 
   bool isSelected = false;
+  double _screenWidth = 0;
+  double _screenHeight = 0;
 
   @override
   Widget build(BuildContext context) {
+
+    //Getting sceen's size
+    _screenHeight = MediaQuery.of(context).size.height;
+    _screenWidth = MediaQuery.of(context).size.width;
 
     return InkWell(
       onTap: () {
@@ -769,7 +800,7 @@ class _ToUploadItemState extends State<ToUploadItem> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Container(
-            width: 180,
+            width: /*180*/ _screenWidth/2.28,
             child: Text(
               Utils.removeExtension(widget.controller.getElementAt(widget.itemIndex).getFilename()),
               style: TextStyle(color: Colors.white),
@@ -779,7 +810,7 @@ class _ToUploadItemState extends State<ToUploadItem> {
             onPressed: () => widget.controller.playRecord(widget.controller.getElementAt(widget.itemIndex).getUrl()),
             child: Icon(Icons.play_arrow),
             style: ButtonStyle(
-              minimumSize:MaterialStateProperty.resolveWith((states) => Size(20, 20)),
+              minimumSize:MaterialStateProperty.resolveWith((states) => Size(/*20*/ _screenWidth/20.5, /*20*/ _screenWidth/20.5)),
               backgroundColor:  MaterialStateColor.resolveWith((states) => Colors.blueGrey),
             ),
           ),
@@ -787,8 +818,8 @@ class _ToUploadItemState extends State<ToUploadItem> {
             children: [
               isSelected ? Center(
                 child: Container(
-                    width: 30,
-                    height: 30,
+                    width: /*30*/ _screenWidth/13.7,
+                    height: /*30*/ _screenWidth/13.7,
                     child: Align( //se lo seleziono aggiunge il pallino blu
                       alignment: Alignment.centerRight,
                       child: Padding(
@@ -800,7 +831,7 @@ class _ToUploadItemState extends State<ToUploadItem> {
                       ),
                     )
                 ),
-              ) : Container(width: 30, height: 30),
+              ) : Container(width: /*30*/ _screenWidth/13.7, height: /*30*/ _screenWidth/13.7),
             ],
           ),
         ],
@@ -824,16 +855,21 @@ class LoadingDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
+    //Getting sceen's size
+    double _screenHeight = MediaQuery.of(context).size.height;
+    double _screenWidth = MediaQuery.of(context).size.width;
+
     return AlertDialog(
       backgroundColor: Color.fromRGBO(36, 59, 85, 1),
       content: Container(
-        width: 200,
-        height: 180,
+        width: /*200*/ _screenWidth/2,
+        height: /*180*/ _screenHeight/3.79,
         child: Column(
           children: [
             Container(
-              width: 200,
-              height: 100,
+              width: /*200*/ _screenWidth/2,
+              height: /*100*/ _screenHeight/6.83,
               child: ListView.separated(
                 itemBuilder:  (BuildContext context, int index) {
                   return LoadingListItem(
@@ -871,6 +907,10 @@ class LoadingListItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
+    double _screenWidth = MediaQuery.of(context).size.width;
+    double _screenHeight = MediaQuery.of(context).size.height;
+
     return InkWell(
       onTap: () async {
         if (index == 0) { //loading with filepicker
@@ -886,15 +926,12 @@ class LoadingListItem extends StatelessWidget {
               key: Key("key"),
             ),
           );
-
-          print("Result vale $result");
           Navigator.pop(context, result);
-
         }
       },
       child: Container(
-        width: 200,
-        height: 40,
+        width: /*200*/ _screenWidth/2,
+        height: /*40*/ _screenHeight/17,
         child: Center(
           child: Text(title, style: TextStyle(color: Colors.white), textAlign: TextAlign.center,),
         ),
@@ -920,26 +957,30 @@ class _AssetsLoadingDialogState extends State<AssetsLoadingDialog> {
   @override
   Widget build(BuildContext context) {
 
+    double _screenWidth = MediaQuery.of(context).size.width;
+    double _screenHeight = MediaQuery.of(context).size.height;
+
     widget.controller.loadAssets();
 
     return AlertDialog(
       backgroundColor: Color.fromRGBO(36, 59, 85, 1),
       content: Container(
-        width: 200,
-        height: 450,
+        width: /*200*/ _screenWidth/2,
+        height: /*450*/ _screenHeight/1.51,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             //Padding(padding: EdgeInsets.symmetric(vertical: 2)),
             Text("Select an asset to Load", style: TextStyle(color: Colors.white, fontSize: 20),),
             Container(
-              height: 300,
+              height: /*300*/ _screenHeight/2.27,
               child: ListView.separated(
                 itemBuilder: (BuildContext context, int index) {
                   return AssetsLoadingDialogListItem(
                     itemName: widget.controller.getAssetAt(index),
                     index: index,
                     key: Key(index.toString()),
+                    controller: widget.controller,
                   );
                 },
                 separatorBuilder: (BuildContext context, int index) => const MyDivider(),
@@ -948,9 +989,8 @@ class _AssetsLoadingDialogState extends State<AssetsLoadingDialog> {
             ),
             ElevatedButton(
               onPressed: () => Navigator.pop(context, "NO SELECTION"),
-              child: /*Text("Cancel")*/ Text(Languages.of(context)!.cancelName),
+              child: Text(Languages.of(context)!.cancelName),
               style: ButtonStyle(backgroundColor: MaterialStateColor.resolveWith((states) => Colors.red),),),
-            //Padding(padding: EdgeInsets.symmetric(vertical: 1)),
           ],
         ),
 
@@ -966,36 +1006,43 @@ class AssetsLoadingDialogListItem extends StatefulWidget {
   final String itemName;
   final int index;
   final Key key;
+  final SamplerController controller;
 
-  const AssetsLoadingDialogListItem({required this.itemName, required this.index, required this.key}) : super(key: key);
+  const AssetsLoadingDialogListItem({required this.itemName, required this.index, required this.key, required this.controller}) : super(key: key);
 
   @override
   _AssetsLoadingDialogListItemState createState() => _AssetsLoadingDialogListItemState();
 }
 
 class _AssetsLoadingDialogListItemState extends State<AssetsLoadingDialogListItem> {
+
   @override
   Widget build(BuildContext context) {
+
+    double _screenWidth = MediaQuery.of(context).size.width;
+    double _screenHeight = MediaQuery.of(context).size.height;
+
     return InkWell(
       onTap: () {
         Navigator.pop(context, widget.itemName);
       },
-      child: Text(
-        Utils.removeExtension(Utils.getFilenameFromURL(widget.itemName)),
-        textAlign: TextAlign.center, style: TextStyle(color: Colors.white),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            Utils.removeExtension(Utils.getFilenameFromURL(widget.itemName)),
+            textAlign: TextAlign.center, style: TextStyle(color: Colors.white),
+          ),
+          ElevatedButton(
+            onPressed: () => AudioController().playAtURL(widget.controller.getAssetAt(widget.index)),
+            child: Icon(Icons.play_arrow),
+            style: ButtonStyle(
+              minimumSize:MaterialStateProperty.resolveWith((states) => Size(/*20*/ _screenWidth/20.5, /*20*/ _screenWidth/20.5)),
+              backgroundColor:  MaterialStateColor.resolveWith((states) => Colors.blueGrey),
+            ),
+          ),
+        ],
       ),
     );
   }
 }
-
-
-
-
-
-
-
-
-
-
-
-

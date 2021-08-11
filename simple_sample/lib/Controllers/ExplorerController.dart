@@ -5,7 +5,7 @@ import 'package:simple_sample/Controllers/GoogleDriveController.dart';
 import '../Models/Record.dart';
 import '../Models/Model.dart';
 
-class ExplorerController {
+class ExplorerController { ///TESTED
   static final ExplorerController _instance = ExplorerController._internal();
 
   ExplorerController._internal() {
@@ -41,62 +41,52 @@ class ExplorerController {
     return Model().isUserConnected();
   }
 
-  void playRecord(Record record) {
-    print("ExplorerController: playRecord");
+  void playRecord(Record record) { ///OK
     AudioController().playAtURL(record.getUrl());
   }
 
-  void addToDrive(Record record) { //NON SERVE
-    print("ExplorerController: addToDrive");
-    GoogleDriveController().upload(record);
-  }
-
-  Future<void> addToFavorites(Record record) async {
-    print("ExplorerController: addToFavorites");
+  Future<void> addToFavorites(Record record) async { ///OK
     await CloudStorageController().addToFavourites(record).then((value) => getFavourites(),);
   }
 
-  Future<void> removeFromFavourites(Record record) async {
-    print("ExplorerController: removeFromFavorites");
+  Future<void> removeFromFavourites(Record record) async { ///OK
     await CloudStorageController().removeFromFavourites(record).then((value) => getFavourites(),);
   }
 
-  Future<void> downloadRecord(Record record) async {
-    print("ExplorerController: downloadRecord");
+  Future<void> downloadRecord(Record record) async { ///OK
     CloudStorageController().downloadRecord(record);
   }
 
-  Record getEntryAt(int index) {
+  Record getEntryAt(int index) { ///OK
     return this._entries[index];
   }
 
-  int getEntriesLength() {
+  int getEntriesLength() { ///OK
     return this._entries.length;
   }
 
-  void addToSelectedEntries(int index) {
+  void addToSelectedEntries(int index) { ///TESTED
     Record toAdd = getEntryAt(index);
     this._selectedEntries.add(toAdd);
   }
 
-  List<Record> getSelectedEntries() {
+  List<Record> getSelectedEntries() { ///OK
     return this._selectedEntries;
   }
 
-  List<Record> getEntries() {
-    print(this._entries.length);
+  List<Record> getEntries() { ///OK
     return this._entries;
   }
 
-  Record getSelectedEntryAt(int index) {
+  Record getSelectedEntryAt(int index) { ///OK
     return this._selectedEntries[index];
   }
 
-  int getSelectedEntriesLength() {
+  int getSelectedEntriesLength() { ///OK
     return this._selectedEntries.length;
   }
 
-  void setSelectedEntries(List<Record> newEntries) {
+  void setSelectedEntries(List<Record> newEntries) { ///OK
     this._selectedEntries = newEntries;
   }
 
@@ -111,7 +101,7 @@ class ExplorerController {
   }
 
   ///Manages "Favourites" action button
-  Future<void> manageFavouritesButton(Record record) async { //test, provo ad aggiungere async
+  Future<void> manageFavouritesButton(Record record) async {
     String url = record.getUrl();
     if (this._favourites.contains(url)) {
       await removeFromFavourites(record);
@@ -138,5 +128,9 @@ class ExplorerController {
   void updateCompleted() async {
     CloudStorageController().updateUserField("toUpdateExplorer", false.toString());
   }*/
+
+  void setEntries(List<Record> entries) {
+    this._entries = entries;
+  }
 
 }

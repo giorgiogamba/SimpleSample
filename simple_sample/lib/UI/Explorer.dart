@@ -6,9 +6,9 @@ import 'package:simple_sample/Utils/Languages.dart';
 import '../Models/Record.dart';
 import '../Utils.dart';
 
-const double elevationValue = 10;
-const double buttonSizeX = 30;
-const double buttonSizeY = 15;
+//const double elevationValue = 10;
+//const double buttonSizeX = 30;
+//const double buttonSizeY = 15;
 
 class Explorer extends StatefulWidget {
   const Explorer({Key? key}) : super(key: key);
@@ -204,11 +204,14 @@ class ExplorerListItem extends StatefulWidget {
 
 class _ExplorerListItemState extends State<ExplorerListItem> {
 
+  double _screenHeight = 0;
+  double _screenWidth = 0;
+
   ButtonStyle getButtonStyle() {
     return ButtonStyle(
       backgroundColor: MaterialStateColor.resolveWith((states) => Colors.teal),
-      elevation: MaterialStateProperty.resolveWith((states) => elevationValue),
-      minimumSize: MaterialStateProperty.resolveWith((states) => Size(buttonSizeX, buttonSizeY)),
+      elevation: MaterialStateProperty.resolveWith((states) => /*10*/ _screenWidth/41),
+      minimumSize: MaterialStateProperty.resolveWith((states) => Size(/*30*/ _screenWidth/13.7, /*15*/ _screenHeight/45.53)),
     );
   }
 
@@ -226,7 +229,7 @@ class _ExplorerListItemState extends State<ExplorerListItem> {
       children: [
         Padding(padding: EdgeInsets.symmetric(horizontal: 4)),
         Container(
-          width: 180,
+          width: /*180*/ _screenWidth/2.28,
           child: Text(
             Utils.wrapText(widget.item.getFilename(), 32),
             style: TextStyle(
@@ -331,6 +334,11 @@ class _ExplorerListItemState extends State<ExplorerListItem> {
 
   @override
   Widget build(BuildContext context) {
+
+    //Getting sceen's size
+    _screenHeight = MediaQuery.of(context).size.height;
+    _screenWidth = MediaQuery.of(context).size.width;
+
     return Column(
       children: [
         makeFirstRow(),

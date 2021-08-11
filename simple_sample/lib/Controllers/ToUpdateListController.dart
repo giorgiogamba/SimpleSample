@@ -1,5 +1,6 @@
 import 'package:simple_sample/Controllers/AudioController.dart';
 import 'package:simple_sample/Controllers/CloudStorageController.dart';
+import 'package:simple_sample/Controllers/GoogleDriveController.dart';
 
 import '../Models/Model.dart';
 import '../Models/Record.dart';
@@ -39,7 +40,8 @@ class ToUpdateListController{
     print("Method upoadSelectedElements -- Elements to be uploaded: ");
     for (int i = 0; i < this._selectedElements.length; i ++) {
       this._selectedElements[i].printRecordInfo();
-      CloudStorageController().uploadRecord(this._selectedElements[i]);
+      //CloudStorageController().uploadRecord(this._selectedElements[i]);
+      GoogleDriveController().upload(this._selectedElements[i]);
     }
   }
 

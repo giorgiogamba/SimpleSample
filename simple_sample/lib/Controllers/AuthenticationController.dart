@@ -41,6 +41,7 @@ class AuthenticationController {
         print("*** User logged in. Infos");
         print(user.toString());
         Model().setUser(user); //Model gets initialized at every start so every time we have to write in it
+        tryGoogleSignIn();
       }
     });
 
@@ -57,6 +58,18 @@ class AuthenticationController {
     }
   }
 
+  void tryGoogleSignIn() async {
+    final GoogleSignIn googleSignIn = GoogleSignIn.standard(scopes: [drive.DriveApi.driveScope]);
+    final GoogleSignInAccount? googleAccount = await googleSignIn.signIn();
+
+    if (googleAccount == null) {
+      print("*** MODEL: signINWithGoogle: googleAccount è nullo ***");
+    }
+
+    print("*** FINE METODO GOOGLE SIGN IN ***");
+    Model().setGoogleSignInAccount(googleAccount);
+  }
+
 
   Future<void> signInWithGoogle() async {
 
@@ -64,7 +77,14 @@ class AuthenticationController {
     final GoogleSignIn googleSignIn = GoogleSignIn.standard(scopes: [drive.DriveApi.driveScope]);
     final GoogleSignInAccount? googleAccount = await googleSignIn.signIn();
 
+    if (googleAccount == null) {
+      print("*** MODEL: signINWithGoogle: googleAccount è nullo ***");
+    }
+
     Model().setGoogleSignInAccount(googleAccount);
+    if (googleAccount == null) {
+      print("singIN WithGoogle; googleAccoint nullo");
+    }
 
     if (googleAccount != null) { //User correctly logged in
       GoogleSignInAuthentication googleAuthentication = await googleAccount.authentication;
@@ -88,12 +108,7 @@ class AuthenticationController {
         } else {
           print("******* Profile image download not completed ********");
         }
-
         firestoreAuthentication(_user);
-
-
-        //Test
-        //DropboxController();
 
       } on FirebaseAuthException catch (e) {
         if (e.code == "account-exists-woth-different-credential") {

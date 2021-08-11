@@ -154,7 +154,6 @@ class UserPageController {
   }
 
   void updateUserPage() async {
-    print("Updating user page");
     loaded.value = false;
     await getUserSharedRecords();
     await initFavourites();
@@ -169,7 +168,6 @@ class UserPageController {
   Future<void> handleRemoveFromFavourites(int index) async {
     Record record = this._favourites[index];
     await CloudStorageController().removeFromFavourites(record);
-    print("UserPageController -- fine handleRemvoeFromFavourites");
     this._favourites.remove(record);
   }
 

@@ -29,6 +29,9 @@ class _UserPageState extends State<UserPage> {
   TextEditingController _emailController = TextEditingController();
   TextEditingController _passwordController = TextEditingController();
 
+  double _screenWidth = 0;
+  double _screenHeight = 0;
+
   @override
   void initState() {
     _userPageController.getUserSharedRecords();
@@ -46,6 +49,9 @@ class _UserPageState extends State<UserPage> {
   }
 
   Widget makeUserPage() {
+
+    print(_userPageController.getFavouritesLength());
+
     return Column(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -60,8 +66,8 @@ class _UserPageState extends State<UserPage> {
             }},
         ),
         Container( //prima era sized box
-          width: 100,
-          height: 100,
+          width: _screenWidth/4.11,
+          height: _screenHeight/6.83,
           child: FittedBox(
             fit: BoxFit.contain,
             child: ValueListenableBuilder(
@@ -135,8 +141,8 @@ class _UserPageState extends State<UserPage> {
             Text(Languages.of(context)!.favouritesName, style: TextStyle(fontSize: 20, color: Colors.white),),
             Padding(padding: EdgeInsets.symmetric(vertical: 2)),
             Container(
-              width: 380,
-              height: 100,
+              width: /*380*/ _screenWidth/1.08,
+              height: /*100*/ _screenHeight/6.83,
               child: ListView.separated(
                 scrollDirection: Axis.horizontal,
                 itemBuilder:  (BuildContext context, int index) {
@@ -175,8 +181,8 @@ class _UserPageState extends State<UserPage> {
 
       child: Center(
         child: Container(
-          width: 400,
-          height: 430,
+          width: /*400*/ _screenWidth/1.1,
+          height: /*450*/ _screenHeight/1.6,
           child: AlertDialog(
               backgroundColor: Color.fromRGBO(20, 30, 48, 1),
               title: Center(
@@ -265,8 +271,8 @@ class _UserPageState extends State<UserPage> {
                   MyDivider(),
                   InkWell(
                     child: Container(
-                        width: 200,
-                        height: 30,
+                        width: /*200*/ _screenWidth/2,
+                        height: /*30*/ _screenHeight/22.76,
                         margin: EdgeInsets.only(top: 25),
                         decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(20),
@@ -277,8 +283,8 @@ class _UserPageState extends State<UserPage> {
                               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                               children: <Widget>[
                                 Container(
-                                  height: 30.0,
-                                  width: 30.0,
+                                  height: /*30*/ _screenHeight/22.76,
+                                  width: /*30*/ _screenWidth/13.7,
                                   decoration: BoxDecoration(
                                     image: DecorationImage(
                                         image:
@@ -324,6 +330,10 @@ class _UserPageState extends State<UserPage> {
 
   @override
   Widget build(BuildContext context) {
+
+    //Getting sceen's size
+    _screenHeight = MediaQuery.of(context).size.height;
+    _screenWidth = MediaQuery.of(context).size.width;
 
     return ValueListenableBuilder(
       valueListenable: _userPageController.getModelAuth(),
@@ -412,10 +422,15 @@ class _SquareListItemState extends State<SquareListItem> {
 
   @override
   Widget build(BuildContext context) {
+
+    //Getting sceen's size
+    double _screenHeight = MediaQuery.of(context).size.height;
+    double _screenWidth = MediaQuery.of(context).size.width;
+
     return Card(
       child: Container(
-        width: 100,
-        height: 50,
+        width: /*100*/ _screenWidth/4.11,
+        height: /*50*/ _screenHeight/13.66,
         child: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -446,7 +461,7 @@ class _SquareListItemState extends State<SquareListItem> {
   }
 }
 
-class UserPageListItems extends StatefulWidget {
+/*class UserPageListItems extends StatefulWidget {
 
   final int itemIndex;
   final Key key;
@@ -487,7 +502,7 @@ class _UserPageListItemsState extends State<UserPageListItems> {
       ],
     );
   }
-}
+}*/
 
 
 class ChooseImageOperationDialog extends StatefulWidget {
@@ -502,13 +517,19 @@ class ChooseImageOperationDialog extends StatefulWidget {
 }
 
 class _ChooseImageOperationDialogState extends State<ChooseImageOperationDialog> {
+
   @override
   Widget build(BuildContext context) {
+
+    //Getting sceen's size
+    double _screenHeight = MediaQuery.of(context).size.height;
+    double _screenWidth = MediaQuery.of(context).size.width;
+
     return AlertDialog(
       backgroundColor: Color.fromRGBO(36, 59, 85, 1),
       content: Container(
-        width: 200,
-        height: 100,
+        width: /*200*/ _screenWidth/2,
+        height: /*100*/ _screenHeight/6.83,
         child: ListView.separated(
           itemBuilder:  (BuildContext context, int index) {
             return ChooseImageOperationDialogItem(
@@ -540,9 +561,14 @@ class _ChooseImageOperationDialogItemState extends State<ChooseImageOperationDia
 
   @override
   Widget build(BuildContext context) {
+
+    //Getting sceen's size
+    double _screenHeight = MediaQuery.of(context).size.height;
+    double _screenWidth = MediaQuery.of(context).size.width;
+
     return Container(
-      width: 100,
-      height: 40,
+      width: /*100*/ _screenWidth/4.11,
+      height: /*40*/ _screenHeight/17.075,
       child: Center(
         child: InkWell(
             child: Text(widget.controller.getElementAt(widget.index), style: TextStyle(color: Colors.white),),
@@ -674,12 +700,15 @@ class SetUsernameDialog extends StatelessWidget {
   Widget build(BuildContext context) {
 
     TextEditingController _textEditingController = TextEditingController();
+    //Getting sceen's size
+    double _screenHeight = MediaQuery.of(context).size.height;
+    double _screenWidth = MediaQuery.of(context).size.width;
 
     return AlertDialog(
       backgroundColor: Color.fromRGBO(36, 59, 85, 1),
       content: Container(
-        width: 200,
-        height: 170,
+        width: /*200*/ _screenWidth/2,
+        height: /*180*/ _screenHeight/4.1,
         child: Column(
           children: [
             Text(
@@ -746,15 +775,20 @@ class DeleteAccountWidget extends StatefulWidget {
 class _DeleteAccountWidgetState extends State<DeleteAccountWidget> {
   @override
   Widget build(BuildContext context) {
+
+    //Getting sceen's size
+    double _screenHeight = MediaQuery.of(context).size.height;
+    double _screenWidth = MediaQuery.of(context).size.width;
+
     return AlertDialog(
       backgroundColor: Color.fromRGBO(36, 59, 85, 1),
       content: Container(
-        width: 200,
-        height: 100,
+        width: /*200*/ _screenWidth/2,
+        height: /*100*/ _screenHeight/6.83,
         child: Column(
           children: [
             Text(
-              Languages.of(context)!.deleteUserName,
+              Languages.of(context)!.deleteSureName,
               textAlign: TextAlign.center,
               style: TextStyle(color: Colors.white),
             ),
@@ -793,11 +827,16 @@ class AccessErrorPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
+    //Getting sceen's size
+    double _screenHeight = MediaQuery.of(context).size.height;
+    double _screenWidth = MediaQuery.of(context).size.width;
+
     return AlertDialog(
       backgroundColor:  Color.fromRGBO(36, 59, 85, 1),
       content: Container(
-        width: 200,
-        height: 150,
+        width: /*200*/ _screenWidth/2,
+        height: /*150*/ _screenHeight/4.55,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -833,17 +872,22 @@ class ChangeLanguageDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
+    //Getting sceen's size
+    double _screenHeight = MediaQuery.of(context).size.height;
+    double _screenWidth = MediaQuery.of(context).size.width;
+
     return AlertDialog(
       backgroundColor:  Color.fromRGBO(36, 59, 85, 1),
       content: Container(
-        width: 200,
-        height: 150,
+        width: /*200*/ _screenWidth/2,
+        height: /*150*/ _screenHeight/4.55,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Container(
-              width: 180,
-              height: 100,
+              width: /*180*/ _screenWidth/2.28,
+              height: /*100*/ _screenHeight/6.83,
               child: ListView.separated(
                 itemBuilder: (BuildContext context, int index) {
                   return ChangeLanguageDialogListItem(

@@ -32,7 +32,7 @@ class AudioController {
     initAudioController();
   }
 
-  List<AudioPlayer?> createPlayersList() {
+  List<AudioPlayer?> createPlayersList() { ///TESTED
     List<AudioPlayer?> players = List.generate(16, (index) => null);
     for (int i = 0; i < playersNumber; i ++) {
       players.insert(i, AudioPlayer(mode: PlayerMode.LOW_LATENCY)); //aggiunta lwlatency
@@ -132,6 +132,10 @@ class AudioController {
   void playAtURL(String URL) {
     AudioPlayer player = AudioPlayer();
     player.play(URL);
+  }
+
+  List<AudioPlayer?> getPlayersList() {
+    return this._players;
   }
 
 }

@@ -10,6 +10,7 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:googleapis/cloudsearch/v1.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:flutter/foundation.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../Utils.dart';
 import 'Record.dart';
 
@@ -68,7 +69,8 @@ class Model { ///TESTING COMPLETED
   //Called during initialization
   initModel() async {
     _records = HashMap();
-    this._counter = 0;
+    //this._counter = 0;
+    initCounter();
     this._docPath = await getDocFilePath();
     this._extDocPath = await getExternalStorageDoc();
     this._bpm = 60;
@@ -140,6 +142,7 @@ class Model { ///TESTING COMPLETED
     String path = this._extDocPath + "/" + this._counter.toString() + ".wav";
     File file = new File(path);
     file.create();
+    updateSharedPreferences();
     return path;
   }
 
@@ -288,6 +291,23 @@ class Model { ///TESTING COMPLETED
 
   int getCounter() {
     return this._counter;
+  }
+
+  void initCounter() async {
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    sharedPreferences.getInt("counter");
+    bool exists = sharedPreferences.containsKey("counter");
+    if (exists) {
+      this._counter = sharedPreferences.getInt("counter")!;
+    } else {
+      this._counter = 0;
+      sharedPreferences.setInt("counter", 0);
+    }
+  }
+
+  void updateSharedPreferences() async {
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    sharedPreferences.setInt("counter", this._counter);
   }
 
 }

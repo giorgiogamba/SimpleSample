@@ -5,12 +5,6 @@ import 'package:simple_sample/Controllers/AudioController.dart';
 import 'package:simple_sample/Controllers/SequencerController.dart';
 
 /// Class representing Sequencer UI
-
-const double buttonSize = 25;
-const double buttonContainerWidth = 40;
-const double sizedBoxWidth = 5;
-const double rowContainerHeight = 30;
-
 class Sequencer extends StatefulWidget {
   const Sequencer({Key? key}) : super(key: key);
 
@@ -21,6 +15,8 @@ class Sequencer extends StatefulWidget {
 class _SequencerState extends State<Sequencer> {
 
   late SequencerController _sequencerController;
+  double _screenHeight = 0;
+  double _screenWidth = 0;
 
   @override
   void initState() {
@@ -39,7 +35,7 @@ class _SequencerState extends State<Sequencer> {
 
     return ButtonStyle(
       backgroundColor: MaterialStateColor.resolveWith((states) => colorToFill),
-      minimumSize: MaterialStateProperty.resolveWith((states) => Size(buttonSize, buttonSize)),
+      minimumSize: MaterialStateProperty.resolveWith((states) => Size(/*25*/_screenWidth/16.44, /*25*/_screenWidth/16.44)),
     );
   }
 
@@ -53,17 +49,17 @@ class _SequencerState extends State<Sequencer> {
 
   Widget createSequencerRow(int number) {
     return Container(
-      height: rowContainerHeight,
+      height: /*30*/ _screenHeight/22.76,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Container(
-            width: buttonContainerWidth,
+            width: /*40*/ _screenWidth/10.275,
             child: Text("S "+number.toString(), style: TextStyle(color: Colors.white), textAlign: TextAlign.center,),
             color: setContainerRowColor(number),
           ),
           Container(
-            width: buttonContainerWidth,
+            width: /*40*/ _screenWidth/10.275,
             child: ElevatedButton(
               onPressed: () {
                 _sequencerController.manageButtonPress(number, 0);
@@ -74,7 +70,7 @@ class _SequencerState extends State<Sequencer> {
             ),
           ),
           Container(
-            width: buttonContainerWidth,
+            width: /*40*/ _screenWidth/10.275,
             child: ElevatedButton(
               onPressed: () {
                 _sequencerController.manageButtonPress(number, 1);
@@ -85,7 +81,7 @@ class _SequencerState extends State<Sequencer> {
             ),
           ),
           Container(
-            width: buttonContainerWidth,
+            width: /*40*/ _screenWidth/10.275,
             child: ElevatedButton(
               onPressed: () {
                 _sequencerController.manageButtonPress(number, 2);
@@ -96,7 +92,7 @@ class _SequencerState extends State<Sequencer> {
             ),
           ),
           Container(
-            width: buttonContainerWidth,
+            width: /*40*/ _screenWidth/10.275,
             child: ElevatedButton(
               onPressed: () {
                 _sequencerController.manageButtonPress(number, 3);
@@ -107,7 +103,7 @@ class _SequencerState extends State<Sequencer> {
             ),
           ),
           Container(
-            width: buttonContainerWidth,
+            width: /*40*/ _screenWidth/10.275,
             child: ElevatedButton(
               onPressed: () {
                 _sequencerController.manageButtonPress(number, 4);
@@ -118,7 +114,7 @@ class _SequencerState extends State<Sequencer> {
             ),
           ),
           Container(
-            width: buttonContainerWidth,
+            width: /*40*/ _screenWidth/10.275,
             child: ElevatedButton(
               onPressed: () {
                 _sequencerController.manageButtonPress(number, 5);
@@ -129,7 +125,7 @@ class _SequencerState extends State<Sequencer> {
             ),
           ),
           Container(
-            width: buttonContainerWidth,
+            width: /*40*/ _screenWidth/10.275,
             child: ElevatedButton(
               onPressed: () {
                 _sequencerController.manageButtonPress(number, 6);
@@ -140,7 +136,7 @@ class _SequencerState extends State<Sequencer> {
             ),
           ),
           Container(
-            width: buttonContainerWidth,
+            width: /*40*/ _screenWidth/10.275,
             child: ElevatedButton(
               onPressed: () {
                 _sequencerController.manageButtonPress(number, 7);
@@ -227,6 +223,11 @@ class _SequencerState extends State<Sequencer> {
 
   @override
   Widget build(BuildContext context) {
+
+    //Getting sceen's size
+    _screenHeight = MediaQuery.of(context).size.height;
+    _screenWidth = MediaQuery.of(context).size.width;
+
     return Scaffold(
       body:  Container(
         child: buildSequencer(),
@@ -259,53 +260,58 @@ class SequencerPointer extends StatelessWidget {
     }
   }
 
-  ButtonStyle getSequencerButtonStyle(int index) {
+  ButtonStyle getSequencerButtonStyle(int index, double screenWidth) {
     return ButtonStyle(
       backgroundColor: MaterialStateColor.resolveWith((states) => takeColor(index)),
-      minimumSize: MaterialStateProperty.resolveWith((states) => Size(buttonSize, buttonSize)),
+      minimumSize: MaterialStateProperty.resolveWith((states) => Size(/*25*/screenWidth/16.44, /*25*/screenWidth/16.44)),
     );
   }
 
   @override
   Widget build(BuildContext context) {
+
+    //Getting sceen's size
+    double _screenHeight = MediaQuery.of(context).size.height;
+    double _screenWidth = MediaQuery.of(context).size.width;
+
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Container(
-          width: buttonContainerWidth,
+          width: /*40*/ _screenWidth/10.275,
           child: null,
         ),
         Container(
-          width: buttonContainerWidth,
-          child: ElevatedButton(onPressed: () {}, child: Text("1"), style: getSequencerButtonStyle(0)),
+          width: /*40*/ _screenWidth/10.275,
+          child: ElevatedButton(onPressed: () {}, child: Text("1"), style: getSequencerButtonStyle(0, _screenWidth)),
         ),
         Container(
-          width: buttonContainerWidth,
-          child: ElevatedButton(onPressed: () {}, child: Text("2"), style: getSequencerButtonStyle(1)),
+          width: /*40*/ _screenWidth/10.275,
+          child: ElevatedButton(onPressed: () {}, child: Text("2"), style: getSequencerButtonStyle(1, _screenWidth)),
         ),
         Container(
-          width: buttonContainerWidth,
-          child: ElevatedButton(onPressed: () {}, child: Text("3"), style: getSequencerButtonStyle(2)),
+          width: /*40*/ _screenWidth/10.275,
+          child: ElevatedButton(onPressed: () {}, child: Text("3"), style: getSequencerButtonStyle(2, _screenWidth)),
         ),
         Container(
-          width: buttonContainerWidth,
-          child: ElevatedButton(onPressed: () {}, child: Text("4"), style: getSequencerButtonStyle(3)),
+          width: /*40*/ _screenWidth/10.275 ,
+          child: ElevatedButton(onPressed: () {}, child: Text("4"), style: getSequencerButtonStyle(3, _screenWidth)),
         ),
         Container(
-          width: buttonContainerWidth,
-          child: ElevatedButton(onPressed: () {}, child: Text("5"), style: getSequencerButtonStyle(4)),
+          width: /*40*/ _screenWidth/10.275,
+          child: ElevatedButton(onPressed: () {}, child: Text("5"), style: getSequencerButtonStyle(4, _screenWidth)),
         ),
         Container(
-          width: buttonContainerWidth,
-          child: ElevatedButton(onPressed: () {}, child: Text("6"), style: getSequencerButtonStyle(5)),
+          width: /*40*/ _screenWidth/10.275,
+          child: ElevatedButton(onPressed: () {}, child: Text("6"), style: getSequencerButtonStyle(5, _screenWidth)),
         ),
         Container(
-          width: buttonContainerWidth,
-          child: ElevatedButton(onPressed: () {}, child: Text("7"), style: getSequencerButtonStyle(6)),
+          width: /*40*/ _screenWidth/10.275,
+          child: ElevatedButton(onPressed: () {}, child: Text("7"), style: getSequencerButtonStyle(6, _screenWidth)),
         ),
         Container(
-          width: buttonContainerWidth,
-          child: ElevatedButton(onPressed: () {}, child: Text("8"), style: getSequencerButtonStyle(7)),
+          width: /*40*/ _screenWidth/10.275,
+          child: ElevatedButton(onPressed: () {}, child: Text("8"), style: getSequencerButtonStyle(7, _screenWidth)),
         ),
         Padding(padding: EdgeInsets.symmetric(horizontal: 2)),
       ],
@@ -353,6 +359,11 @@ class _BPMSelectorState extends State<BPMSelector> {
 
   @override
   Widget build(BuildContext context) {
+
+    //Getting sceen's size
+    double _screenHeight = MediaQuery.of(context).size.height;
+    double _screenWidth = MediaQuery.of(context).size.width;
+
     return GestureDetector(
         onVerticalDragUpdate: (DragUpdateDetails details) {
           if (details.delta.dy > 0) { //To the bottom
@@ -366,8 +377,8 @@ class _BPMSelectorState extends State<BPMSelector> {
           decoration: BoxDecoration(
               border: Border.all(color: Colors.teal, width: 3.0)
           ),
-          width: buttonContainerWidth,
-          height: buttonContainerWidth,
+          width: /*40*/ _screenWidth/10.275,
+          height: /*40*/ _screenWidth/10.275,
           child: Center(
             child: Text(counter.toString(), style: TextStyle(color: Colors.white),),
           ),
