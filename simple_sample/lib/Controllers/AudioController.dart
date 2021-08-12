@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_sound/flutter_sound.dart';
@@ -66,7 +65,10 @@ class AudioController {
       var status = await Permission.microphone.request();
       if (status != PermissionStatus.granted) {
         print("************ PERMISSION NOT GRANTED ************");
+        print("Stato permesso microfono" + status.toString());
         throw RecordingPermissionException("No microphone permission granted");
+      } else {
+
       }
     }
     await _recorder.openAudioSession().then((value) => _isRecorderInited = true);

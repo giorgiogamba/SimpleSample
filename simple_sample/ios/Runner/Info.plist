@@ -2,48 +2,6 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
- <key>LSApplicationQueriesSchemes</key>
-   <array>
-       <string>dbapi-8-emm</string>
-       <string>dbapi-2</string>
-   </array>
-   <key>CFBundleURLTypes</key>
-      <array>
-        <dict>
-          <key>CFBundleURLSchemes</key>
-          <array>
-            <string>db-si21ixwlk9uf53f</string>
-          </array>
-          <key>CFBundleURLName</key>
-          <string></string>
-        </dict>
-      </array>
-    <key>LSApplicationQueriesSchemes</key>
-       <array>
-           <string>dbapi-8-emm</string>
-           <string>dbapi-2</string>
-       </array>
-    <key>CFBundleURLTypes</key>
-       <array>
-         <dict>
-           <key>CFBundleURLSchemes</key>
-           <array>
-             <string>db-1ardts67mhrvvbr</string>
-           </array>
-           <key>CFBundleURLName</key>
-           <string></string>
-         </dict>
-       </array>
-    <key>UIBackgroundModes</key>
-    <array>
-    	<string>audio</string>
-    </array>
-    <key>NSPhotoLibraryUsageDescription</key>
-    <string>Allow access to photo library</string>
-    <key>NSCameraUsageDescription</key>
-    <string>Allow access to camera to capture photos</string>
-    <key>NSMicrophoneUsageDescription</key>
-    <string>Allow access to microphone</string>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleExecutable</key>
@@ -60,10 +18,42 @@
 	<string>$(FLUTTER_BUILD_NAME)</string>
 	<key>CFBundleSignature</key>
 	<string>????</string>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleURLName</key>
+			<string></string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>db-1ardts67mhrvvbr</string>
+			</array>
+		</dict>
+		<dict/>
+	</array>
 	<key>CFBundleVersion</key>
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
+	<key>LSApplicationQueriesSchemes</key>
+	<array>
+		<string>dbapi-8-emm</string>
+		<string>dbapi-2</string>
+	</array>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>NSAppTransportSecurity</key>
+	<dict>
+		<key>NSAllowsLocalNetworking</key>
+		<true/>
+	</dict>
+	<key>NSCameraUsageDescription</key>
+	<string>Allow access to camera to capture photos</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Allow access to microphone</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Allow access to photo library</string>
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>audio</string>
+	</array>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
 	<key>UIMainStoryboardFile</key>
@@ -83,5 +73,21 @@
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
+
+    <!-- Google Sign-in Section -->
+    <key>CFBundleURLTypes</key>
+    <array>
+    	<dict>
+    		<key>CFBundleTypeRole</key>
+    		<string>Editor</string>
+    		<key>CFBundleURLSchemes</key>
+    		<array>
+    			<!-- Copied from GoogleService-Info.plist key REVERSED_CLIENT_ID -->
+    			<string>com.googleusercontent.apps.575243185292-f4vmsbomsja2ngf54hsnuuuheslgvecu</string>
+    		</array>
+    	</dict>
+    </array>
+    <!-- End of the Google Sign-in Section -->
+
 </dict>
 </plist>
