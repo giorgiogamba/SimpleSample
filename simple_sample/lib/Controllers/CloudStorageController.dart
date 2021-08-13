@@ -167,7 +167,12 @@ class CloudStorageController {
   void downloadRecord(Record record) async {
     print("CloudStorageController -- downloadRecord method");
     var splitted = record.getFilename().split(".");
-    String newURL = Model().getExtDocPath()+"/"+splitted[0]+"_downloaded.wav";
+    String newURL = "";
+    if (Platform.isAndroid) {
+      newURL = Model().getExtDocPath()+"/"+splitted[0]+"_downloaded.wav";
+    } else if (Platform.isIOS) {
+      newURL = Model().getDocPath()+"/"+splitted[0]+"_downloaded.wav";
+    }
     File newFile = File(newURL);
 
     //Creating record's cloud storage path
@@ -251,6 +256,30 @@ class CloudStorageController {
       }
 
     }
+    return false;
+  }
+
+  Future<bool> removeFromSharedSamples(Record record) async {
+
+    User? user = Model().getUser();
+    String recordName = record.getFilename();
+
+    if (user != null) {
+
+      try {
+        String path = 'shared/'+user.uid.toString()+"/"+recordName;
+        print("***** PERCORSO DA ELIMINARE; ${path}");
+        await FirebaseStorage.instance.ref('shared/'+user.uid.toString()+"/"+recordName+".wav").delete();
+        return true;
+      } on FirebaseException catch (e) {
+        print("share Record exception");
+        print(e.toString());
+      }
+
+    } else {
+      print("CloudStorageController -- removeFromSharedSamples: user is null");
+    }
+
     return false;
   }
 

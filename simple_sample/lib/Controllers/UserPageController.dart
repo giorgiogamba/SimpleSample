@@ -191,4 +191,10 @@ class UserPageController {
     return this._languagesList.length;
   }
 
+  Future<bool> handleRemoveFromSharedSamples(int index) async {
+    print("UserPgaeController: handleRemoveFromSharedSamples");
+    Record toDelete = getUserSharedRecordAt(index);
+    return await CloudStorageController().removeFromSharedSamples(toDelete);
+  }
+
 }

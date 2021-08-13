@@ -1,9 +1,11 @@
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:googleapis/docs/v1.dart';
 import 'package:http/http.dart' as http;
 import 'package:googleapis/drive/v3.dart' as drive;
 import "dart:io";
 import '../Models/Model.dart';
 import '../Models/Record.dart';
+import '../Utils.dart';
 
 class GoogleDriveController {
 
@@ -36,15 +38,26 @@ class GoogleDriveController {
   }
 
   Future<void> listGoogleDriveFiles() async {
+
+    print("GoogleDriveController -- listGoogleDriveFiles");
+    print("DDrive api è nullo? "+(driveApi == null).toString()); //false
     drive.FileList? fileList = await driveApi?.files.list();
 
     print("FILELIST è nULLO? "+(fileList == null).toString()); //todo è nullo
 
     print("Stampa degli elementi presenti in google drive");
     int length = fileList!.files!.length; //todo schifo
+
     for (int i = 0; i < length; i ++) {
-      print("ID: ${fileList.files![i].id} con NOME: ${fileList.files![i].name}");
+      drive.File temp = fileList.files![i];
+      //print("ID: ${temp.id} con NOME: ${temp.name}");
+      String fileExtension = Utils.getExtension(temp.name!);
+      print("FIle extension: "+fileExtension);
+      if (fileExtension == "wav") {
+        print(temp.name);
+      }
     }
+
   }
 
   void upload(Record record) async {

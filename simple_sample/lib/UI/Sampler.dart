@@ -54,10 +54,10 @@ class _SamplerState extends State<Sampler> {
     //GoogleDriveController(); //so I'm sure it's already initialized
 
     _audioController.initRecorder().then((value) {
-
       //Recording time initialization
       initializeDateFormatting();
       _recorderSubscription = _audioController.getRecorder().onProgress!.listen((e) {
+        //todo IOS: non viene eseguito il metodo listen -> impedisce di avere il cronometro
         var date = DateTime.fromMillisecondsSinceEpoch(e.duration.inMilliseconds, isUtc: true);
         var txt = DateFormat('mm:ss:SS', 'en_GB').format(date);
 
@@ -851,6 +851,7 @@ class LoadingDialog extends StatelessWidget {
   final List<String> titles = [
     "Load elements from filesystem or Drive",
     "Load built-in elements",
+    "Load elements from Drive",
   ];
 
   @override
@@ -864,12 +865,12 @@ class LoadingDialog extends StatelessWidget {
       backgroundColor: Color.fromRGBO(36, 59, 85, 1),
       content: Container(
         width: /*200*/ _screenWidth/2,
-        height: /*180*/ _screenHeight/3.79,
+        height: /*180*/ _screenHeight/3.3,
         child: Column(
           children: [
             Container(
               width: /*200*/ _screenWidth/2,
-              height: /*100*/ _screenHeight/6.83,
+              height: /*100*/ _screenHeight/5,
               child: ListView.separated(
                 itemBuilder:  (BuildContext context, int index) {
                   return LoadingListItem(
@@ -880,7 +881,7 @@ class LoadingDialog extends StatelessWidget {
                   );
                 },
                 separatorBuilder: (BuildContext context, int index) => const MyDivider(),
-                itemCount: 2,
+                itemCount: 3,
               ),
             ),
             Padding(padding: EdgeInsets.symmetric(vertical: 15)),
@@ -927,6 +928,18 @@ class LoadingListItem extends StatelessWidget {
             ),
           );
           Navigator.pop(context, result);
+
+        } else if (index == 2) {
+
+          var result = await showDialog(
+            context: context,
+            builder: (builder) => IOSGoogleDriveMenu(
+              controller: controller,
+              key: Key("key"),
+            ),
+          );
+          Navigator.pop(context, result);
+
         }
       },
       child: Container(
@@ -1046,3 +1059,85 @@ class _AssetsLoadingDialogListItemState extends State<AssetsLoadingDialogListIte
     );
   }
 }
+
+
+//todo bisogna usare il metodo per il prelevamento delle informazioni che devono essere filtrate per estensione
+
+class IOSGoogleDriveMenu extends StatelessWidget {
+
+  final Key key;
+  final SamplerController controller;
+
+  const IOSGoogleDriveMenu({required this.controller, required this.key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+
+    //Prelevamento della lista di  elementi
+    controller.initIosGoogleDriveMenuList();
+
+    return AlertDialog(
+      content: Container(
+        child: Column(
+          children: [
+            Text("Google Drive"),
+            Container(
+              child: ListView.separated(
+                itemBuilder: (BuildContext context, int index) {
+
+                  //todo prelevare elemento dalla lista e da lì il nome
+                  String name = "";
+                  return IOSGoogleDriveMenuItem(name: name, key: Key(name));
+                },
+                separatorBuilder: (BuildContext context, int index) => const MyDivider(),
+                itemCount: controller.getIosGoogleDriveMenuListLength(),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+
+
+  }
+}
+
+
+class IOSGoogleDriveMenuItem extends StatelessWidget {
+
+  final String name;
+  final Key key;
+
+  const IOSGoogleDriveMenuItem({required this.name, required this.key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Text(name),
+      ],
+    );
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

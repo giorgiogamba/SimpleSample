@@ -85,7 +85,8 @@ class AudioController {
     _isRecorderInited = false;
   }
 
-  //Faccio la creazione della registrazione all'inizio dello svolgimento perchè il metodo startRecorder restituisce void
+  //Faccio la creazione della registrazione all'inizio dello svolgimento
+  //perchè il metodo startRecorder restituisce void
   void record(int index) {
     this._playbackReady = false;
     String path = Model().getNewPath();

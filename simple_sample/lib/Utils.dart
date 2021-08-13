@@ -45,5 +45,10 @@ class Utils {
     return temp.substring(0, temp.length-3);
   }
 
+  static String getExtension(String input) {
+    var splitted = input.split(".");
+    return splitted[splitted.length-1];
+  }
+
 
 }

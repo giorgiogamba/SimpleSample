@@ -413,9 +413,23 @@ class _SquareListItemState extends State<SquareListItem> {
         ],
       );
     } else {
-      return IconButton(
-        icon: Icon(Icons.play_arrow, color: Colors.white),
-        onPressed: () => widget.controller.playRecordAt(widget.itemIndex),
+      return Row(
+        children: [
+          IconButton(
+            icon: Icon(Icons.play_arrow, color: Colors.white),
+            onPressed: () => widget.controller.playRecordAt(widget.itemIndex),
+          ),
+          IconButton(
+            icon: Icon(Icons.delete, color: Colors.white),
+            onPressed: () => widget.controller.handleRemoveFromSharedSamples(widget.itemIndex).then((value) {
+              if (value) {
+                Utils.showToast(context, "Sample correctly removed from Shared");
+              } else {
+                Utils.showToast(context, "Unable to remove sample from Shared");
+              }
+            }),
+          ),
+        ],
       );
     }
   }

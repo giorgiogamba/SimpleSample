@@ -72,7 +72,10 @@ class Model { ///TESTING COMPLETED
     //this._counter = 0;
     initCounter();
     this._docPath = await getDocFilePath();
-    this._extDocPath = await getExternalStorageDoc();
+    if (Platform.isAndroid) {
+      this._extDocPath = await getExternalStorageDoc();
+    }
+    print("DOCPATH: "+this._docPath);
     this._bpm = 60;
 
     writeAssetsIntoFilesystem();
@@ -99,6 +102,10 @@ class Model { ///TESTING COMPLETED
 
   String getExtDocPath() {
     return this._extDocPath;
+  }
+
+  String getDocPath() {
+    return this._docPath;
   }
 
   int getBPM() {
@@ -139,7 +146,13 @@ class Model { ///TESTING COMPLETED
 
   String getNewPath() { ///TESTED
     this._counter ++;
-    String path = this._extDocPath + "/" + this._counter.toString() + ".wav";
+    String path = "";
+    if (Platform.isAndroid) {
+      path = this._extDocPath + "/" + this._counter.toString() + ".wav";
+    } else if (Platform.isIOS) {
+      path = this._docPath + "/" + this._counter.toString() + ".wav";
+    }
+
     File file = new File(path);
     file.create();
     updateSharedPreferences();
@@ -279,7 +292,12 @@ class Model { ///TESTING COMPLETED
       final encryptedByteData = await rootBundle.load(this._assets[i]);
       Uint8List bytes = encryptedByteData.buffer.asUint8List();
       String filename = Utils.getFilenameFromURL(this._assets[i]);
-      String newPath = this._extDocPath+"/"+filename;
+      String newPath = "";
+      if (Platform.isAndroid) {
+        newPath = this._extDocPath+"/"+filename;
+      } else if (Platform.isIOS) {
+        newPath = this._docPath+"/"+filename;
+      }
       File(newPath).writeAsBytesSync(bytes, mode: FileMode.write, flush: true);
       this._assets[i] = newPath; //verwriting the new path
     }
