@@ -1,7 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:googleapis/drive/v3.dart' as drive;
 import 'package:simple_sample/Controllers/UserPageController.dart';
@@ -12,7 +10,7 @@ import '../Models/Model.dart';
 class AuthenticationController {
 
   static final AuthenticationController _instance = AuthenticationController._internal();
-  String username = "";
+  String username = "username";
 
   AuthenticationController._internal() {
     print("Initializing AuthenticationController");
@@ -34,14 +32,29 @@ class AuthenticationController {
     FirebaseAuth authorizer = FirebaseAuth.instance;
 
     //Checking f there already is a persistence connection to firebase
-    authorizer.userChanges().listen((User? user) { //Questo listener rimane connesso su ogni cambiamento dello stato utente
+    authorizer.userChanges().listen((User? user) async { //Questo listener rimane connesso su ogni cambiamento dello stato utente
       if (user == null) {
         print("User is currently signed out");
+        tryGoogleSignIn(); //todo se questo restituisce un risultato corretto, dovrebbe
+        //caricare la pagina utente direttamente con tale account
       } else {
         print("*** User logged in. Infos");
         print(user.toString());
-        Model().setUser(user); //Model gets initialized at every start so every time we have to write in it
-        tryGoogleSignIn();
+
+        if (user.emailVerified) {
+          Model().setUser(user); //Model gets initialized at every start so every time we have to write in it
+        }
+
+        if (user.providerData[0].providerId == "google.com") { //if the user registered to app using google
+          final GoogleSignIn googleSignIn = GoogleSignIn.standard(scopes: [drive.DriveApi.driveScope]);
+
+          await googleSignIn.signInSilently();
+
+          GoogleSignInAccount? googleAccount = googleSignIn.currentUser;
+          print("*********** GOOGLE ACCOPUNT INFOS: ****************");
+          print(googleAccount.toString());
+          Model().setGoogleSignInAccount(googleAccount);
+        }
       }
     });
 
@@ -62,29 +75,13 @@ class AuthenticationController {
     final GoogleSignIn googleSignIn = GoogleSignIn.standard(scopes: [drive.DriveApi.driveScope]);
     final GoogleSignInAccount? googleAccount = await googleSignIn.signIn();
 
-    if (googleAccount == null) {
-      print("*** MODEL: signINWithGoogle: googleAccount è nullo ***");
-    }
-
-    print("*** FINE METODO GOOGLE SIGN IN ***");
-    Model().setGoogleSignInAccount(googleAccount);
+    authenticateGoogleAccount(googleAccount);
   }
 
 
-  Future<void> signInWithGoogle() async {
-
-    print("****************** Google sing in ******************");
-    final GoogleSignIn googleSignIn = GoogleSignIn.standard(scopes: [drive.DriveApi.driveScope]);
-    final GoogleSignInAccount? googleAccount = await googleSignIn.signIn();
-
-    if (googleAccount == null) {
-      print("*** MODEL: signINWithGoogle: googleAccount è nullo ***");
-    }
+  void authenticateGoogleAccount(GoogleSignInAccount? googleAccount) async {
 
     Model().setGoogleSignInAccount(googleAccount);
-    if (googleAccount == null) {
-      print("singIN WithGoogle; googleAccoint nullo");
-    }
 
     if (googleAccount != null) { //User correctly logged in
       GoogleSignInAuthentication googleAuthentication = await googleAccount.authentication;
@@ -117,11 +114,21 @@ class AuthenticationController {
           print("linkGooghle: invalid credential");
         }
       } catch (e) {
-          print("linkGoogle: not firebaseauth error");
+        print("linkGoogle: not firebaseauth error");
       }
     } else {
       print("User not connected to google");
     }
+
+  }
+
+  Future<void> signInWithGoogle() async {
+
+    print("****************** Google sing in ******************");
+    final GoogleSignIn googleSignIn = GoogleSignIn.standard(scopes: [drive.DriveApi.driveScope]);
+    final GoogleSignInAccount? googleAccount = await googleSignIn.signIn();
+
+    authenticateGoogleAccount(googleAccount);
   }
 
   Future<void> firestoreAuthentication(User currentUser) async {
@@ -177,14 +184,24 @@ class AuthenticationController {
       User? user = credentials.user;
       if (user != null) { //ACCESS CORRECTLY EXECUTED
 
-        Model().setUser(user);
+        //Model().setUser(user);
         String? imagePath = await CloudStorageController().downloadProfileImage();
         if (imagePath != null) {
           UserPageController().setProfileImagePath(imagePath);
         } else {
           print("******* Profile image download not completed ********");
         }
-        firestoreAuthentication(user);
+
+        //Sending verification email
+        if (!user.emailVerified) {
+          firestoreAuthentication(user);
+          user.sendEmailVerification();
+          return "Verify your email";
+        }
+
+        //firestoreAuthentication(user);
+        Model().setUser(user);
+        print("******************** POSSOOSOSOTOO **********");
         return "true";
 
       } else { //ACCESS NOT CORRECTLY EXECUTED

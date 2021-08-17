@@ -2,7 +2,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:simple_sample/Controllers/ExplorerController.dart';
 import 'package:simple_sample/Utils/Languages.dart';
-
 import '../Models/Record.dart';
 import '../Utils.dart';
 
@@ -268,8 +267,10 @@ class _ExplorerListItemState extends State<ExplorerListItem> {
   ///Converts Record's tags list into a single row
   String createTagString() {
     String res = "Tags: ";
-    for (String tag in widget.item.getTagList()) {
-      res = res + tag + ", ";
+    if (widget.item.getTagList().length > 0) {
+      for (String tag in widget.item.getTagList()) {
+        res = res + tag + ", ";
+      }
     }
     return res;
   }

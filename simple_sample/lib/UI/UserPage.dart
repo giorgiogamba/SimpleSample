@@ -148,7 +148,7 @@ class _UserPageState extends State<UserPage> {
                 itemBuilder:  (BuildContext context, int index) {
                   return SquareListItem(
                     itemIndex: index,
-                    key: Key(_userPageController.getFavouritesLength().toString()),
+                    key: Key(0.toString()),
                     controller: _userPageController,
                     isFavourite: true,
                     callback: () { setState(() {});},
@@ -397,19 +397,18 @@ class _SquareListItemState extends State<SquareListItem> {
   Widget createSecondPart() {
     if (widget.isFavourite) { //this widget will be used to display a favpurite record
       return Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        //mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          IconButton(icon: Icon(
-            Icons.play_arrow,
-            color: Colors.white,
-          ), onPressed: () => widget.controller.playRecordAt(widget.itemIndex)),
-          IconButton(icon: Icon(
-            Icons.star,
-            color: Colors.white,
-          ), onPressed: () => widget.controller.handleRemoveFromFavourites(widget.itemIndex).then((value) {
-            setState(() {}); //inutile
-            widget.callback();
-          }))
+          IconButton(
+            icon: Icon(Icons.play_arrow, color: Colors.white,),
+            onPressed: () => widget.controller.playRecordAt(widget.itemIndex),
+          ),
+          IconButton(
+            icon: Icon( Icons.star, color: Colors.white,),
+            onPressed: () => widget.controller.handleRemoveFromFavourites(widget.itemIndex).then((value) {
+              widget.callback();
+            }),
+          ),
         ],
       );
     } else {
@@ -427,10 +426,19 @@ class _SquareListItemState extends State<SquareListItem> {
               } else {
                 Utils.showToast(context, "Unable to remove sample from Shared");
               }
+              widget.callback();
             }),
           ),
         ],
       );
+    }
+  }
+
+  String getSquareName() {
+    if (widget.isFavourite) {
+      return Utils.wrapText(Utils.removeExtension(widget.controller.getFavouriteAt(widget.itemIndex).getFilename()), 12);
+    } else {
+      return Utils.wrapText(Utils.removeExtension(widget.controller.getUserSharedRecordAt(widget.itemIndex).getFilename()), 12);
     }
   }
 
@@ -453,11 +461,11 @@ class _SquareListItemState extends State<SquareListItem> {
                 child: Padding(
                   padding: EdgeInsets.symmetric(vertical: 10),
                   child: Text(
-                      Utils.wrapText(Utils.removeExtension(widget.controller.getUserSharedRecordAt(widget.itemIndex).getFilename()), 12),
-                      style: TextStyle(
-                        fontSize: 16,
-                        color: Colors.white,
-                      )
+                    getSquareName(),
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: Colors.white,
+                    ),
                   ),
                 )
               ),

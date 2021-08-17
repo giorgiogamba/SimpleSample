@@ -1,28 +1,16 @@
 import 'dart:async';
-
-import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:overlay_support/overlay_support.dart';
 import 'package:simple_sample/Controllers/AudioController.dart';
-import 'package:simple_sample/Controllers/AuthenticationController.dart';
-import 'package:simple_sample/Controllers/CloudStorageController.dart';
 import 'package:simple_sample/Controllers/GoogleDriveController.dart';
 import 'package:simple_sample/Controllers/NotificationController.dart';
 import 'package:simple_sample/Controllers/SamplerController.dart';
 import 'package:simple_sample/Controllers/ShareDialogController.dart';
 import 'package:simple_sample/Controllers/ToUpdateListController.dart';
-
-import 'package:flutter_sound/flutter_sound.dart';
 import 'package:intl/intl.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:simple_sample/Utils/Languages.dart';
-import 'package:simple_sample/Utils/LocaleConstant.dart';
-import 'package:simple_sample/main.dart';
-
 import 'Explorer.dart';
-import '../Models/Model.dart';
 import '../Models/Record.dart';
 import '../Utils.dart';
 
@@ -360,7 +348,7 @@ class _SamplerState extends State<Sampler> {
                 ),
                 Padding(padding: EdgeInsets.symmetric(horizontal: /*10*/ _screenWidth/41)),
                 ElevatedButton(onPressed: () { //UPLOAD ON DRIVE BUTTON
-                  if (_samplerController.checkIfUserConnected()) {
+                  if (_samplerController.checkIfUserConnected() && _samplerController.checkIfGoogleConnected()) {
                     if (!_samplerController.isSharingRunning() &&
                         !_samplerController.isRenameRunning()) {
                       showDialog(
@@ -591,23 +579,6 @@ class _TagListButtonState extends State<TagListButton> {
     );
   }
 }
-
-
-/*class LoadDialog extends StatelessWidget {
-  const LoadDialog({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return AlertDialog(
-      content: Column(
-        children: [
-          Text("File Loading Dialog, implement"),
-          ElevatedButton(onPressed: () => SamplerController().pickFile(), child: Text(Languages.of(context)!.loadName),),
-        ],
-      ),
-    );
-  }
-}*/
 
 
 class RenamePage extends StatelessWidget {
@@ -851,7 +822,6 @@ class LoadingDialog extends StatelessWidget {
   final List<String> titles = [
     "Load elements from filesystem or Drive",
     "Load built-in elements",
-    "Load elements from Drive",
   ];
 
   @override
@@ -865,7 +835,7 @@ class LoadingDialog extends StatelessWidget {
       backgroundColor: Color.fromRGBO(36, 59, 85, 1),
       content: Container(
         width: /*200*/ _screenWidth/2,
-        height: /*180*/ _screenHeight/3.3,
+        height: _screenHeight/3,
         child: Column(
           children: [
             Container(
@@ -923,17 +893,6 @@ class LoadingListItem extends StatelessWidget {
           var result = await showDialog(
             context: context,
             builder: (builder) => AssetsLoadingDialog(
-              controller: controller,
-              key: Key("key"),
-            ),
-          );
-          Navigator.pop(context, result);
-
-        } else if (index == 2) {
-
-          var result = await showDialog(
-            context: context,
-            builder: (builder) => IOSGoogleDriveMenu(
               controller: controller,
               key: Key("key"),
             ),
@@ -1033,7 +992,6 @@ class _AssetsLoadingDialogListItemState extends State<AssetsLoadingDialogListIte
   Widget build(BuildContext context) {
 
     double _screenWidth = MediaQuery.of(context).size.width;
-    double _screenHeight = MediaQuery.of(context).size.height;
 
     return InkWell(
       onTap: () {
@@ -1059,85 +1017,3 @@ class _AssetsLoadingDialogListItemState extends State<AssetsLoadingDialogListIte
     );
   }
 }
-
-
-//todo bisogna usare il metodo per il prelevamento delle informazioni che devono essere filtrate per estensione
-
-class IOSGoogleDriveMenu extends StatelessWidget {
-
-  final Key key;
-  final SamplerController controller;
-
-  const IOSGoogleDriveMenu({required this.controller, required this.key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-
-    //Prelevamento della lista di  elementi
-    controller.initIosGoogleDriveMenuList();
-
-    return AlertDialog(
-      content: Container(
-        child: Column(
-          children: [
-            Text("Google Drive"),
-            Container(
-              child: ListView.separated(
-                itemBuilder: (BuildContext context, int index) {
-
-                  //todo prelevare elemento dalla lista e da lì il nome
-                  String name = "";
-                  return IOSGoogleDriveMenuItem(name: name, key: Key(name));
-                },
-                separatorBuilder: (BuildContext context, int index) => const MyDivider(),
-                itemCount: controller.getIosGoogleDriveMenuListLength(),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-
-
-  }
-}
-
-
-class IOSGoogleDriveMenuItem extends StatelessWidget {
-
-  final String name;
-  final Key key;
-
-  const IOSGoogleDriveMenuItem({required this.name, required this.key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Text(name),
-      ],
-    );
-  }
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

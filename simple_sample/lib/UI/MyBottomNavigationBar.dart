@@ -3,7 +3,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:simple_sample/UI/Sampler.dart';
 import 'package:simple_sample/UI/UserPage.dart';
-
 import 'Explorer.dart';
 import 'Sequencer.dart';
 

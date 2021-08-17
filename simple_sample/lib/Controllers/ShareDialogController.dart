@@ -1,6 +1,4 @@
-import 'package:flutter/material.dart';
 import 'package:simple_sample/Controllers/CloudStorageController.dart';
-
 import 'AudioController.dart';
 import '../Models/Model.dart';
 import '../Models/Record.dart';
@@ -45,12 +43,14 @@ class ShareDialogController { ///TESTED
     AudioController().playAtURL(URL);
   }
 
-  Future<bool> share(String newName) {
+  Future<bool> share(String newName) async {
     //_selectedEntry è l'elemento da cricare
     if (newName != "") {
       if (_selectedEntry != null) {
         print("ShareDialogController -- share Method: uploadign record with name $newName");
-        return CloudStorageController().shareRecord(_selectedEntry!, _selectedTags, newName);
+        bool res = await CloudStorageController().shareRecord(_selectedEntry!, _selectedTags, newName);
+        _selectedTags = [];
+        return res;
       } else {
         throw Exception ("ShareDialogController -- share method -- The element to be shared is null");
       }

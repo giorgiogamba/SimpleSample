@@ -1,11 +1,7 @@
 import 'dart:typed_data';
-
 import 'package:file_picker/file_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:permission_handler/permission_handler.dart';
-import 'package:simple_sample/Controllers/GoogleDriveController.dart';
-
 import '../Utils/Languages.dart';
 import '../Models/Model.dart';
 import '../Models/Record.dart';
@@ -39,7 +35,7 @@ class SamplerController {
 
   ///Picks up an audio file from a filesystem and then saves it into the samples' location
   Future<String?> pickFile() async {
-    List<String> ext = ["wav", "mp3"];
+    List<String> ext = ["wav", "mp3", "aac", "m4a"];
     FilePickerResult? result = await FilePicker.platform.pickFiles(type: FileType.custom, allowedExtensions: ext);
     if (result != null) {
       String res = moveFile(result.paths.single.toString());
@@ -56,7 +52,13 @@ class SamplerController {
     //Creating new path
     var splitted = path.split("/");
     String filename = splitted[splitted.length-1];
-    String newPath = Model().getExtDocPath() + "/" + filename;
+    String newPath = "";
+    if (Platform.isAndroid) {
+      newPath = Model().getExtDocPath() + "/" + filename;
+    } else if (Platform.isIOS) {
+      newPath = Model().getDocPath() + "/" + filename;
+    }
+
 
     //Writing read file in a file in the correct location
     File(newPath).writeAsBytesSync(readOriginalFile, mode: FileMode.write, flush:true);
@@ -226,23 +228,11 @@ class SamplerController {
     return this._assets.length;
   }
 
-
-  ///IOS GOOGLE DRIVE MENU
-  int getIosGoogleDriveMenuListLength() {
-    //todo
-    return 0;
-  }
-
-  Future<void> initIosGoogleDriveMenuList() async {
-    //todo -> impostare lista
-    print("SamplerController -- initIosGoogleDriveController");
-    GoogleDriveController().listGoogleDriveFiles();
-    print("SamplerController -- initIosGoogleDriveController FINE METODO");
-
-  }
-
-  void getIosGoogleDriveElementAt(int index) {
-    //todo
+  bool checkIfGoogleConnected() {
+    if (Model().getGoogleSignInAccount() == null) {
+      return false;
+    }
+    return true;
   }
 
 }

@@ -1,9 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_storage/firebase_storage.dart';
-import 'package:flutter_sound/flutter_sound.dart';
 import 'package:simple_sample/Models/Model.dart';
-
 import '../Models/Record.dart';
 import 'dart:io';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -269,7 +267,7 @@ class CloudStorageController {
       try {
         String path = 'shared/'+user.uid.toString()+"/"+recordName;
         print("***** PERCORSO DA ELIMINARE; ${path}");
-        await FirebaseStorage.instance.ref('shared/'+user.uid.toString()+"/"+recordName+".wav").delete();
+        await FirebaseStorage.instance.ref(path).delete();
         return true;
       } on FirebaseException catch (e) {
         print("share Record exception");
@@ -286,7 +284,7 @@ class CloudStorageController {
   String parseTags(List<String> tags) {
     String res = "";
     if (tags.length > 0) {
-      for (int i = 0; i < tags.length - 2; i ++) {
+      for (int i = 0; i <= tags.length - 2; i ++) {
         res = res + tags[i] + "|";
       }
       res = res + tags[tags.length - 1];

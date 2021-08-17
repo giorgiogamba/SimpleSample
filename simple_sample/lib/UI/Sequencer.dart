@@ -1,7 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:simple_sample/Controllers/AudioController.dart';
 import 'package:simple_sample/Controllers/SequencerController.dart';
 
 /// Class representing Sequencer UI
@@ -271,7 +270,6 @@ class SequencerPointer extends StatelessWidget {
   Widget build(BuildContext context) {
 
     //Getting sceen's size
-    double _screenHeight = MediaQuery.of(context).size.height;
     double _screenWidth = MediaQuery.of(context).size.width;
 
     return Row(
@@ -361,7 +359,6 @@ class _BPMSelectorState extends State<BPMSelector> {
   Widget build(BuildContext context) {
 
     //Getting sceen's size
-    double _screenHeight = MediaQuery.of(context).size.height;
     double _screenWidth = MediaQuery.of(context).size.width;
 
     return GestureDetector(

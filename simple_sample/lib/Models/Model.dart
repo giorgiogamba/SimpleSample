@@ -1,13 +1,11 @@
 import 'dart:collection';
 import 'dart:io';
 import 'dart:typed_data';
-
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'package:googleapis/cloudsearch/v1.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -121,6 +119,7 @@ class Model { ///TESTING COMPLETED
   }
 
   void setUser(User newUser) {
+    print("*********** MODEL: nuovo UTENTE IMPOSTATO ************");
     this._user = newUser;
     this.auth.value = true;
   }
@@ -128,6 +127,7 @@ class Model { ///TESTING COMPLETED
   void clearUser() {
     _user = null;
     this.auth.value = false;
+    this._googleAccount = null;
   }
 
   bool isUserConnected() {
@@ -214,6 +214,7 @@ class Model { ///TESTING COMPLETED
   }
 
   void setGoogleSignInAccount(GoogleSignInAccount? account) {
+    print("*********** SETTAGGIO GOOGLE SIGN IN ACCOUNT con valore ${account!.id}**********");
     this._googleAccount = account;
   }
 
@@ -327,6 +328,18 @@ class Model { ///TESTING COMPLETED
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     sharedPreferences.setInt("counter", this._counter);
   }
+
+
+  String getPersonalPath (String filename){
+    String newPath = "";
+    if (Platform.isAndroid) {
+      newPath = this._extDocPath + "/" + filename;
+    } else if (Platform.isIOS){
+      newPath = this._docPath + "/" + filename;
+    }
+    return newPath;
+  }
+
 
 }
 

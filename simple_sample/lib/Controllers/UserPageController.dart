@@ -5,7 +5,6 @@ import 'package:simple_sample/Controllers/AuthenticationController.dart';
 import 'package:simple_sample/Models/Record.dart';
 import 'package:simple_sample/Utils.dart';
 import 'package:simple_sample/Utils/LocaleConstant.dart';
-
 import 'AudioController.dart';
 import 'CloudStorageController.dart';
 import '../Models/Model.dart';
@@ -92,7 +91,6 @@ class UserPageController {
   }
 
   void playRecordAt(int index) {
-    print("ExplorerController: playRecord");
     Record record = getUserSharedRecordAt(index);
     AudioController().playAtURL(record.getUrl());
   }

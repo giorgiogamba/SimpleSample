@@ -1,15 +1,16 @@
 import 'package:google_sign_in/google_sign_in.dart';
-import 'package:googleapis/docs/v1.dart';
+//import 'package:googleapis/docs/v1.dart';
 import 'package:http/http.dart' as http;
 import 'package:googleapis/drive/v3.dart' as drive;
 import "dart:io";
+import "dart:core";
 import '../Models/Model.dart';
 import '../Models/Record.dart';
 import '../Utils.dart';
 
 class GoogleDriveController {
 
-  GoogleHTTPCLient? authenticateClient;
+  GoogleHTTPClient? authenticateClient;
   drive.DriveApi? driveApi;
 
   static final GoogleDriveController _instance = GoogleDriveController._internal();
@@ -32,32 +33,37 @@ class GoogleDriveController {
 
     //Getting headers
     final accountHeaders = await googleAccount.authHeaders;
-    authenticateClient = GoogleHTTPCLient(accountHeaders);
+    authenticateClient = GoogleHTTPClient(accountHeaders);
     driveApi = drive.DriveApi(authenticateClient!);
     print("GoogleDriveController initialization completed");
   }
 
-  Future<void> listGoogleDriveFiles() async {
+  Future<List<String>> listGoogleDriveFiles() async {
 
-    print("GoogleDriveController -- listGoogleDriveFiles");
-    print("DDrive api è nullo? "+(driveApi == null).toString()); //false
+    List<String> driveElems = [];
     drive.FileList? fileList = await driveApi?.files.list();
 
-    print("FILELIST è nULLO? "+(fileList == null).toString()); //todo è nullo
+    if (fileList != null) {
+      print("Stampa degli elementi presenti in google drive");
+      int length = fileList.files!.length;
 
-    print("Stampa degli elementi presenti in google drive");
-    int length = fileList!.files!.length; //todo schifo
+      for (int i = 0; i < length; i ++) {
+        drive.File temp = fileList.files![i];
+        String fileExtension = Utils.getExtension(temp.name!);
+        if (fileExtension == "wav" || fileExtension == "mp3") { //todo verificare se gli mp3 si possono effettivamente usare
+          print("NAME: "+ temp.name!);
+          print("ID: "+ temp.id!);
 
-    for (int i = 0; i < length; i ++) {
-      drive.File temp = fileList.files![i];
-      //print("ID: ${temp.id} con NOME: ${temp.name}");
-      String fileExtension = Utils.getExtension(temp.name!);
-      print("FIle extension: "+fileExtension);
-      if (fileExtension == "wav") {
-        print(temp.name);
+
+          //Adding to the list to be returned
+          driveElems.add(temp.id!); //todo provare a resitutire un link
+        }
       }
+    } else {
+      print("GoogleDriveController -- listGoogleDriveFiles: fileList è nullo");
     }
 
+    return driveElems;
   }
 
   void upload(Record record) async {
@@ -70,14 +76,56 @@ class GoogleDriveController {
     }
     await driveApi?.files.create(driveFile, uploadMedia: drive.Media(file.openRead(), file.lengthSync()));
   }
+
+
+  Future<void> downloadGoogleDriveFile(String fName, String gdID) async {
+
+    print("********* Metodo  downaload googleDriveFile ********");
+    print("******** PARAMETRI PASSATI AL METODO ********");
+    print("fName: ${fName}");
+    print("gdID: ${gdID}");
+    //final res = await driveApi!.files.get(gdID, downloadOptions: drive.DownloadOptions.fullMedia).asStream().toList();
+    
+    //drive.Media? media = await driveApi!.files.export(gdID, "audio", downloadOptions: drive.DownloadOptions.fullMedia);
+
+    //await driveApi!.files.export(gdID, "application/vnd.google-apps.audio");
+    /*Object obj = await driveApi!.files.get(gdID); //obj è istanza di file
+    drive.File cast = obj as drive.File;
+    print(cast.);
+    print(obj.toString());*/
+
+    //drive.Media? media = await driveApi!.files.export(gdID, {alt:'media'});
+
+    //drive.Media file = await driveApi.files.get(gdID, downloadOptions: ga.DownloadOptions.FullMedia);
+
+    String newPath = Model().getPersonalPath(fName);
+    File newFile = File(newPath);
+    
+
+    List<int> dataStore = [];
+    /*media!.stream.listen((data) { //todo forse c'è problema con listen in IOS
+      print("DataReceived: ${data.length}");
+      dataStore.insertAll(dataStore.length, data);
+    }, onDone: () {
+      print("Task Done");
+      newFile.writeAsBytes(dataStore);
+      print("File saved at ${newFile.path}");
+    }, onError: (error) {
+      print("Some Error");
+    });*/
+
+    print("Fine metodo download file from google drive");
+  }
+
+
 }
 
 
-class GoogleHTTPCLient extends http.BaseClient {
+class GoogleHTTPClient extends http.BaseClient {
   final Map<String, String>? _headers;
   final http.Client _client = new http.Client();
 
-  GoogleHTTPCLient(this._headers);
+  GoogleHTTPClient(this._headers);
 
   Future<http.StreamedResponse> send(http.BaseRequest request) {
     return _client.send(request..headers.addAll(_headers!));
