@@ -299,7 +299,7 @@ class _SamplerState extends State<Sampler> {
               child: Center(
                 child: Text(
                   _samplerController.getOperationInformationText(),
-                  style: TextStyle(fontSize: 30, color: Colors.white),
+                  style: TextStyle(fontSize: 20, color: Colors.white), //todo provare a rimpicciolire
                 ),
               ),
             ),
@@ -337,7 +337,7 @@ class _SamplerState extends State<Sampler> {
                           throw("ERROR: the selected URL is null");
                         }
                       });
-                    }
+                    } //todo forse qua si resette loading
 
                   } else {
                     print("Another operation is running");
@@ -605,6 +605,7 @@ class RenamePage extends StatelessWidget {
           children: [
             Text(Languages.of(context)!.renameInstructionsName, style:TextStyle(color: Colors.white), textAlign: TextAlign.center,),
             TextField(
+              style: TextStyle(color: Colors.white),
               controller: samplerController.getTextEditingController(),
               decoration: InputDecoration(
                 enabledBorder: OutlineInputBorder(
@@ -615,6 +616,7 @@ class RenamePage extends StatelessWidget {
                 ),
                 labelText: "New Sample Name",
                 labelStyle: TextStyle(color: Colors.white),
+
               ),
             ),
             Row(
@@ -822,6 +824,7 @@ class LoadingDialog extends StatelessWidget {
   final List<String> titles = [
     "Load elements from filesystem or Drive",
     "Load built-in elements",
+    "Load from Documents folder",
   ];
 
   @override
@@ -840,7 +843,7 @@ class LoadingDialog extends StatelessWidget {
           children: [
             Container(
               width: /*200*/ _screenWidth/2,
-              height: /*100*/ _screenHeight/5,
+              height: _screenHeight/4,
               child: ListView.separated(
                 itemBuilder:  (BuildContext context, int index) {
                   return LoadingListItem(
@@ -854,7 +857,7 @@ class LoadingDialog extends StatelessWidget {
                 itemCount: 3,
               ),
             ),
-            Padding(padding: EdgeInsets.symmetric(vertical: 15)),
+            Padding(padding: EdgeInsets.symmetric(vertical: 4)),
             ElevatedButton(
               onPressed: () => Navigator.pop(context, "NO SELECTION"),
               child: /*Text("Cancel",)*/ Text(Languages.of(context)!.cancelName),
@@ -891,6 +894,7 @@ class LoadingListItem extends StatelessWidget {
         } else if (index == 1){ //loadinf assets
 
           var result = await showDialog(
+            barrierDismissible: false,
             context: context,
             builder: (builder) => AssetsLoadingDialog(
               controller: controller,
@@ -899,6 +903,16 @@ class LoadingListItem extends StatelessWidget {
           );
           Navigator.pop(context, result);
 
+        } else if (index == 2) { //loading from documents folder
+          var result = await showDialog(
+            barrierDismissible: false,
+            context: context,
+            builder: (builder) => DocumentsLoadingDialog(
+              controller: controller,
+              key: Key("key"),
+            ),
+          );
+          Navigator.pop(context, result);
         }
       },
       child: Container(
@@ -968,6 +982,7 @@ class _AssetsLoadingDialogState extends State<AssetsLoadingDialog> {
 
       ),
     );
+
   }
 }
 
@@ -1017,3 +1032,177 @@ class _AssetsLoadingDialogListItemState extends State<AssetsLoadingDialogListIte
     );
   }
 }
+
+
+
+class DocumentsLoadingDialog extends StatefulWidget {
+
+  final SamplerController controller;
+  final Key key;
+
+  const DocumentsLoadingDialog({required this.controller, required this.key}) : super(key: key);
+
+  @override
+  _DocumentsLoadingDialogState createState() => _DocumentsLoadingDialogState();
+}
+
+class _DocumentsLoadingDialogState extends State<DocumentsLoadingDialog> {
+
+  @override
+  Widget build(BuildContext context) {
+
+    double _screenWidth = MediaQuery.of(context).size.width;
+    double _screenHeight = MediaQuery.of(context).size.height;
+
+    widget.controller.loadDocumentsFile();
+
+    return AlertDialog(
+      backgroundColor: Color.fromRGBO(36, 59, 85, 1),
+      content: Container(
+        width: /*200*/ _screenWidth/2,
+        height: /*450*/ _screenHeight/1.51,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            //Padding(padding: EdgeInsets.symmetric(vertical: 2)),
+            Text("Select a file to Load", style: TextStyle(color: Colors.white, fontSize: 20),),
+            Container(
+              height: /*300*/ _screenHeight/2.27,
+              child: ListView.separated(
+                itemBuilder: (BuildContext context, int index) {
+                  return DocumentsLoadingDialogListItem(
+                    itemName: widget.controller.getDocumentFileAt(index),
+                    index: index,
+                    key: Key(index.toString()),
+                    controller: widget.controller,
+                  );
+                },
+                separatorBuilder: (BuildContext context, int index) => const MyDivider(),
+                itemCount: widget.controller.getDocumentsFileLength(),
+              ),
+            ),
+            ElevatedButton(
+              onPressed: () => Navigator.pop(context, "NO SELECTION"),
+              child: Text(Languages.of(context)!.cancelName),
+              style: ButtonStyle(backgroundColor: MaterialStateColor.resolveWith((states) => Colors.red),),),
+          ],
+        ),
+
+      ),
+    );
+
+    /*return FutureBuilder(
+      future: widget.controller.loadDocumentsFile(),
+      builder: (context, snapshot) {
+        return AlertDialog(
+          backgroundColor: Color.fromRGBO(36, 59, 85, 1),
+          content: Container(
+            width: /*200*/ _screenWidth/2,
+            height: /*450*/ _screenHeight/1.51,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                //Padding(padding: EdgeInsets.symmetric(vertical: 2)),
+                Text("Select a file to Load", style: TextStyle(color: Colors.white, fontSize: 20),),
+                Container(
+                  height: /*300*/ _screenHeight/2.27,
+                  child: ListView.separated(
+                    itemBuilder: (BuildContext context, int index) {
+                      return DocumentsLoadingDialogListItem(
+                        itemName: widget.controller.getDocumentFileAt(index),
+                        index: index,
+                        key: Key(index.toString()),
+                        controller: widget.controller,
+                      );
+                    },
+                    separatorBuilder: (BuildContext context, int index) => const MyDivider(),
+                    itemCount: widget.controller.getDocumentsFileLength(),
+                  ),
+                ),
+                ElevatedButton(
+                  onPressed: () => Navigator.pop(context, "NO SELECTION"),
+                  child: Text(Languages.of(context)!.cancelName),
+                  style: ButtonStyle(backgroundColor: MaterialStateColor.resolveWith((states) => Colors.red),),),
+              ],
+            ),
+
+          ),
+        );
+      }
+    );*/
+
+
+  }
+}
+
+
+
+class DocumentsLoadingDialogListItem extends StatefulWidget {
+
+  final String itemName;
+  final int index;
+  final Key key;
+  final SamplerController controller;
+
+  const DocumentsLoadingDialogListItem({required this.itemName, required this.index, required this.key, required this.controller}) : super(key: key);
+
+  @override
+  _DocumentsLoadingDialogListItemState createState() => _DocumentsLoadingDialogListItemState();
+}
+
+class _DocumentsLoadingDialogListItemState extends State<DocumentsLoadingDialogListItem> {
+
+  @override
+  Widget build(BuildContext context) {
+
+    double _screenWidth = MediaQuery.of(context).size.width;
+
+    return InkWell(
+      onTap: () {
+        Navigator.pop(context, widget.itemName);
+      },
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            Utils.wrapText(Utils.removeExtension(Utils.getFilenameFromURL(widget.itemName)), 15),
+            textAlign: TextAlign.center, style: TextStyle(color: Colors.white),
+          ),
+          ElevatedButton(
+            onPressed: () => AudioController().playAtURL(widget.controller.getDocumentFileAt(widget.index)),
+            child: Icon(Icons.play_arrow),
+            style: ButtonStyle(
+              minimumSize:MaterialStateProperty.resolveWith((states) => Size(/*20*/ _screenWidth/20.5, /*20*/ _screenWidth/20.5)),
+              backgroundColor:  MaterialStateColor.resolveWith((states) => Colors.blueGrey),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

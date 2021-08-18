@@ -29,6 +29,8 @@ class SamplerController {
   String _operationInformationText = "";
   List<String> _assets = [];
 
+  List<String> _documentsFile = [];
+
   bool checkIfUserConnected() {
     return Model().isUserConnected();
   }
@@ -193,12 +195,10 @@ class SamplerController {
 
   ///SAMPLER INFORMATION BOX
   String getOperationInformationText() {
-    print("OPERATION INFORMATION TEXT: "+this._operationInformationText);
     return this._operationInformationText;
   }
 
   void setOperationInformationTxt(String text) {
-    print("SET OPERATION INFORMATION TEXT: "+text); //todo non viene richiamato quando si effettua rec
     this._operationInformationText = text;
   }
 
@@ -233,6 +233,21 @@ class SamplerController {
       return false;
     }
     return true;
+  }
+
+  //DOCUMENTS FOLDER FILES
+  Future<void> loadDocumentsFile() async {
+    Model().loadDocumentsFile();
+    this._documentsFile = Model().getDocumentsFile();
+  }
+
+  String getDocumentFileAt(int index) {
+    return this._documentsFile[index];
+  }
+
+  int getDocumentsFileLength() {
+    print("****LUNGHEZZAAAA: ${this._documentsFile.length}");
+    return this._documentsFile.length;
   }
 
 }

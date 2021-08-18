@@ -179,6 +179,16 @@ class CloudStorageController {
     try {
       Reference element = FirebaseStorage.instance.ref(cloudPath);
       FullMetadata metadata = await element.getMetadata();
+
+      //updates user downloads number
+      String ownerID = record.getRecordOwnerID();
+      if (ownerID != "") {
+        upgradeDownloads(ownerID);
+      } else {
+        print("CloudStorageController -- Unable to update downloads number because pwner ID is not defined");
+      }
+
+      //updates sample downloads number
       String updatedDownloadsNumber = updateDownloadNumber(metadata.customMetadata!["downloads"]);
 
       //Updating metadatas
@@ -211,6 +221,7 @@ class CloudStorageController {
     if (oldNumber != null) {
       int parsed = int.parse(oldNumber);
       parsed ++;
+      print("**************** PARSED: ${parsed}");
       return parsed.toString();
     } else {
       print("CloudStorageController -- updateDownloadNummber: aegument is null, returnin \"\"");
@@ -387,12 +398,12 @@ class CloudStorageController {
         print("CloudStorage -- Record saved into favourites");
 
         //Updating user's data
-        String ownerID = record.getRecordOwnerID();
+        /*String ownerID = record.getRecordOwnerID();
         if (ownerID != "") {
           upgradeDownloads(ownerID);
         } else {
           print("CloudStorageController -- Unable to update downloads number because pwner ID is not defined");
-        }
+        }*/
       });
     } else {
       print("CloudStorageController -- addtoFavourited:; Unable to save record into favourites");

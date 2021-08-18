@@ -6,6 +6,7 @@ import 'package:simple_sample/Controllers/UserPageController.dart';
 
 import 'CloudStorageController.dart';
 import '../Models/Model.dart';
+import 'GoogleDriveController.dart';
 
 class AuthenticationController {
 
@@ -35,8 +36,6 @@ class AuthenticationController {
     authorizer.userChanges().listen((User? user) async { //Questo listener rimane connesso su ogni cambiamento dello stato utente
       if (user == null) {
         print("User is currently signed out");
-        tryGoogleSignIn(); //todo se questo restituisce un risultato corretto, dovrebbe
-        //caricare la pagina utente direttamente con tale account
       } else {
         print("*** User logged in. Infos");
         print(user.toString());
@@ -47,13 +46,18 @@ class AuthenticationController {
 
         if (user.providerData[0].providerId == "google.com") { //if the user registered to app using google
           final GoogleSignIn googleSignIn = GoogleSignIn.standard(scopes: [drive.DriveApi.driveScope]);
-
           await googleSignIn.signInSilently();
 
           GoogleSignInAccount? googleAccount = googleSignIn.currentUser;
           print("*********** GOOGLE ACCOPUNT INFOS: ****************");
           print(googleAccount.toString());
           Model().setGoogleSignInAccount(googleAccount);
+
+          //initializing Google Drive Controller
+          if (googleAccount != null) {
+            GoogleDriveController().initGoogleDriveController();
+          }
+
         }
       }
     });
@@ -72,6 +76,7 @@ class AuthenticationController {
   }
 
   void tryGoogleSignIn() async {
+    print("******************* TRY *************");
     final GoogleSignIn googleSignIn = GoogleSignIn.standard(scopes: [drive.DriveApi.driveScope]);
     final GoogleSignInAccount? googleAccount = await googleSignIn.signIn();
 
@@ -82,6 +87,11 @@ class AuthenticationController {
   void authenticateGoogleAccount(GoogleSignInAccount? googleAccount) async {
 
     Model().setGoogleSignInAccount(googleAccount);
+
+    //initializing Google Drive Controller
+    if (googleAccount != null) {
+      GoogleDriveController().initGoogleDriveController();
+    }
 
     if (googleAccount != null) { //User correctly logged in
       GoogleSignInAuthentication googleAuthentication = await googleAccount.authentication;
@@ -241,8 +251,13 @@ class AuthenticationController {
 
       User? user = credentials.user;
       if (user != null) { //Access correctly executed
-        Model().setUser(user);
-        return "true";
+        if (user.emailVerified) {
+          Model().setUser(user);
+          return "true";
+        } else { //email still not verified
+          return "Verify your email";
+        }
+
       } else { //Access not executed
         return "Error during access user is not valid";
       }

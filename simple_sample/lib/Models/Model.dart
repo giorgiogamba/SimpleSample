@@ -55,6 +55,8 @@ class Model { ///TESTING COMPLETED
     "assets/sounds/Snare.wav",
   ];
 
+  List<String> _documentsFile = [];
+
   Model.internal() {
     print("Inizializzazione model");
     initModel();
@@ -77,6 +79,8 @@ class Model { ///TESTING COMPLETED
     this._bpm = 60;
 
     writeAssetsIntoFilesystem();
+
+    loadDocumentsFile();
 
     print("*************** INIZIALIZZAZIONE MODELLO COMPLETATA ***********");
   }
@@ -122,6 +126,7 @@ class Model { ///TESTING COMPLETED
     print("*********** MODEL: nuovo UTENTE IMPOSTATO ************");
     this._user = newUser;
     this.auth.value = true;
+    setOwnerID();
   }
 
   void clearUser() {
@@ -214,7 +219,6 @@ class Model { ///TESTING COMPLETED
   }
 
   void setGoogleSignInAccount(GoogleSignInAccount? account) {
-    print("*********** SETTAGGIO GOOGLE SIGN IN ACCOUNT con valore ${account!.id}**********");
     this._googleAccount = account;
   }
 
@@ -338,6 +342,37 @@ class Model { ///TESTING COMPLETED
       newPath = this._docPath + "/" + filename;
     }
     return newPath;
+  }
+
+  List<String> getDocumentsFile() {
+    return this._documentsFile;
+  }
+
+  void loadDocumentsFile() {
+    print("Loading Documents folder files...");
+    //Filling
+    if (Platform.isAndroid) {
+      Directory rootDir = Directory(this._extDocPath);
+      rootDir.list(recursive: false).forEach((element) {
+        if (!this._documentsFile.contains(element.path)) {
+          this._documentsFile.add(element.path);
+        }
+      });
+    } else if (Platform.isIOS) {
+      Directory rootDir = Directory(this._docPath);
+      rootDir.list(recursive: false).forEach((element) {
+        if (!this._documentsFile.contains(element.path)) {
+          this._documentsFile.add(element.path);
+        }
+      });
+    }
+  }
+
+  //Sets the user ID to the records already present into the application
+  void setOwnerID() {
+    for (Record r in this._records.values) {
+      r.setRecordOwnerID(this._user!.uid);
+    }
   }
 
 

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:simple_sample/Controllers/ExplorerController.dart';
 import 'package:simple_sample/Utils/Languages.dart';
 import '../Models/Record.dart';
+import '../Models/Model.dart';
 import '../Utils.dart';
 
 //const double elevationValue = 10;

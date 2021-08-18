@@ -66,22 +66,42 @@ class _UserPageState extends State<UserPage> {
             }},
         ),
         Container( //prima era sized box
-          width: _screenWidth/4.11,
-          height: _screenHeight/6.83,
+          width: _screenWidth/3,
+          height: _screenHeight/6,
           child: FittedBox(
             fit: BoxFit.contain,
             child: ValueListenableBuilder(
                 valueListenable: _userPageController.profileImagePath,
                 builder: (context, value, _) {
                   return displayUserProfileImage(value.toString());
+                  /*return Crop(
+                    controller: CropController(aspectRatio: 1.0),
+                    child: displayUserProfileImage(value.toString()),
+                    shape: BoxShape.circle,
+                  );*/
                 }
             ),
           ),
-          decoration: new BoxDecoration( //Rounded shape
+          /*child: ValueListenableBuilder(
+              valueListenable: _userPageController.profileImagePath,
+              builder: (context, value, _) {
+                //return displayUserProfileImage(value.toString());
+                return Crop(
+                  controller: CropController(aspectRatio: 1.0),
+                  child: displayUserProfileImage(value.toString()),
+                  shape: BoxShape.circle,
+                  //backgroundColor: Colors.red,
+                  dimColor: Color.fromRGBO(0, 0, 0, 1),
+                  backgroundColor: Color.fromRGBO(0, 0, 0, 0),
+                  //dimColor: Colors.transparent,
+                );
+              }
+          ),*/
+          /*decoration: new BoxDecoration( //Rounded shape
             color: Colors.white,
-            borderRadius: BorderRadius.all(const Radius.circular(50.0)),
-            border: Border.all(color: const Color(0xFF28324E)),
-          ),
+            //borderRadius: BorderRadius.all(const Radius.circular(50.0)),
+            //border: Border.all(color: const Color(0xFF28324E)),
+          ),*/
         ),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -117,8 +137,8 @@ class _UserPageState extends State<UserPage> {
             Text(Languages.of(context)!.sharedSamplesName, style: TextStyle(fontSize: 20, color: Colors.white),),
             Padding(padding: EdgeInsets.symmetric(vertical: 2)),
             Container(
-              width: 380,
-              height: 100,
+              width: /*380*/ _screenWidth/1.08,
+              height: /*100*/ _screenHeight/6,
               child: ListView.separated(
                 scrollDirection: Axis.horizontal,
                 itemBuilder:  (BuildContext context, int index) {
@@ -142,7 +162,7 @@ class _UserPageState extends State<UserPage> {
             Padding(padding: EdgeInsets.symmetric(vertical: 2)),
             Container(
               width: /*380*/ _screenWidth/1.08,
-              height: /*100*/ _screenHeight/6.83,
+              height: /*100*/ _screenHeight/6,
               child: ListView.separated(
                 scrollDirection: Axis.horizontal,
                 itemBuilder:  (BuildContext context, int index) {
@@ -483,50 +503,6 @@ class _SquareListItemState extends State<SquareListItem> {
   }
 }
 
-/*class UserPageListItems extends StatefulWidget {
-
-  final int itemIndex;
-  final Key key;
-  final UserPageController controller;
-
-  const UserPageListItems({required this.itemIndex, required this.key, required this.controller}) : super(key: key);
-
-  @override
-  _UserPageListItemsState createState() => _UserPageListItemsState();
-}
-
-class _UserPageListItemsState extends State<UserPageListItems> {
-
-  TextStyle getTextStyle() {
-    return TextStyle(
-        fontSize: 20
-    );
-  }
-
-  ButtonStyle getButtonStyle() {
-    return ButtonStyle(
-      backgroundColor: MaterialStateColor.resolveWith((states) => Colors.teal),
-      minimumSize: MaterialStateProperty.resolveWith((states) => Size(5, 10)),
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Container(
-          child: Text(Utils.removeExtension(widget.controller.getUserSharedRecordAt(widget.itemIndex).getFilename()), style: getTextStyle(),),
-          height: 20,
-        ),
-        //SizedBox(width: 20,),
-        ElevatedButton(onPressed: () => widget.controller.playRecordAt(widget.itemIndex), child: Icon(Icons.play_arrow), style: getButtonStyle(),),
-      ],
-    );
-  }
-}*/
-
-
 class ChooseImageOperationDialog extends StatefulWidget {
 
   final UserPageController controller;
@@ -672,9 +648,9 @@ class _SettingsPageState extends State<SettingsPage> {
                   showDialog(
                     context: context,
                     builder: (context) => ChangeLanguageDialog(controller: widget.controller,),
-                  );
-                },
+                  );},
                   child: Text(Languages.of(context)!.changeLanguageName),
+                  style: ButtonStyle(backgroundColor: MaterialStateColor.resolveWith((states) => Colors.blueGrey),),
                 ),
                 MyDivider(),
                 ElevatedButton(
@@ -740,6 +716,7 @@ class SetUsernameDialog extends StatelessWidget {
             ),
             Padding(padding: EdgeInsets.symmetric(vertical: 4),),
             TextField(
+              style: TextStyle(color: Colors.white),
               controller: _textEditingController,
               decoration: InputDecoration(
                 enabledBorder: OutlineInputBorder(
@@ -922,7 +899,10 @@ class ChangeLanguageDialog extends StatelessWidget {
                 itemCount: controller.getLanguagesListLength(),
               ),
             ),
-            ElevatedButton(onPressed: () => Navigator.pop(context), child: Text(Languages.of(context)!.cancelName)),
+            ElevatedButton(
+              onPressed: () => Navigator.pop(context), child: Text(Languages.of(context)!.cancelName),
+              style: ButtonStyle(backgroundColor: MaterialStateColor.resolveWith((states) => Colors.red),),
+            ),
           ],
         ),
       ),
