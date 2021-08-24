@@ -8,7 +8,8 @@ import 'package:simple_sample/Controllers/AuthenticationController.dart';
 import 'package:simple_sample/Controllers/CloudStorageController.dart';
 import 'package:simple_sample/Models/Model.dart';
 import 'package:simple_sample/Models/Record.dart';
-
+import 'package:file/file.dart';
+import 'package:file/memory.dart';
 import 'setupCloudFirestoreMock.dart';
 
 void main() {
@@ -85,18 +86,12 @@ void main() {
 
   ///INTEGRATION TEST
   test("Profile Image", () async {
-
-    //todo prelevare il path di un'immagine
     WidgetsFlutterBinding.ensureInitialized();
     await Firebase.initializeApp();
-
-
-    String path = "";
+    String path = ""; //insert image path
     CloudStorageController().uploadProfileImage(path);
     String? downloadedPath = await CloudStorageController().downloadProfileImage();
     expect(downloadedPath, path);
-
-
   });
 
   ///INTEGRATION TEST
@@ -265,18 +260,11 @@ void main() {
   });
 
   test("Download", () async {
-
     WidgetsFlutterBinding.ensureInitialized();
     await Firebase.initializeApp();
     Record toUpload = Record("URL");
     toUpload.setFilename("toBeUploaded");
-
     CloudStorageController().downloadRecord(toUpload);
-
-    //todo fare check su come fare controloo nel filesystem
-
   });
-
-  //todo fare test getElementsIntoDirectory
 
 }

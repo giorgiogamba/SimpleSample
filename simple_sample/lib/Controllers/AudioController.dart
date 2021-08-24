@@ -58,7 +58,7 @@ class AudioController {
     _recorder.closeAudioSession();
   }
 
-  FlutterSoundRecorder getRecorder() {
+  FlutterSoundRecorder getRecorder() { ///OK
     return this._recorder;
   }
 
