@@ -48,6 +48,7 @@ class _UserPageState extends State<UserPage> {
     }
   }
 
+  ///Creates user page for after login
   Widget makeUserPage() {
 
     print(_userPageController.getFavouritesLength());
@@ -74,34 +75,9 @@ class _UserPageState extends State<UserPage> {
                 valueListenable: _userPageController.profileImagePath,
                 builder: (context, value, _) {
                   return displayUserProfileImage(value.toString());
-                  /*return Crop(
-                    controller: CropController(aspectRatio: 1.0),
-                    child: displayUserProfileImage(value.toString()),
-                    shape: BoxShape.circle,
-                  );*/
                 }
             ),
           ),
-          /*child: ValueListenableBuilder(
-              valueListenable: _userPageController.profileImagePath,
-              builder: (context, value, _) {
-                //return displayUserProfileImage(value.toString());
-                return Crop(
-                  controller: CropController(aspectRatio: 1.0),
-                  child: displayUserProfileImage(value.toString()),
-                  shape: BoxShape.circle,
-                  //backgroundColor: Colors.red,
-                  dimColor: Color.fromRGBO(0, 0, 0, 1),
-                  backgroundColor: Color.fromRGBO(0, 0, 0, 0),
-                  //dimColor: Colors.transparent,
-                );
-              }
-          ),*/
-          /*decoration: new BoxDecoration( //Rounded shape
-            color: Colors.white,
-            //borderRadius: BorderRadius.all(const Radius.circular(50.0)),
-            //border: Border.all(color: const Color(0xFF28324E)),
-          ),*/
         ),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -132,7 +108,7 @@ class _UserPageState extends State<UserPage> {
             Padding(padding: EdgeInsets.only(right: 5)),
           ],
         ),
-        Column(
+        Column( //Creating shared samples list
           children: [
             Text(Languages.of(context)!.sharedSamplesName, style: TextStyle(fontSize: 20, color: Colors.white),),
             Padding(padding: EdgeInsets.symmetric(vertical: 2)),
@@ -156,7 +132,7 @@ class _UserPageState extends State<UserPage> {
             ),
           ],
         ),
-        Column(
+        Column( //Creating favourites list
           children: [
             Text(Languages.of(context)!.favouritesName, style: TextStyle(fontSize: 20, color: Colors.white),),
             Padding(padding: EdgeInsets.symmetric(vertical: 2)),
@@ -185,7 +161,7 @@ class _UserPageState extends State<UserPage> {
     );
   }
 
-
+  ///Creates access page
   Widget makeAccessPage() {
     return Container(
       decoration: new BoxDecoration(
@@ -251,12 +227,12 @@ class _UserPageState extends State<UserPage> {
                             _emailController.text,
                             _passwordController.text,
                           ).then((value) {
-                            if (value == "true") {
+                            if (value == "true") { //if authorization successfully executed
                               setState(() {
                                 auth = true;
                               });
-                            } else {
-                              showDialog(context: context, builder: (builder) => AccessErrorPage(key: Key(value)));
+                            } else { //if error during access
+                              showDialog(barrierDismissible: false, context: context, builder: (builder) => AccessErrorPage(key: Key(value)));
                             }
                           });
                         },
@@ -269,16 +245,12 @@ class _UserPageState extends State<UserPage> {
                             _emailController.text,
                             _passwordController.text,
                           ).then((value) {
-                            if (value == "true") {
+                            if (value == "true") { //if authorization successfully executed
                               setState(() {
                                 auth = true;
                               });
-                            } else {
-                              showDialog(
-                                barrierDismissible: false,
-                                context: context,
-                                builder: (builder) => AccessErrorPage(key: Key(value)),
-                              );
+                            } else { //if error during registration
+                              showDialog(barrierDismissible: false, context: context, builder: (builder) => AccessErrorPage(key: Key(value)),);
                             }
                           });
                         },
@@ -351,7 +323,6 @@ class _UserPageState extends State<UserPage> {
   @override
   Widget build(BuildContext context) {
 
-    //Getting sceen's size
     _screenHeight = MediaQuery.of(context).size.height;
     _screenWidth = MediaQuery.of(context).size.width;
 
@@ -359,13 +330,13 @@ class _UserPageState extends State<UserPage> {
       valueListenable: _userPageController.getModelAuth(),
       builder: (context, value, _) {
         if (_userPageController.getModelAuth().value == true) {
-          _userPageController.updateUserPage();
+          _userPageController.updateUserPage(); //updating user's datas
 
           return Container(
             child: ValueListenableBuilder(
               valueListenable: _userPageController.loaded,
               builder: (context, value, _) {
-                if (value == true) {
+                if (value == true) { //if load completed
                   return makeUserPage();
                 } else {
                   return makeProgressBar();
@@ -392,6 +363,8 @@ class _UserPageState extends State<UserPage> {
   }
 }
 
+
+///Class representing list item into user's page
 class SquareListItem extends StatefulWidget {
 
   final int itemIndex;
@@ -415,9 +388,8 @@ class SquareListItem extends StatefulWidget {
 class _SquareListItemState extends State<SquareListItem> {
 
   Widget createSecondPart() {
-    if (widget.isFavourite) { //this widget will be used to display a favpurite record
+    if (widget.isFavourite) { //this widget will be used to display a favourite record
       return Row(
-        //mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           IconButton(
             icon: Icon(Icons.play_arrow, color: Colors.white,),
@@ -456,16 +428,15 @@ class _SquareListItemState extends State<SquareListItem> {
 
   String getSquareName() {
     if (widget.isFavourite) {
-      return Utils.wrapText(Utils.removeExtension(widget.controller.getFavouriteAt(widget.itemIndex).getFilename()), 12);
+      return Utils.wrapText(Utils.removeExtension(widget.controller.getFavouriteAt(widget.itemIndex).getFilename()), 9);
     } else {
-      return Utils.wrapText(Utils.removeExtension(widget.controller.getUserSharedRecordAt(widget.itemIndex).getFilename()), 12);
+      return Utils.wrapText(Utils.removeExtension(widget.controller.getUserSharedRecordAt(widget.itemIndex).getFilename()), 9);
     }
   }
 
   @override
   Widget build(BuildContext context) {
 
-    //Getting sceen's size
     double _screenHeight = MediaQuery.of(context).size.height;
     double _screenWidth = MediaQuery.of(context).size.width;
 
@@ -503,6 +474,8 @@ class _SquareListItemState extends State<SquareListItem> {
   }
 }
 
+
+///Dialog for profile image setup
 class ChooseImageOperationDialog extends StatefulWidget {
 
   final UserPageController controller;
@@ -519,7 +492,6 @@ class _ChooseImageOperationDialogState extends State<ChooseImageOperationDialog>
   @override
   Widget build(BuildContext context) {
 
-    //Getting sceen's size
     double _screenHeight = MediaQuery.of(context).size.height;
     double _screenWidth = MediaQuery.of(context).size.width;
 
@@ -543,6 +515,8 @@ class _ChooseImageOperationDialogState extends State<ChooseImageOperationDialog>
   }
 }
 
+
+//Class representing profile image choose operation list item
 class ChooseImageOperationDialogItem extends StatefulWidget {
 
   final int index;
@@ -588,6 +562,7 @@ class _ChooseImageOperationDialogItemState extends State<ChooseImageOperationDia
 }
 
 
+///Class representing settings screen
 class SettingsPage extends StatefulWidget {
 
   final UserPageController controller;
@@ -690,6 +665,7 @@ class _SettingsPageState extends State<SettingsPage> {
 }
 
 
+///Class representing username setup dialog
 class SetUsernameDialog extends StatelessWidget {
 
   const SetUsernameDialog({Key? key}) : super(key: key);
@@ -759,7 +735,7 @@ class SetUsernameDialog extends StatelessWidget {
 }
 
 
-
+///Class representing username deletion confirm widget
 class DeleteAccountWidget extends StatefulWidget {
 
   final UserPageController controller;
@@ -820,6 +796,7 @@ class _DeleteAccountWidgetState extends State<DeleteAccountWidget> {
 }
 
 
+///Class representing access error page
 class AccessErrorPage extends StatelessWidget {
 
   const AccessErrorPage({Key? key}) : super(key: key);
@@ -863,6 +840,8 @@ class AccessErrorPage extends StatelessWidget {
   }
 }
 
+
+///Class representing language change
 class ChangeLanguageDialog extends StatelessWidget {
 
   final UserPageController controller;
@@ -911,6 +890,7 @@ class ChangeLanguageDialog extends StatelessWidget {
 }
 
 
+///Class representing language change dialog
 class ChangeLanguageDialogListItem extends StatelessWidget {
 
   final Key key;
@@ -934,14 +914,3 @@ class ChangeLanguageDialogListItem extends StatelessWidget {
     );
   }
 }
-
-
-
-
-
-
-
-
-
-
-

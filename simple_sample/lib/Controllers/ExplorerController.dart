@@ -15,28 +15,22 @@ class ExplorerController { ///TESTED
     return _instance;
   }
 
-  List<Record> _entries = [];
-  List<Record> _selectedEntries = [];
-  ValueNotifier<bool> loaded = ValueNotifier(true);
-  List<String> _favourites = [];
-  //bool _isToUpdate = false;
+  List<Record> _entries = []; //all the records displayed into explorer
+  List<Record> _selectedEntries = []; //all the selected records into the explorer
+  ValueNotifier<bool> loaded = ValueNotifier(true); //changed to false when page must be reloaded
+  List<String> _favourites = []; //all user's favourites
 
   ///Downloads all the online records
   void getElementsList() async {
-    //isToUpdate();
-    //print(this._isToUpdate);
-    //if (this._isToUpdate) {
-      loaded.value = false;
-      getFavourites(); //downloads favourites in order to manage buttons operations
-      List<Record> records = await CloudStorageController().getOnlineRecords();
-      this._entries = records;
-      this._selectedEntries = this._entries;
-      loaded.value = true;
-      //updateCompleted();
-    //}
+    loaded.value = false;
+    getFavourites(); //downloads favourites in order to manage buttons operations
+    List<Record> records = await CloudStorageController().getOnlineRecords();
+    this._entries = records;
+    this._selectedEntries = this._entries;
+    loaded.value = true;
   }
 
-  bool checkIfUserLogged() {
+  bool checkIfUserLogged() { ///OK
     return Model().isUserConnected();
   }
 
@@ -89,7 +83,7 @@ class ExplorerController { ///TESTED
     this._selectedEntries = newEntries;
   }
 
-  void getFavourites() async {
+  void getFavourites() async { ///OK
     this._favourites = []; //resetting favourites
     List<Record> temp = await CloudStorageController().getFavouritesFromDB();
     for (int i = 0; i < temp.length; i ++) {
@@ -99,18 +93,18 @@ class ExplorerController { ///TESTED
     print("Updated favourites");
   }
 
-  ///Manages "Favourites" action button
-  Future<void> manageFavouritesButton(Record record) async {
+  ///Manages "Favourites" action button depending on the state
+  Future<void> manageFavouritesButton(Record record) async { ///TESTED
     String url = record.getUrl();
-    if (this._favourites.contains(url)) {
+    if (this._favourites.contains(url)) { //is the record is saved as "favourite"
       await removeFromFavourites(record);
-    } else {
+    } else { //if the record isn't favourite
       await addToFavorites(record);
     }
-    //CloudStorageController().updateUserField("toUpdateUserPage" , true.toString());
   }
 
-  bool manageFavouritesIcon(Record record) {
+  ///Changes favourites icon depending on the state
+  bool manageFavouritesIcon(Record record) { ///OK
     String url = record.getUrl();
     if (this._favourites.contains(url)) {
       return true;
@@ -119,16 +113,7 @@ class ExplorerController { ///TESTED
     }
   }
 
-  /*void isToUpdate() async {
-    String? val = await CloudStorageController().getFieldValue("toUpdateExplorer");
-    this._isToUpdate = val == "true";
-  }
-
-  void updateCompleted() async {
-    CloudStorageController().updateUserField("toUpdateExplorer", false.toString());
-  }*/
-
-  void setEntries(List<Record> entries) {
+  void setEntries(List<Record> entries) { ///OK
     this._entries = entries;
   }
 

@@ -30,7 +30,6 @@ class _MyBottomNavigationBarState extends State<MyBottomNavigationBar> {
     final List<Widget> children = [Sampler(), Sequencer(), UserPage(), Explorer()];
 
     return Scaffold(
-      //body: children[_selectedIndex],
       body: PageTransitionSwitcher(
         transitionBuilder: (child, primaryAnimation, secondaryAnimation) =>
             FadeThroughTransition(

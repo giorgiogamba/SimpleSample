@@ -1,13 +1,24 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:simple_sample/Models/Model.dart';
 import 'package:simple_sample/Models/Record.dart';
+import 'dart:io';
 
 void main() {
 
-  test("Creating a new path", () {
-
+  setUpAll(() {
     WidgetsFlutterBinding.ensureInitialized();
+    SharedPreferences.setMockInitialValues({});
+    const MethodChannel channel = MethodChannel('plugins.flutter.io/path_provider');
+    channel.setMockMethodCallHandler((MethodCall methodCall) async {
+      return '.';
+    });
+  });
+
+  test("Creating a new path", () {
     final model = Model();
 
     String path = model.getNewPath();
@@ -17,8 +28,6 @@ void main() {
   });
 
   test("Add record", () {
-
-    WidgetsFlutterBinding.ensureInitialized();
     final model = Model();
 
     Record newRec = Record("url");
@@ -30,8 +39,6 @@ void main() {
   });
 
   test("Get all current records", () {
-
-    WidgetsFlutterBinding.ensureInitialized();
     final model = Model();
 
     Record rec1 = Record("url");
@@ -50,8 +57,6 @@ void main() {
   });
 
   test("Get record with path", () {
-
-    WidgetsFlutterBinding.ensureInitialized();
     final model = Model();
 
     Record rec1 = Record("path");
@@ -70,8 +75,6 @@ void main() {
 
 
   test("isButtonFull", () {
-
-    WidgetsFlutterBinding.ensureInitialized();
     final model = Model();
 
     Record rec1 = Record("path");
@@ -86,9 +89,44 @@ void main() {
 
     bool res = model.isButtonFull(3);
     expect(res, true);
-
-
   });
 
+  test ("Change Filename only", () {
+    File file = File("ciao.wav");
+    file.writeAsString("ciao");
+    Model().changeFileNameOnly(file, "newFilename");
+    expect(file.path, "newFilename.wav");
+  });
 
+  ///INTEGRATION
+  test("getPersonalPath", () {
+    String filename = "test";
+    String res = Model().getPersonalPath(filename);
+    print(res);
+    String dirpath = Model().getExtDocPath();
+    String path = dirpath + "/" + res;
+    expect(path, res);
+  });
+
+  ///INTEGRATION
+  test("RenameRecord", () {
+    Record rec = Record("URL");
+    rec.setFilename("prova");
+    Model().addRecord(rec, 0);
+    Model().renameRecord(0, "nuovo");
+    Record? res = Model().getRecordAt(0);
+    expect(res!.getFilename(), "nuovo");
+  });
+
+  test("getExtDirElementsList", () {
+    File file1 = File(Model().getExtDocPath() + "file1.wav");
+    File file2 = File(Model().getExtDocPath() + "file2.wav");
+    List<String> elems = Model().getExtDirElementsList();
+    int test = 0;
+    if (elems.contains(file1.path) && elems.contains(file2.path)) {
+      test = 1;
+    }
+
+    expect(test, 1);
+  });
 }

@@ -1,6 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
+///Class including utility static functions
+
 class Utils {
 
   static String getFilenameFromURL(String URL) {
@@ -13,7 +15,7 @@ class Utils {
     return split[0];
   }
 
-  //Sampler: 5, UserOgae: 12, Explorer: 32
+  //Sampler: 5, UserOgae: 9, Explorer: 32
   static String wrapText(String text, int maxLength) {
     int length = text.length;
     if (length >= maxLength) {

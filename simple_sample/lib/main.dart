@@ -16,7 +16,7 @@ Future<void> main() async {
 class MyApp extends StatefulWidget {
   const MyApp({Key? key}) : super(key: key);
 
-  //for ultilanguage support
+  //for multilanguage support
   static void setLocale(BuildContext context, Locale newLocale) {
     var state = context.findAncestorStateOfType<_MyAppState>();
     state!.setLocale(newLocale);
@@ -35,7 +35,6 @@ class _MyAppState extends State<MyApp> {
   Locale _locale = Locale("en");
 
   void setLocale(Locale locale) {
-    print("chiamato setLocale");
     print(locale.toString());
     setState(() {
       _locale = locale;

@@ -36,6 +36,7 @@ class SequencerController { ///TESTING COMPLETED
   }
 
 
+  ///Sets to false all the map
   void initSequencerMap() { ///TESTED
     for (int i = 0; i < 8; i ++) {
       HashMap<int, bool>? newMap = HashMap();
@@ -61,7 +62,7 @@ class SequencerController { ///TESTING COMPLETED
     }
   }
 
-
+  ///Makes an action depending on the button state
   void manageButtonPress(int row, int col) { ///TESTED
     print("Managing row "+row.toString() + " on col "+col.toString());
     HashMap<int, bool>? tempMap = _sequencerMap?[col];
@@ -72,6 +73,7 @@ class SequencerController { ///TESTING COMPLETED
     }
   }
 
+  ///Plays all the files in the given row
   void playPosition(int pos) { ///TESTED
     print("Playing position "+pos.toString());
     HashMap<int, bool>? posList = _sequencerMap?[pos];
@@ -84,16 +86,17 @@ class SequencerController { ///TESTING COMPLETED
     }
   }
 
+  ///Returns the current value in the map at position (row, col)
   bool? getSequencerMapValue(int row, int col) { ///TESTED
     HashMap<int, bool>? tempMap = _sequencerMap?[col];
     return tempMap?[row];
   }
 
+  ///Calculates the duration between a column audio play and the next one
   void calculateTick() { ///TESTED
     int? currentBPM = getBPM();
     double value = bpmBase / currentBPM;
 
-    //Parsificazione in due parti
     var splitted = value.toString().split("."); //splits in 2 parts
     int seconds = int.parse(splitted[0]);
     int decimal = int.parse(splitted[1]);
@@ -102,7 +105,7 @@ class SequencerController { ///TESTING COMPLETED
     } else if (decimal > 10 && decimal < 100) {
       decimal = decimal * 10;
     } else if (decimal > 1000) {
-      //Possibile duration overflow, truncating result
+      //Possible duration overflow, truncating result
       decimal = int.parse(decimal.toString().substring(0, 3));
     }
     _dur = Duration(seconds: seconds, milliseconds: decimal);
@@ -112,6 +115,7 @@ class SequencerController { ///TESTING COMPLETED
     _timer = Timer.periodic(_dur, (Timer t) => handleTimeout());
   }
 
+  ///Called by "Play" button
   void handlePlay() {
     if (!isSequencerRunning()) {
       setIsRunning(true);
@@ -123,24 +127,30 @@ class SequencerController { ///TESTING COMPLETED
     }
   }
 
+  ///Called by "Stop" button
   void handleStop() {
     _timer?.cancel();
     resetCounter();
     setIsRunning(false);
   }
 
+  ///Called by "Pause" button
   void handlePause() {
     _timer?.cancel();
+    setIsRunning(false);
   }
+
   void resetCounter() { ///TESTED
     counter.value = 0;
   }
 
+  ///Called every time Dur object goes to 0, so the next row has to be played
   void handleTimeout() {
     incrementCounter();
     playPosition(counter.value);
   }
 
+  ///Manipulates counter value between 0 and 7
   void incrementCounter() { ///TESTED
     counter.value ++;
     if (counter.value > 7) {
@@ -148,6 +158,7 @@ class SequencerController { ///TESTING COMPLETED
     }
   }
 
+  ///Takes back sequencer map to default state (everything false)
   void resetSequencer() { ///TESTED
     for (int i = 0; i < 8; i ++) {
       HashMap<int, bool>? newMap = _sequencerMap?[i];
@@ -155,7 +166,6 @@ class SequencerController { ///TESTING COMPLETED
         newMap?.update(j, (existing) => false);
       }
     }
-    printSequencerMap();
     print("Sequencer resetted");
   }
 

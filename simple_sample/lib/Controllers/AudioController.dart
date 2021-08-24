@@ -9,7 +9,7 @@ import '../Models/Record.dart';
 import 'dart:async';
 import 'dart:io';
 
-///Class that represents the audio controller, which connects the UI with the Model
+///Class managing audio, playback and recording, which connects the UI with the Model
 
 const int playersNumber = 16;
 
@@ -27,31 +27,34 @@ class AudioController {
     return _instance;
   }
 
+  ///The first time this class is called, it is initialized
   AudioController._internal() {
     initAudioController();
   }
 
+  ///Creates and initializes the list of playersNumber players
   List<AudioPlayer?> createPlayersList() { ///TESTED
     List<AudioPlayer?> players = List.generate(16, (index) => null);
     for (int i = 0; i < playersNumber; i ++) {
-      players.insert(i, AudioPlayer(mode: PlayerMode.LOW_LATENCY)); //aggiunta lwlatency
+      players.insert(i, AudioPlayer(mode: PlayerMode.LOW_LATENCY));
       _isPlayerInited[i] = true;
       print("Player " +i.toString()+" initialized");
     }
     return players;
   }
 
-  void initAudioController() {
+  void initAudioController() { ///OK
     _players = createPlayersList();
     print("*** AudioController Initialization Completed ***");
   }
 
-  Future<void> initRecorder() async {
+  Future<void> initRecorder() async { ///OK
     _recorder = FlutterSoundRecorder();
     await openRecorder();
   }
 
-  void disposeRecorder() {
+  ///Called to free the resources when the recorder is closed
+  void disposeRecorder() { ///OK
     _recorder.closeAudioSession();
   }
 
@@ -60,22 +63,20 @@ class AudioController {
   }
 
 
-  Future<void> openRecorder() async {
+  Future<void> openRecorder() async { ///OK
     if (!kIsWeb) {
       var status = await Permission.microphone.request();
       if (status != PermissionStatus.granted) {
-        print("************ PERMISSION NOT GRANTED ************");
-        print("Stato permesso microfono" + status.toString());
+        print("*** !!! PERMISSION NOT GRANTED !!! ***");
         throw RecordingPermissionException("No microphone permission granted");
-      } else {
-
       }
     }
     await _recorder.openAudioSession().then((value) => _isRecorderInited = true);
-    print("********** Recorder opened **********");
+    print("*** Recorder opened ***");
   }
 
-  void disposeSampler() {
+  ///Called to free device resources when the sampler is closed
+  void disposeSampler() { ///OK
     for (int i = 0; i < playersNumber-1; i ++) {
       _players[i]?.dispose();
       _isPlayerInited[i] = false;
@@ -85,31 +86,32 @@ class AudioController {
     _isRecorderInited = false;
   }
 
-  //Faccio la creazione della registrazione all'inizio dello svolgimento
-  //perchè il metodo startRecorder restituisce void
-  void record(int index) {
-    this._playbackReady = false;
-    String path = Model().getNewPath();
+  ///Method for audio registration
+  void record(int index) { ///TESTED
+    this._playbackReady = false; //Disables playback so no other file can play
+    String path = Model().getNewPath(); //Creates a new path for the audio file to be recorder
     if (_isRecorderInited == true) {
       _recorder.startRecorder(toFile: path, codec: Codec.pcm16WAV);
-      Record record = new Record(path);
+      Record record = new Record(path); //After recording, creates a Reccord object representing the new audio file
       record.setPosition(index);
-      Model().addRecord(record, index);
+      Model().addRecord(record, index); //Associates the new Record object to the Sampler button
     } else {
       throw Exception("Record: recorder is not inited");
     }
   }
 
-  void stopRecorder() async {
+  ///Called when the recording button is not pressed anymore, enables playback
+  void stopRecorder() async { ///OK
     await _recorder.stopRecorder().then((value) => {
       _playbackReady = true,
     });
   }
 
-  void enablePlayback() {
+  void enablePlayback() { ///OK
     this._playbackReady = true;
   }
 
+  ///Plays the audio file associated to the pressed button (Represented by index)
   void play(int index) {
     if (_isPlayerInited[index]) {
       if (_playbackReady) {
@@ -121,18 +123,20 @@ class AudioController {
             _players[index]?.play(toPlay.getUrl());
           }
         } else {
-          throw Exception("Recorder o player not stoppati");
+          throw Exception("AudioController: Recorder not stopped");
         }
       } else {
-        throw Exception ("Playback not ready");
+        throw Exception ("AudioController: Playback not ready");
       }
     } else {
-      throw ("Play: player non inizializzato");
+      throw ("Audio Controller: player is not inited");
     }
 
   }
 
-  void playAtURL(String URL) {
+  ///Plays the audio file at the desired location URL
+  ///Used to play network audio files
+  void playAtURL(String URL) { ///OK
     AudioPlayer player = AudioPlayer();
     player.play(URL);
   }

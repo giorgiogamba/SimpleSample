@@ -6,9 +6,11 @@ import 'package:simple_sample/Models/Record.dart';
 
 void main() {
 
+  setUpAll(() {
+    WidgetsFlutterBinding.ensureInitialized();
+  });
 
   test("getButtonName", () {
-    WidgetsFlutterBinding.ensureInitialized();
     final model = Model();
 
     Record rec = Record("URL");
@@ -19,7 +21,6 @@ void main() {
   });
 
   test("getButtonName2", () {
-    WidgetsFlutterBinding.ensureInitialized();
     final model = Model();
     String name = SamplerController().getButtonName(0);
     expect(name, "Bt0");

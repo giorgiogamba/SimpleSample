@@ -55,10 +55,10 @@ class Model { ///TESTING COMPLETED
     "assets/sounds/Snare.wav",
   ];
 
-  List<String> _documentsFile = [];
+  List<String> _documentsFile = []; //files contained into "Documents" folder
 
   Model.internal() {
-    print("Inizializzazione model");
+    print("*** Model Initialization ***");
     initModel();
   }
 
@@ -69,22 +69,19 @@ class Model { ///TESTING COMPLETED
   //Called during initialization
   initModel() async {
     _records = HashMap();
-    //this._counter = 0;
     initCounter();
     this._docPath = await getDocFilePath();
     if (Platform.isAndroid) {
       this._extDocPath = await getExternalStorageDoc();
     }
-    print("DOCPATH: "+this._docPath);
     this._bpm = 60;
-
     writeAssetsIntoFilesystem();
-
     loadDocumentsFile();
 
-    print("*************** INIZIALIZZAZIONE MODELLO COMPLETATA ***********");
+    print("*** Model Initialization completed ***");
   }
 
+  ///Associates Record "newRecord" to the position "index"
   void addRecord(Record newRecord, int index) { ///TESTED
     //Adding User's Unique ID
     User? currentUser = this.getUser();
@@ -92,7 +89,6 @@ class Model { ///TESTING COMPLETED
       newRecord.setRecordOwnerID(currentUser.uid);
     }
     _records[index] = newRecord;
-    print("addRecord: added new record to: " + newRecord.getUrl());
   }
 
   Record? getRecordAt(int index) { ///TESTED
@@ -102,40 +98,40 @@ class Model { ///TESTING COMPLETED
     return _records[index];
   }
 
-  String getExtDocPath() {
+  String getExtDocPath() { ///OK
     return this._extDocPath;
   }
 
-  String getDocPath() {
+  String getDocPath() { ///OK
     return this._docPath;
   }
 
-  int getBPM() {
+  int getBPM() { ///OK
     return this._bpm;
   }
 
-  void setBPM(int newBPM) {
+  void setBPM(int newBPM) { ///OK
     this._bpm = newBPM;
   }
 
-  User? getUser() {
+  User? getUser() { ///OK
     return _user;
   }
 
-  void setUser(User newUser) {
-    print("*********** MODEL: nuovo UTENTE IMPOSTATO ************");
+  void setUser(User newUser) { ///OK
     this._user = newUser;
     this.auth.value = true;
     setOwnerID();
   }
 
-  void clearUser() {
+  ///Cleans all user's info from model
+  void clearUser() { ///OK
     _user = null;
     this.auth.value = false;
     this._googleAccount = null;
   }
 
-  bool isUserConnected() {
+  bool isUserConnected() { ///OK
     if (_user == null) {
       return false;
     } else {
@@ -143,12 +139,13 @@ class Model { ///TESTING COMPLETED
     }
   }
 
-  void printUserInfos() {
+  void printUserInfos() {  ///OK
     print("USER IN MODEL INFOS:");
     print(_user?.email);
     print(_user?.displayName);
   }
 
+  ///Returns a new path for tbe record to  be recorded
   String getNewPath() { ///TESTED
     this._counter ++;
     String path = "";
@@ -174,6 +171,7 @@ class Model { ///TESTING COMPLETED
     return dir!.absolute.path;
   }
 
+  ///Returns a list of elements contained into "Documents" folder
   List<String> getDirElementsList() {
     List<String> res = [];
     var dir = new Directory(this._docPath);
@@ -187,8 +185,8 @@ class Model { ///TESTING COMPLETED
     return res;
   }
 
-  ///Takes all the audio files into the externalDir
-  List<String> getExtDirElementsList() {
+  ///Returns a list of elements contained into external folder
+  List<String> getExtDirElementsList() { ///TESTED
     List<String> res = [];
     var dir = Directory(this._extDocPath);
     List temp = dir.listSync();
@@ -210,23 +208,24 @@ class Model { ///TESTING COMPLETED
     return res;
   }
 
-  String getStorageUploadPath() {
+  String getStorageUploadPath() { ///OK
     return this._storageUploadPath;
   }
 
-  GoogleSignInAccount? getGoogleSignInAccount() {
+  GoogleSignInAccount? getGoogleSignInAccount() { ///OK
     return this._googleAccount;
   }
 
-  void setGoogleSignInAccount(GoogleSignInAccount? account) {
+  void setGoogleSignInAccount(GoogleSignInAccount? account) { ///OK
     this._googleAccount = account;
   }
 
-  String createCloudStoragePath(String recordName) {
-    //Non eseguo un controllo sulll'user perchè se uso questo comando è perchè l'utente è sicuramente connesso
+  ///Returns a new cloud storage path
+  String createCloudStoragePath(String recordName) { ///TESTED
     return this.getStorageUploadPath() + "/" + this.getUser()!.uid.toString() + "/" + recordName;
   }
 
+  ///Returns the record with the given path into records map
   Record? getRecordWithPath(String path) { ///TESTED
     for (Record r in _records.values) {
       print(r.getUrl());
@@ -237,15 +236,15 @@ class Model { ///TESTING COMPLETED
     return null;
   }
 
-  String getFilesPath() {
+  String getFilesPath() { ///OK
     return this._extDocPath+"/files/";
   }
 
-  List<String> getTagsList() {
+  List<String> getTagsList() { ///OK
     return this._tagsList;
   }
 
-  String getTagAt(int index) {
+  String getTagAt(int index) { ///OK
     return this._tagsList[index];
   }
 
@@ -258,8 +257,7 @@ class Model { ///TESTING COMPLETED
     }
   }
 
-  Future<void> renameRecord (int index, String name) async {
-    print("Rename record");
+  Future<void> renameRecord (int index, String name) async { ///TESTED
     Record? toRename = getRecordAt(index);
     if (toRename != null) {
       File toRenameFile = File (toRename.getUrl());
@@ -268,30 +266,32 @@ class Model { ///TESTING COMPLETED
       toRename.setUrl(updatedFile.path);
       toRename.extractFilename();
     } else {
-      print("The record to rename is null");
+      print("Model -- renameRecord: The record to rename is null");
     }
 
   }
 
-  Future<File> changeFileNameOnly(File file, String newFileName) {
+  ///Changes filename of the given file
+  Future<File> changeFileNameOnly(File file, String newFileName) { ///TESTED
     var path = file.path;
     var lastSeparator = path.lastIndexOf(Platform.pathSeparator);
     var newPath = path.substring(0, lastSeparator + 1) + newFileName;
     return file.rename(newPath);
   }
 
-  void setDeviceToken(String token) {
+  void setDeviceToken(String token) { ///OK
     this._deviceToken = token;
   }
 
-  String getDeviceToken() {
+  String getDeviceToken() { ///OK
     return this._deviceToken;
   }
 
-  List<String> getAssets() {
+  List<String> getAssets() { ///OK
     return this._assets;
   }
 
+  ///Takes the assets contained into the application and write it into device filesystem
   void writeAssetsIntoFilesystem() async {
     for (int i = 0; i < this._assets.length; i ++) {
       final encryptedByteData = await rootBundle.load(this._assets[i]);
@@ -308,14 +308,15 @@ class Model { ///TESTING COMPLETED
     }
   }
 
-  ValueNotifier getAuth() {
+  ValueNotifier getAuth() { ///OK
     return this.auth;
   }
 
-  int getCounter() {
+  int getCounter() { ///OK
     return this._counter;
   }
 
+  ///Takes "counter" variable to 0 also into shared preferences
   void initCounter() async {
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     sharedPreferences.getInt("counter");
@@ -328,13 +329,14 @@ class Model { ///TESTING COMPLETED
     }
   }
 
+  ///Sets new "counter" value into shared preferences
   void updateSharedPreferences() async {
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     sharedPreferences.setInt("counter", this._counter);
   }
 
 
-  String getPersonalPath (String filename){
+  String getPersonalPath (String filename){ ///TESTED
     String newPath = "";
     if (Platform.isAndroid) {
       newPath = this._extDocPath + "/" + filename;
@@ -344,10 +346,11 @@ class Model { ///TESTING COMPLETED
     return newPath;
   }
 
-  List<String> getDocumentsFile() {
+  List<String> getDocumentsFile() { ///OK
     return this._documentsFile;
   }
 
+  ///Loads elements from "Documents" folder to _documentsFile list
   void loadDocumentsFile() {
     print("Loading Documents folder files...");
     //Filling
@@ -368,8 +371,8 @@ class Model { ///TESTING COMPLETED
     }
   }
 
-  //Sets the user ID to the records already present into the application
-  void setOwnerID() {
+  ///Sets the user ID to the records already present into the application
+  void setOwnerID() { ///OK
     for (Record r in this._records.values) {
       r.setRecordOwnerID(this._user!.uid);
     }

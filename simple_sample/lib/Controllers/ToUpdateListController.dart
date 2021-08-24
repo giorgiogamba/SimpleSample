@@ -3,10 +3,12 @@ import 'package:simple_sample/Controllers/GoogleDriveController.dart';
 import '../Models/Model.dart';
 import '../Models/Record.dart';
 
+///Class tha managed Upload Dialog using Drive
+
 class ToUpdateListController{
 
-  List<Record> _selectedElements = [];
-  List<Record> _elements = [];
+  List<Record> _selectedElements = []; //List of elements to be loaded
+  List<Record> _elements = []; //List of all the records into the default folder
 
   static final ToUpdateListController _instance = ToUpdateListController._internal();
 
@@ -17,45 +19,42 @@ class ToUpdateListController{
   }
 
   //Checks of user is logged in
-  bool checkIfLoggedIn() {
+  bool checkIfLoggedIn() { ///OK
     return Model().isUserConnected();
   }
 
-  void getElementsList() {
+  void getElementsList() { ///OK
     this._elements =  Model().getAllCurrentRecords();
-    print("ToUpdateListController: numero tot elmeenti: ${this._elements.length}");
   }
 
-  void addElement(int index) {
+  void addElement(int index) { ///OK
     this._selectedElements.add(this._elements[index]);
   }
 
-  void removeElement(int index) {
+  void removeElement(int index) {  ///OK
     this._selectedElements.remove(index);
   }
 
+  ///Uploads all the elements into the folder
   void uploadSelectedElements() {
-    print("Method upoadSelectedElements -- Elements to be uploaded: ");
     for (int i = 0; i < this._selectedElements.length; i ++) {
-      this._selectedElements[i].printRecordInfo();
-      //CloudStorageController().uploadRecord(this._selectedElements[i]);
       GoogleDriveController().upload(this._selectedElements[i]);
     }
   }
 
-  int getElementsListLength() {
+  int getElementsListLength() { ///OK
     return this._elements.length;
   }
 
-  Record getElementAt(int index) {
+  Record getElementAt(int index) { ///OK
     return this._elements[index];
   }
 
-  int getSelectedElementsListLength() {
+  int getSelectedElementsListLength() { ///OK
     return this._selectedElements.length;
   }
 
-  void playRecord(String URL) {
+  void playRecord(String URL) { ///OK
     AudioController().playAtURL(URL);
   }
 

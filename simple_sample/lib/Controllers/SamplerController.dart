@@ -36,7 +36,7 @@ class SamplerController {
   }
 
   ///Picks up an audio file from a filesystem and then saves it into the samples' location
-  Future<String?> pickFile() async {
+  Future<String?> pickFile() async { ///OK
     List<String> ext = ["wav", "mp3", "aac", "m4a"];
     FilePickerResult? result = await FilePicker.platform.pickFiles(type: FileType.custom, allowedExtensions: ext);
     if (result != null) {
@@ -46,10 +46,9 @@ class SamplerController {
     return "";
   }
 
-  ///Utility method that moves the file to the samples' location
+  ///Utility method that moves the file to default samples' location
   String moveFile(String path) {
-    //Reading original file
-    Uint8List readOriginalFile = File(path).readAsBytesSync();
+    Uint8List readOriginalFile = File(path).readAsBytesSync(); //Reading original file
 
     //Creating new path
     var splitted = path.split("/");
@@ -61,39 +60,36 @@ class SamplerController {
       newPath = Model().getDocPath() + "/" + filename;
     }
 
-
     //Writing read file in a file in the correct location
     File(newPath).writeAsBytesSync(readOriginalFile, mode: FileMode.write, flush:true);
-
-    //Deleting old file
-    File(path).deleteSync();
+    File(path).deleteSync(); //Deleting old file
 
     return newPath;
   }
 
   ///Item selection
-  bool isEnabledItemSelection() {
+  bool isEnabledItemSelection() { ///OK
     return this._selectAnItem;
   }
 
-  void enableItemSelection() {
+  void enableItemSelection() { ///OK
     this._selectAnItem = true;
   }
 
-  void disableItemSelection() {
+  void disableItemSelection() { ///OK
     this._selectAnItem = false;
   }
 
   ///SELECTED URL
-  void setSelectedURL(String newURL) {
+  void setSelectedURL(String newURL) { ///OK
     this._selectedURL = newURL;
-    print("Selected URL vale: "+this._selectedURL);
   }
 
-  void resetSelectedURL() {
+  void resetSelectedURL() { ///OK
     this._selectedURL = "";
   }
 
+  ///Connects a given button (index) to the selected record this._selectedURL
   void associateFileToButton(int index) {
     Record newRecord = Record(this._selectedURL);
     User? user = Model().getUser();
@@ -105,10 +101,12 @@ class SamplerController {
     print("SamplerController -- associate File to button \n ${newRecord.getUrl()} -- ${newRecord.getPosition()}");
   }
 
-  bool checkIsButtonIsFull(int index) {
+  ///Returns true iff a record is associated to the button
+  bool checkIsButtonIsFull(int index) { ///OK
     return Model().isButtonFull(index);
   }
 
+  ///Returns button name, that can ben the default one or the sample one
   String getButtonName(int index) { ///TESTED
     Record? record = Model().getRecordAt(index);
     if (record != null) {
@@ -119,30 +117,30 @@ class SamplerController {
   }
 
   ///RENAMING
-  bool isRenameRunning() {
+  bool isRenameRunning() { ///OK
     return this._renameRunning;
   }
 
-  void enableRenaming(BuildContext context) {
+  void enableRenaming(BuildContext context) { ///OK
     _operationInformationText = Languages.of(context)!.renameInstructionsName;
     this._renameRunning = true;
   }
 
-  void disableRenaming() {
+  void disableRenaming() { ///OK
     _operationInformationText = "";
     this._renameRunning = false;
   }
 
-  TextEditingController getTextEditingController() {
+  TextEditingController getTextEditingController() { ///OK
     return this._textEditingController;
   }
 
-  void setSelectedItemForRename(int index) {
+  void setSelectedItemForRename(int index) { ///OK
     this._selectedItemForRename = index;
   }
 
   ///Returns true iff record at position index has non-null filename
-  bool isRenamePossible(int index) {
+  bool isRenamePossible(int index) { ///OK
     Record? record = Model().getRecordAt(index);
     if (record != null) {
       if(record.getFilename() != null) {
@@ -153,100 +151,99 @@ class SamplerController {
     return false;
   }
 
-  Future<void> renameRecord() async {
+  Future<void> renameRecord() async { ///OK
     if (this._selectedItemForRename != null) {
       await Model().renameRecord(this._selectedItemForRename!, _textEditingController.text);
       _textEditingController.text = ""; //resetting TextEditingController
     } else {
-      print("Item selected is null");
+      print("SamplerController -- renameRecord: Item selected is null");
     }
   }
 
-  bool getRenameSubmitted() {
+  bool getRenameSubmitted() { ///OK
     return this._renameSubmitted;
   }
 
-  void setRenameSubmitted(bool value) {
+  void setRenameSubmitted(bool value) { ///OK
     this._renameSubmitted = value;
   }
 
   ///SHARING
-  void enableSharing(BuildContext context) {
+  void enableSharing(BuildContext context) { ///OK
     _operationInformationText = Languages.of(context)!.shareInstructionsName;
     this._isSharingRunning = true;
   }
 
-  void disableSharing() {
+  void disableSharing() { ///OK
     _operationInformationText = "";
     this._isSharingRunning = false;
   }
 
-  bool isSharingRunning() {
+  bool isSharingRunning() { ///OK
     return this._isSharingRunning;
   }
 
-  void setSelectedItemForSharing(int index) {
+  void setSelectedItemForSharing(int index) { ///OK
     this._selectedItemForSharing = index;
   }
 
-  Record? getSelectedItemForSharing(int index) {
+  Record? getSelectedItemForSharing(int index) { ///OK
     return Model().getRecordAt(index);
   }
 
   ///SAMPLER INFORMATION BOX
-  String getOperationInformationText() {
+  String getOperationInformationText() { ///OK
     return this._operationInformationText;
   }
 
-  void setOperationInformationTxt(String text) {
+  void setOperationInformationTxt(String text) { ///OK
     this._operationInformationText = text;
   }
 
   ///LOADING
-  void enableLoading() {
+  void enableLoading() { ///OK
     this._isLoadingRunning = true;
   }
 
-  void disableLoading() {
+  void disableLoading() { ///OK
     this._isLoadingRunning = false;
   }
 
-  bool isLoadingRunning() {
+  bool isLoadingRunning() { ///OK
     return this._isLoadingRunning;
   }
 
   ///ASSETS
-  void loadAssets() {
+  void loadAssets() { ///OK
     this._assets = Model().getAssets();
   }
 
-  String getAssetAt(int index) {
+  String getAssetAt(int index) { ///OK
     return this._assets[index];
   }
 
-  int getAssetsLength() {
+  int getAssetsLength() { ///OK
     return this._assets.length;
   }
 
-  bool checkIfGoogleConnected() {
+  bool checkIfGoogleConnected() { ///OK
     if (Model().getGoogleSignInAccount() == null) {
       return false;
     }
     return true;
   }
 
-  //DOCUMENTS FOLDER FILES
-  Future<void> loadDocumentsFile() async {
+  ///DOCUMENTS FOLDER FILES
+  Future<void> loadDocumentsFile() async { ///OK
     Model().loadDocumentsFile();
     this._documentsFile = Model().getDocumentsFile();
   }
 
-  String getDocumentFileAt(int index) {
+  String getDocumentFileAt(int index) { ///OK
     return this._documentsFile[index];
   }
 
-  int getDocumentsFileLength() {
-    print("****LUNGHEZZAAAA: ${this._documentsFile.length}");
+  int getDocumentsFileLength() { ///OK
     return this._documentsFile.length;
   }
 

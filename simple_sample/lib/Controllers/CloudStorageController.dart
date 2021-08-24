@@ -8,7 +8,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 
 ///Class representing FirebaseStorage Controller
 ///This controller manages all data globally saved and shared between users
-///NB It is different from personal cloud storage
 
 class CloudStorageController {
 
@@ -25,14 +24,11 @@ class CloudStorageController {
   }
 
   void initCloudStorageController() {
-
-    rootRef = FirebaseStorage.instance.ref(); //nessun aegomento fornito, pe cui punta alla root dello storage bucket
-
+    rootRef = FirebaseStorage.instance.ref(); //poiting to the root storage bucket
     print("CloudStorageController initialization completed");
   }
 
-  //Method which shows all the elements in the bucket
-  //se questo metodo ritorna in troppo tempo, usare list() con un limite massimo
+  ///Shows all the elements into the bucket
   Future<void> listAllElements() async {
     ListResult res = await rootRef!.listAll();
     res.items.forEach((Reference ref) {
@@ -40,46 +36,33 @@ class CloudStorageController {
     });
   }
 
-  Future<void> downloadURL(String dataString) async {
-    //NB dataString ha una struttura del tipo ("Users/123/avatar.jpg")
-    String downloadURL = await FirebaseStorage.instance.ref(dataString).getDownloadURL();
-
-    print("*************** Download URL prelevato vale: "+downloadURL);
-  }
-
-  //prefixes == directories, items == files
-  Future<List<Record>> getOnlineRecords() async {
+  ///Returns a list of all the elements present into the Firebase Storage
+  Future<List<Record>> getOnlineRecords() async { ///TESTED
     List<Record> records = [];
 
     //Getting reference to uploads folder
     Reference? uploadsRef = rootRef?.child("shared");
     ListResult? uploadsChilds = await uploadsRef!.listAll();
 
-    //Pre ognuna delle cartelle dei vari utenti
+    //For each user folder
     for (var element in uploadsChilds.prefixes) {
 
       print("Analyzing directory: "+element.name);
-      //Prelevo gli elementi contenuti nella cartella
       List<Record> elementChildsRecords = await getElementsIntoDirectory(element);
       records = new List.from(records)..addAll(elementChildsRecords);
     }
-
     return records;
   }
 
-  Future<void> getDirectoryURL() async {
-    print("Metodo getDirectory URL");
-    Reference? ref = rootRef?.child("uploads");
-    print("ref vale; "+ref.toString());
-    // await ref?.getDownloadURL(); //todo problemi nel ricavare questo URL
-  }
-
+  ///Returns a list of records present into directory "ref"
   Future<List<Record>> getElementsIntoDirectory(Reference ref) async {
     List<Record> records = [];
     ListResult elementRes = await ref.listAll();
     for (var element in elementRes.items) {
 
       String temp = await element.getDownloadURL();
+
+      //Building up a Record object
       Record newRec = Record(temp);
       newRec.setRecordOwnerID(getOwnerID(element.fullPath));
       newRec.setFilename(element.name);
@@ -87,53 +70,27 @@ class CloudStorageController {
       //Getting files metadata and adding tags to the new record
       FullMetadata metadata = await element.getMetadata();
       String tags = metadata.customMetadata!["tags"]!;
-
-      //Deparsing tags
       List<String> tagsList = tags.split("|");
       for (int i = 0; i < tagsList.length; i ++) {
         newRec.addNewTag(tagsList[i]);
       }
 
       //Adding downloads number
-      if (metadata.customMetadata == null) {
-        print("+++++++++ NULLO"); //non ci arriva
-      }
       newRec.setDownloadsNumber(int.parse(metadata.customMetadata!["downloads"]!));
-
       records.add(newRec);
     }
     return records;
   }
 
-  String getOwnerID(String path) {
+  ///Returns owner's ID from "path"
+  String getOwnerID(String path) { ///TESTED
     var splitted = path.split("/");
     //into the position we have: uploads, uniqueid, samplename
     return splitted[1];
   }
 
-  //Todo cancellare quando finiti i test
-  //Uploads record to the cloud storage
-  /*Future<void> upload(/*Record record*/ String? path) async {
-    //String recURL = record.getUrl(); //absolute path
-
-    //var splitted = recURL.split("/");
-    var splitted = path!.split("/");
-    String uploadPath = Model().createCloudStoragePath(splitted[splitted.length-1]);
-
-
-    //File toUpload = File(recURL);
-
-    File toUpload = File (path); //al posto di path ci dovrà essere l'indirizzo assoluto del campione
-
-    try {
-      await FirebaseStorage.instance.ref(uploadPath).putFile(toUpload);
-    } on FirebaseException catch (e) {
-      print(e.toString());
-    }
-  }*/
-
-  //Uploads record to the cloud storage
-  Future<void> uploadRecord(Record record) async {
+  ///Uploads record to the cloud storage
+  Future<void> uploadRecord(Record record) async { ///TESTED
     String recURL = record.getUrl(); //absolute path
     var splitted = recURL.split("/");
 
@@ -151,19 +108,11 @@ class CloudStorageController {
     }
   }
 
-  /*Future<void> download() async { //FUNZIONANTE
-    File newFile = File(Model().getExtDocPath()+"download_ex.wav");
-    try {
-      await FirebaseStorage.instance.ref("uploads/example.wav").writeToFile(newFile);
-    } on FirebaseException catch (e) {
-      print(e.toString());
-    }
 
-    print("FIne esecuzione metodo download");
-  }*/
+  ///Downloads a record from the cloud storage creating a new file
+  void downloadRecord(Record record) async { ///TESTED
 
-  void downloadRecord(Record record) async {
-    print("CloudStorageController -- downloadRecord method");
+    //Creating a new path
     var splitted = record.getFilename().split(".");
     String newURL = "";
     if (Platform.isAndroid) {
@@ -217,11 +166,11 @@ class CloudStorageController {
     }
   }
 
-  String updateDownloadNumber(String? oldNumber) {
+  ///Upgrades +1 the number in the string as parameter
+  String updateDownloadNumber(String? oldNumber) { ///TESTED
     if (oldNumber != null) {
       int parsed = int.parse(oldNumber);
       parsed ++;
-      print("**************** PARSED: ${parsed}");
       return parsed.toString();
     } else {
       print("CloudStorageController -- updateDownloadNummber: aegument is null, returnin \"\"");
@@ -229,17 +178,18 @@ class CloudStorageController {
     }
   }
 
-  Future<bool> shareRecord(Record toUpload, List<String> tags, String newName) async {
+  ///Uploads record into Cloud Storage with given metadatas
+  Future<bool> shareRecord(Record toUpload, List<String> tags, String newName) async { ///TESTED
 
-    File file = File(toUpload.getUrl());
+    File file = File(toUpload.getUrl()); //Creating an object poiting to the audio file
 
-    String parsedtags = parseTags(tags);
+    String parsedtags = parseTags(tags); //parsing tags as a unique string
     String owner = "";
     User? user = Model().getUser();
     if (user != null) {
       owner = user.uid;
 
-      // Create your custom metadata.
+      // Creating custom metadats
       SettableMetadata metadata = SettableMetadata(
         customMetadata: <String, String>{
           "tags" : parsedtags,
@@ -254,21 +204,18 @@ class CloudStorageController {
       }
 
       try {
-        // Pass metadata to any file upload method e.g putFile.
+        //Uploading file with given metadats
         await FirebaseStorage.instance.ref('shared/'+user.uid.toString()+"/"+newName+".wav").putFile(file, metadata);
-        //await updateAllUsersField("toUpdateExplorer", true.toString());
-        //await updateUserField("toUpdateUserPage", true.toString());
         return true;
       } on FirebaseException catch (e) {
-        print("share Record exception");
-        print(e.toString());
+        throw ("Share Record: expection during record upload on cloud storage");
       }
-
     }
     return false;
   }
 
-  Future<bool> removeFromSharedSamples(Record record) async {
+  ///Removes given record from shared group
+  Future<bool> removeFromSharedSamples(Record record) async { ///TESTED
 
     User? user = Model().getUser();
     String recordName = record.getFilename();
@@ -277,22 +224,20 @@ class CloudStorageController {
 
       try {
         String path = 'shared/'+user.uid.toString()+"/"+recordName;
-        print("***** PERCORSO DA ELIMINARE; ${path}");
-        await FirebaseStorage.instance.ref(path).delete();
+        await FirebaseStorage.instance.ref(path).delete(); //Deleting file from cloud storage
         return true;
       } on FirebaseException catch (e) {
-        print("share Record exception");
-        print(e.toString());
+        throw("Remove from Shared Samples: error during record delete from shared group");
       }
 
     } else {
       print("CloudStorageController -- removeFromSharedSamples: user is null");
     }
-
     return false;
   }
 
-  String parseTags(List<String> tags) {
+  ///Given a list o tags, creates a unique string containing all of the them separated by a comma
+  String parseTags(List<String> tags) { ///TESTED
     String res = "";
     if (tags.length > 0) {
       for (int i = 0; i <= tags.length - 2; i ++) {
@@ -303,54 +248,50 @@ class CloudStorageController {
     return res;
   }
 
-  Future<List<Record>> downloadUserSharedRecords() async {
-    print("CloudStorageController -- downloadUserSharedRecords");
+  ///RDownloads record shared from current user to the platform
+  Future<List<Record>> downloadUserSharedRecords() async { ///TESTED
     User? user = Model().getUser();
     if (user != null) {
-
       String sharedDirectoryPath = "shared/"+user.uid.toString()+"/";
       Reference sharedDirectoryRef = FirebaseStorage.instance.ref(sharedDirectoryPath);
       List<Record> sharedRecords = await getElementsIntoDirectory(sharedDirectoryRef);
       return sharedRecords;
+    } else {
+      print("*** CloudStorageController -- downloadUserSharedRecords: Unable to download: current user is null ***");
     }
-    print("Sto ritornando con utente scollegato");
     return [];
   }
 
-  Future<void> uploadProfileImage(String imagePath) async {
+  ///Uploads to storage controller a new profile image
+  Future<void> uploadProfileImage(String imagePath) async { ///TESTED
     User? user = Model().getUser();
     if (user != null) {
-
-      File toUpload = File(imagePath);
-
+      File toUpload = File(imagePath); //Getting reference to the image to be uploaded
       String userID = user.uid;
       String uploadPath = "profiles/"+userID+"/profile_picture.jpeg";
 
       try {
+        //uploading image
         await FirebaseStorage.instance.ref(uploadPath).putFile(toUpload);
       } on FirebaseException catch (e) {
         print(e.toString());
       }
 
     } else {
-      print("User is not logged in");
+      print("*** CloudStorageController -- uploadProfileImage: Unable to upload new image: current user is null ***");
     }
-
   }
 
-  //Downloads firebase image profile
-  //Called when user is logged in
-  Future<String?> downloadProfileImage() async {
-
+  ///Downloads user's profile image
+  Future<String?> downloadProfileImage() async { ///TESTED
     User? user = Model().getUser();
     if (user != null) {
       String imageCloudPath = "profiles/"+user.uid+"/profile_picture.jpeg";
-
       String downloadedPath = Model().getExtDocPath() + "firebase_profile_picture.jpeg";
       File downloadedImage = File(downloadedPath);
 
       try {
-        Reference imageRef = FirebaseStorage.instance.ref(imageCloudPath); //todo gestire se la reference è nulla
+        Reference imageRef = FirebaseStorage.instance.ref(imageCloudPath);
         await imageRef.writeToFile(downloadedImage);
         return downloadedPath;
       } on FirebaseException catch (e) {
@@ -361,10 +302,9 @@ class CloudStorageController {
     return null;
   }
 
-  void getUserInfos() async {
+  void getUserInfos() async { ///OK
     User? currentUser = Model().getUser();
     if (currentUser != null) {
-
       String uid = currentUser.uid;
       CollectionReference usersDoc = FirebaseFirestore.instance.collection('users');
       DocumentSnapshot currentUserDoc = await usersDoc.doc("uid").get();
@@ -372,18 +312,16 @@ class CloudStorageController {
       String assignedDownloads = currentUserDoc.get("downloads").toString();
       print("CloudStorageController -- getUserInfos -- "+assignedDownloads);
 
-
     } else {
       print("CloudStorageController -- getUserInfos -- User is not logged in");
     }
-
   }
 
   ///Adds record to user's favourites into firestore
-  Future<void> addToFavourites(Record record) async {
+  Future<void> addToFavourites(Record record) async { ///TESTED
     DocumentReference userDocRef = FirebaseFirestore.instance.collection("users").doc(Model().getUser()!.uid);
     CollectionReference favCollRef = userDocRef.collection("favourites");
-    //By now, I'm uploading favourites with the path "[filename - ownerID]"
+    //Uploading favourites with the path "[filename - ownerID]"
     String path = record.getFilename() + " - " + record.getRecordOwnerID();
 
     //If it doesn't exist, creates a new document
@@ -396,52 +334,42 @@ class CloudStorageController {
         "url": record.getUrl(),
       }).then((value) {
         print("CloudStorage -- Record saved into favourites");
-
-        //Updating user's data
-        /*String ownerID = record.getRecordOwnerID();
-        if (ownerID != "") {
-          upgradeDownloads(ownerID);
-        } else {
-          print("CloudStorageController -- Unable to update downloads number because pwner ID is not defined");
-        }*/
       });
     } else {
       print("CloudStorageController -- addtoFavourited:; Unable to save record into favourites");
-      //Quando si arriva qua è perchè probabilmente è già statp salvato --> cambiar stato
     }
   }
 
 
-  Future<void> removeFromFavourites(Record record) async {
+  Future<void> removeFromFavourites(Record record) async { ///TESTED
     DocumentReference userDocRef = FirebaseFirestore.instance.collection("users").doc(Model().getUser()!.uid);
     CollectionReference favCollRef = userDocRef.collection("favourites");
     String path = record.getFilename() + " - " + record.getRecordOwnerID();
     favCollRef.doc(path).delete().then((value) => print("Delete completed"));
   }
 
-  Future<void> upgradeDownloads(String ownerID) async {
+  ///Upgrades downalods number +1
+  Future<void> upgradeDownloads(String ownerID) async { ///TESTED
     DocumentReference userDocRef = FirebaseFirestore.instance.collection("users").doc(ownerID);
     DocumentSnapshot snap = await userDocRef.get();
 
     if (snap.exists) {
       int newValue = snap.get("nDownloads") + 1;
-      //Setting up new value
-      userDocRef.update({"nDownloads": newValue}).then((value) => print("nDownloads updated"));
+      userDocRef.update({"nDownloads": newValue}).then((value) => print("nDownloads updated")); //Setting up the new value
     } else {
-      print("CloudStorageController -- upgradeDownalods -- snaposht doesn't exist");
+      print("CloudStorageController -- upgradeDownalods -- snapshot doesn't exist");
     }
   }
 
-  Future<int> getDownloadsNumber() async {
+  ///Return user's number of downloads taken from Cloud Storage for the given user's ID
+  Future<int> getDownloadsNumber() async { ///TESTED
     User? user = Model().getUser();
     if (user != null) {
-
       DocumentReference userDocRef = FirebaseFirestore.instance.collection("users").doc(user.uid);
       DocumentSnapshot snap = await userDocRef.get();
       if (snap.exists) {
         return snap.get("nDownloads");
       }
-
     } else {
       print("CloudStorageController -- getDownloadsNumber -- user is null");
     }
@@ -449,7 +377,7 @@ class CloudStorageController {
   }
 
   ///Gets from the DB all the user's favourites and returns a list of all the queried urls
-  Future<List<Record>> getFavouritesFromDB() async {
+  Future<List<Record>> getFavouritesFromDB() async { ///TESTED
     List<Record> records = [];
 
     User? currentUser = Model().getUser();
@@ -462,37 +390,35 @@ class CloudStorageController {
 
       List<QueryDocumentSnapshot> docList = favSnap.docs;
       for (int i = 0; i < docList.length; i ++) {
-
         //Composing record
         Record newRecord = Record(docList[i].get("url").toString());
-        //Dividing filename and owner
-        var splitted = docList[i].id.split(" - ");
+        var splitted = docList[i].id.split(" - "); //Dividing filename and owner
         newRecord.setFilename(splitted[0]);
         newRecord.setRecordOwnerID(splitted[1]);
         records.add(newRecord);
       }
 
     } else {
-      print("CloudStorageController -- getFavpuritesFromDB -- user is not logged in, returning empty list");
+      print("CloudStorageController -- getFavouritesFromDB -- user is not logged in, returning empty list");
     }
 
     return records;
   }
 
   ///Sets up new username in firebase
-  Future<void> setUsername(String newUsername) async {
+  Future<void> setUsername(String newUsername) async { ///TESTED
     User? user = Model().getUser();
     if (user != null) {
       CollectionReference usersDoc = FirebaseFirestore.instance.collection('users');
       usersDoc.doc(user.uid).update({"username":newUsername})
           .then((value) => print("CloudStorageController: username correctly updated"));
     } else {
-      print("CloudStorageController -- setUsername: user nullo, utente non collegato");
+      print("CloudStorageController -- setUsername: user is null");
     }
   }
 
   ///Gets personal username from firebase
-  Future<String> getUsername() async {
+  Future<String> getUsername() async { ///TESTED
     String res = "";
     User? user = Model().getUser();
     if (user != null) {
@@ -503,7 +429,7 @@ class CloudStorageController {
       }
 
     } else {
-      print("CloudStorageController -- getUsername: user nullo, utente non collegato");
+      print("CloudStorageController -- getUsername: user is null");
     }
     return res;
   }
@@ -519,36 +445,6 @@ class CloudStorageController {
       print("CloudStorageController -- deleteUserDocument -- user is null");
     }
   }
-
-  /*///Updates all users' "field" field in firestore
-  ///"field" value can be "toUpdateExplorer" or "ToUpdateUserPage"
-  Future<void> updateAllUsersField(String field, String value) async {
-    QuerySnapshot usersSnap = await FirebaseFirestore.instance.collection("users").get();
-    List<QueryDocumentSnapshot> docsSnap = usersSnap.docs; //contiene tutti gli id degli utenti
-    for (QueryDocumentSnapshot temp in docsSnap) {
-      if (temp.exists) {
-        print(temp.id);
-        FirebaseFirestore.instance.collection("users").doc(temp.id).update({field: value})
-            .then((value) => print("${temp.id} updated"));
-      }
-    }
-  }
-
-  Future<String?> getFieldValue(String field) async {
-    DocumentSnapshot userSnap = await FirebaseFirestore.instance.collection("users").doc(Model().getUser()!.uid).get();
-    if (userSnap.exists) {
-      return userSnap.get(field);
-    } else {
-      return null;
-    }
-  }
-
-  ///Sets to "value" the field "field" for the current user
-  Future<void> updateUserField(String field, String value) async {
-    await FirebaseFirestore.instance.collection("users").doc(Model().getUser()!.uid).update({field: value});
-  }*/
-
-
 }
 
 

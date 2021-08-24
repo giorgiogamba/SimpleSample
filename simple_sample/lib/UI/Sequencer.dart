@@ -57,100 +57,33 @@ class _SequencerState extends State<Sequencer> {
             child: Text("S "+number.toString(), style: TextStyle(color: Colors.white), textAlign: TextAlign.center,),
             color: setContainerRowColor(number),
           ),
-          Container(
-            width: /*40*/ _screenWidth/10.275,
-            child: ElevatedButton(
-              onPressed: () {
-                _sequencerController.manageButtonPress(number, 0);
-                setState(() {});
-              },
-              child: null,
-              style: getSequencerButtonStyle(number, 0),
-            ),
-          ),
-          Container(
-            width: /*40*/ _screenWidth/10.275,
-            child: ElevatedButton(
-              onPressed: () {
-                _sequencerController.manageButtonPress(number, 1);
-                setState(() {});
-              },
-              child: null,
-              style: getSequencerButtonStyle(number, 1),
-            ),
-          ),
-          Container(
-            width: /*40*/ _screenWidth/10.275,
-            child: ElevatedButton(
-              onPressed: () {
-                _sequencerController.manageButtonPress(number, 2);
-                setState(() {});
-              },
-              child: null,
-              style: getSequencerButtonStyle(number, 2),
-            ),
-          ),
-          Container(
-            width: /*40*/ _screenWidth/10.275,
-            child: ElevatedButton(
-              onPressed: () {
-                _sequencerController.manageButtonPress(number, 3);
-                setState(() {});
-              },
-              child: null,
-              style: getSequencerButtonStyle(number, 3),
-            ),
-          ),
-          Container(
-            width: /*40*/ _screenWidth/10.275,
-            child: ElevatedButton(
-              onPressed: () {
-                _sequencerController.manageButtonPress(number, 4);
-                setState(() {});
-              },
-              child: null,
-              style: getSequencerButtonStyle(number, 4),
-            ),
-          ),
-          Container(
-            width: /*40*/ _screenWidth/10.275,
-            child: ElevatedButton(
-              onPressed: () {
-                _sequencerController.manageButtonPress(number, 5);
-                setState(() {});
-              },
-              child: null,
-              style: getSequencerButtonStyle(number, 5),
-            ),
-          ),
-          Container(
-            width: /*40*/ _screenWidth/10.275,
-            child: ElevatedButton(
-              onPressed: () {
-                _sequencerController.manageButtonPress(number, 6);
-                setState(() {});
-              },
-              child: null,
-              style: getSequencerButtonStyle(number, 6),
-            ),
-          ),
-          Container(
-            width: /*40*/ _screenWidth/10.275,
-            child: ElevatedButton(
-              onPressed: () {
-                _sequencerController.manageButtonPress(number, 7);
-                setState(() {});
-              },
-              child: null,
-              style: getSequencerButtonStyle(number, 7),
-            ),
-          ),
+          createSequencerButton(number, 0),
+          createSequencerButton(number, 1),
+          createSequencerButton(number, 2),
+          createSequencerButton(number, 3),
+          createSequencerButton(number, 4),
+          createSequencerButton(number, 5),
+          createSequencerButton(number, 6),
+          createSequencerButton(number, 7),
           Padding(padding: EdgeInsets.symmetric(horizontal: 2)),
         ],
       ),
     );
   }
 
+  Widget createSequencerButton(int number, int index) {
+    return Container(
+      width: /*40*/ _screenWidth/10.275,
+      child: ElevatedButton(
+        onPressed: () {
+          _sequencerController.manageButtonPress(number, index);
+          setState(() {});
+        },
+        child: null,
+        style: getSequencerButtonStyle(number, index),
+      ),
+    );
+  }
 
   Widget buildSequencer() {
     return Center(
@@ -245,10 +178,10 @@ class _SequencerState extends State<Sequencer> {
   }
 }
 
+///Class representing sequencer time position pointer
 class SequencerPointer extends StatelessWidget {
   final ValueListenable<int> number;
 
-  //Costruttore
   SequencerPointer(this.number);
 
   Color takeColor(int index) {
@@ -269,8 +202,14 @@ class SequencerPointer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
 
-    //Getting sceen's size
     double _screenWidth = MediaQuery.of(context).size.width;
+
+    Widget createPointerButton(int index) {
+      return Container(
+        width: /*40*/ _screenWidth/10.275,
+        child: ElevatedButton(onPressed: () {}, child: Text((index+1).toString()), style: getSequencerButtonStyle(index, _screenWidth)),
+      );
+    }
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -279,45 +218,21 @@ class SequencerPointer extends StatelessWidget {
           width: /*40*/ _screenWidth/10.275,
           child: null,
         ),
-        Container(
-          width: /*40*/ _screenWidth/10.275,
-          child: ElevatedButton(onPressed: () {}, child: Text("1"), style: getSequencerButtonStyle(0, _screenWidth)),
-        ),
-        Container(
-          width: /*40*/ _screenWidth/10.275,
-          child: ElevatedButton(onPressed: () {}, child: Text("2"), style: getSequencerButtonStyle(1, _screenWidth)),
-        ),
-        Container(
-          width: /*40*/ _screenWidth/10.275,
-          child: ElevatedButton(onPressed: () {}, child: Text("3"), style: getSequencerButtonStyle(2, _screenWidth)),
-        ),
-        Container(
-          width: /*40*/ _screenWidth/10.275 ,
-          child: ElevatedButton(onPressed: () {}, child: Text("4"), style: getSequencerButtonStyle(3, _screenWidth)),
-        ),
-        Container(
-          width: /*40*/ _screenWidth/10.275,
-          child: ElevatedButton(onPressed: () {}, child: Text("5"), style: getSequencerButtonStyle(4, _screenWidth)),
-        ),
-        Container(
-          width: /*40*/ _screenWidth/10.275,
-          child: ElevatedButton(onPressed: () {}, child: Text("6"), style: getSequencerButtonStyle(5, _screenWidth)),
-        ),
-        Container(
-          width: /*40*/ _screenWidth/10.275,
-          child: ElevatedButton(onPressed: () {}, child: Text("7"), style: getSequencerButtonStyle(6, _screenWidth)),
-        ),
-        Container(
-          width: /*40*/ _screenWidth/10.275,
-          child: ElevatedButton(onPressed: () {}, child: Text("8"), style: getSequencerButtonStyle(7, _screenWidth)),
-        ),
+        createPointerButton(0),
+        createPointerButton(1),
+        createPointerButton(2),
+        createPointerButton(3),
+        createPointerButton(4),
+        createPointerButton(5),
+        createPointerButton(6),
+        createPointerButton(7),
         Padding(padding: EdgeInsets.symmetric(horizontal: 2)),
       ],
     );
   }
 }
 
-
+///Class representing BPM selection box
 class BPMSelector extends StatefulWidget {
 
   final SequencerController controller;
@@ -362,7 +277,7 @@ class _BPMSelectorState extends State<BPMSelector> {
     double _screenWidth = MediaQuery.of(context).size.width;
 
     return GestureDetector(
-        onVerticalDragUpdate: (DragUpdateDetails details) {
+        onVerticalDragUpdate: (DragUpdateDetails details) { //manages drag movement
           if (details.delta.dy > 0) { //To the bottom
             decrement();
           } else if (details.delta.dy < 0){ //to the top
@@ -383,4 +298,3 @@ class _BPMSelectorState extends State<BPMSelector> {
     );
   }
 }
-

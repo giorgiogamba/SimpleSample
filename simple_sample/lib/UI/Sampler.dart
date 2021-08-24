@@ -2,8 +2,6 @@ import 'dart:async';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:simple_sample/Controllers/AudioController.dart';
-import 'package:simple_sample/Controllers/GoogleDriveController.dart';
-import 'package:simple_sample/Controllers/NotificationController.dart';
 import 'package:simple_sample/Controllers/SamplerController.dart';
 import 'package:simple_sample/Controllers/ShareDialogController.dart';
 import 'package:simple_sample/Controllers/ToUpdateListController.dart';
@@ -38,14 +36,11 @@ class _SamplerState extends State<Sampler> {
 
   @override
   void initState() {
-    NotificationController();
-    //GoogleDriveController(); //so I'm sure it's already initialized
 
     _audioController.initRecorder().then((value) {
       //Recording time initialization
       initializeDateFormatting();
-      _recorderSubscription = _audioController.getRecorder().onProgress!.listen((e) {
-        //todo IOS: non viene eseguito il metodo listen -> impedisce di avere il cronometro
+      _recorderSubscription = _audioController.getRecorder().onProgress!.listen((e) { //NOT EXECUTED ON IOS
         var date = DateTime.fromMillisecondsSinceEpoch(e.duration.inMilliseconds, isUtc: true);
         var txt = DateFormat('mm:ss:SS', 'en_GB').format(date);
 
@@ -62,7 +57,7 @@ class _SamplerState extends State<Sampler> {
 
   @override
   void dispose() {
-    print("Dispose sampler");
+    print("*** sampler disposition ***");
     _audioController.disposeRecorder();
     super.dispose();
   }
@@ -87,14 +82,14 @@ class _SamplerState extends State<Sampler> {
   }
 
   MaterialStateProperty<Color?>? getSamplerColor(int index) {
-    if (_samplerController.checkIsButtonIsFull(
-        index)) { //there is a record on this button
+    if (_samplerController.checkIsButtonIsFull(index)) { //there is a record on this button
       return MaterialStateColor.resolveWith((states) => Colors.pink);
     } else {
       return MaterialStateColor.resolveWith((states) => Colors.teal);
     }
   }
 
+  ///Creates a square sampler button
   Widget createButton(int index) {
     return Stack(
       children: [
@@ -110,21 +105,21 @@ class _SamplerState extends State<Sampler> {
           child: ElevatedButton(
             child: Text(Utils.wrapText(Utils.removeExtension(_samplerController.getButtonName(index)), 5)),
             onPressed: () {
-              if (!_samplerController.isEnabledItemSelection()) { //Item selection not enablesd playing record
+              if (!_samplerController.isEnabledItemSelection()) { //Item selection not enabled, playing record
                 _audioController.play(index);
               } else { //Item selection enabled
 
                 if (_samplerController.isLoadingRunning()) { //Loading
                   setState(() {
-                    print("Associating button to record");
+                    print("*** Associating button to record ***");
                     _samplerController.associateFileToButton(index);
                     _samplerController.disableItemSelection();
                     _samplerController.disableLoading();
                     _audioController.enablePlayback();
+                    _samplerController.setOperationInformationTxt("");
                   });
                 } else if (_samplerController.isRenameRunning()) { //Renaming
-                  print("Associating button for renaming");
-
+                  print("*** Associating button for renaming ***");
                   if (_samplerController.isRenamePossible(index)) {
                     _samplerController.setSelectedItemForRename(index);
                     showDialog(
@@ -137,6 +132,7 @@ class _SamplerState extends State<Sampler> {
                         _samplerController.renameRecord().then((value) {
                           _samplerController.disableRenaming();
                           _samplerController.disableItemSelection();
+                          _samplerController.setOperationInformationTxt("");
                           setState(() {});
                         });
                       } else {
@@ -144,6 +140,7 @@ class _SamplerState extends State<Sampler> {
                         setState(() {
                           _samplerController.disableRenaming();
                           _samplerController.disableItemSelection();
+                          _samplerController.setOperationInformationTxt("");
                         });
                       }
                     });
@@ -151,7 +148,7 @@ class _SamplerState extends State<Sampler> {
                     Utils.showToast(context, Languages.of(context)!.cannotSelect);
                   }
                 } else if (_samplerController.isSharingRunning()) { //sharing
-                  print("Associating button for sharing");
+                  print("*** Associating button for sharing ***");
                   setState(() {});
 
                   Record? toShare = _samplerController.getSelectedItemForSharing(index);
@@ -164,11 +161,11 @@ class _SamplerState extends State<Sampler> {
                     ).then((value) {
                       setState(() {
                         _samplerController.disableSharing();
+                        _samplerController.setOperationInformationTxt("");
                       });
                     });
 
                   } else {
-                    print("Sampler -- Share Button -- sleected item is null");
                     Utils.showToast(context, Languages.of(context)!.cannotSelect);
                   }
                 }
@@ -207,10 +204,8 @@ class _SamplerState extends State<Sampler> {
 
   Widget selectSharingButtonName() {
     if (_samplerController.isSharingRunning()) {
-      //return Text("Cancel");
       return Text(Languages.of(context)!.cancelName);
     } else {
-      //return Text("Share");
       return Text(Languages.of(context)!.shareName);
     }
   }
@@ -248,7 +243,7 @@ class _SamplerState extends State<Sampler> {
   }
 
 
-  ///Create a sampler Row
+  ///Creates a sampler Row
   Widget createSamplerRow(int startIndex) {
     List<int> indexes = List.filled(4, 0);
     for (int i = 0; i < indexes.length; i ++) {
@@ -312,7 +307,7 @@ class _SamplerState extends State<Sampler> {
             Padding(padding: EdgeInsets.symmetric(vertical: /*10*/ _screenWidth/41)),
             createSamplerRow(12),
             Padding(padding: EdgeInsets.symmetric(vertical: /*10*/ _screenWidth/41)),
-            Row(
+            Row( //Creates a row of service buttons
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 ElevatedButton(onPressed: () async { //LOAD BUTTON
@@ -334,13 +329,15 @@ class _SamplerState extends State<Sampler> {
                         if (result != null && result != "") {
                           _samplerController.setSelectedURL(result);
                         } else {
-                          throw("ERROR: the selected URL is null");
+                          throw("Sampler -- Loading: the selected URL is null");
                         }
                       });
-                    } //todo forse qua si resette loading
+                    } else {
+                      print("Sampler -- Loading: no element has been selected");
+                    }
 
                   } else {
-                    print("Another operation is running");
+                    print("Sampler -- Loading: Another operation is running");
                   }
                 },
                   child: getLoadButtonName(),
@@ -357,10 +354,9 @@ class _SamplerState extends State<Sampler> {
                         builder: (context) => ToUploadList(),
                       );
                     } else {
-                      print("Another operation is running");
+                      print("Sampler -- Upload on Drive: Another operation is running");
                     }
                   } else {
-                    print("User is not connected");
                     Utils.showToast(context, Languages.of(context)!.userNotConnected);
                   }
                 },
@@ -376,7 +372,6 @@ class _SamplerState extends State<Sampler> {
                           _samplerController.enableItemSelection();
                           _samplerController.enableSharing(context);
                         } else {
-                          //Disabling sharing
                           setState(() {
                             _samplerController.disableSharing();
                             _samplerController.disableItemSelection();
@@ -384,10 +379,9 @@ class _SamplerState extends State<Sampler> {
                         }
                       });
                     } else {
-                      print("Another operation is running");
+                      print("Sampler -- Share: Another operation is running");
                     }
                   } else { //user is not connected
-                    print("User is not connected");
                     Utils.showToast(context, Languages.of(context)!.userNotConnected);
                   }
                 },
@@ -409,7 +403,7 @@ class _SamplerState extends State<Sampler> {
                       });
                     }
                   } else {
-                    print("Another operation is running");
+                    print("Sampler -- Rename: Another operation is running");
                   }
                 },
                   child: selectButtonWidgetChild(),
@@ -424,10 +418,9 @@ class _SamplerState extends State<Sampler> {
 
 }
 
-
+///Class which creates the Sample Sharing Dialog
 class SharingDialog extends StatefulWidget {
 
-  //final SamplerController controller;
   final Record record;
   final Key key;
 
@@ -492,6 +485,7 @@ class _SharingDialogState extends State<SharingDialog> {
   }
 
 
+  ///Creates a list containing oll the listed tags
   Widget makeTagList() {
     return Container(
       width: /*200*/ _screenWidth/2,
@@ -535,7 +529,7 @@ class _SharingDialogState extends State<SharingDialog> {
   }
 }
 
-
+///Represents a Tag list entry
 class TagListButton extends StatefulWidget {
 
   final int item;
@@ -553,6 +547,7 @@ class _TagListButtonState extends State<TagListButton> {
 
   bool isSelected = false;
 
+  //Changes color depending on state
   Color getColor() {
     if (isSelected) {
       return Colors.pink;
@@ -580,7 +575,7 @@ class _TagListButtonState extends State<TagListButton> {
   }
 }
 
-
+///Class representing sample rename dialog
 class RenamePage extends StatelessWidget {
   const RenamePage({Key? key, required this.samplerController}) : super(key: key);
 
@@ -643,7 +638,7 @@ class RenamePage extends StatelessWidget {
   }
 }
 
-
+///Class that represents upload on Drive dialog
 class ToUploadList extends StatefulWidget {
   const ToUploadList({Key? key}) : super(key: key);
 
@@ -663,6 +658,7 @@ class _ToUploadListState extends State<ToUploadList> {
     super.initState();
   }
 
+  ///Returns filename from path
   String parseFilename(String path) {
     var splitted = path.split("/");
     return splitted[splitted.length-1];
@@ -713,7 +709,7 @@ class _ToUploadListState extends State<ToUploadList> {
                 onPressed: () {
                   Navigator.pop(context);
                 },
-                child: /*Text("Cancel")*/ Text(Languages.of(context)!.cancelName),
+                child: Text(Languages.of(context)!.cancelName),
                 style: ButtonStyle(backgroundColor:  MaterialStateColor.resolveWith((states) => Colors.red),),
               ),
               Padding(padding: EdgeInsets.all(_screenWidth/82)),
@@ -735,7 +731,7 @@ class _ToUploadListState extends State<ToUploadList> {
   }
 }
 
-
+///Class representing an upload list entry
 class ToUploadItem extends StatefulWidget {
 
   final Key key;
@@ -793,7 +789,7 @@ class _ToUploadItemState extends State<ToUploadItem> {
                 child: Container(
                     width: /*30*/ _screenWidth/13.7,
                     height: /*30*/ _screenWidth/13.7,
-                    child: Align( //se lo seleziono aggiunge il pallino blu
+                    child: Align(
                       alignment: Alignment.centerRight,
                       child: Padding(
                         padding: const EdgeInsets.all(0.0),
@@ -813,7 +809,7 @@ class _ToUploadItemState extends State<ToUploadItem> {
   }
 }
 
-
+///Class representing Loading list dialog
 class LoadingDialog extends StatelessWidget {
 
   final SamplerController controller;
@@ -860,7 +856,7 @@ class LoadingDialog extends StatelessWidget {
             Padding(padding: EdgeInsets.symmetric(vertical: 4)),
             ElevatedButton(
               onPressed: () => Navigator.pop(context, "NO SELECTION"),
-              child: /*Text("Cancel",)*/ Text(Languages.of(context)!.cancelName),
+              child: Text(Languages.of(context)!.cancelName),
               style: ButtonStyle(backgroundColor: MaterialStateProperty.resolveWith((states) => Colors.red),),
             ),
           ],
@@ -870,6 +866,7 @@ class LoadingDialog extends StatelessWidget {
   }
 }
 
+///Class representing Loading Dialog list item
 class LoadingListItem extends StatelessWidget {
 
   final String title;
@@ -889,9 +886,9 @@ class LoadingListItem extends StatelessWidget {
       onTap: () async {
         if (index == 0) { //loading with filepicker
           controller.pickFile().then((value) {
-            Navigator.pop(context, value); //returning selection result di Sampler UUI
+            Navigator.pop(context, value); //returning selection result
           });
-        } else if (index == 1){ //loadinf assets
+        } else if (index == 1){ //loading assets
 
           var result = await showDialog(
             barrierDismissible: false,
@@ -926,7 +923,7 @@ class LoadingListItem extends StatelessWidget {
   }
 }
 
-
+///Class representing assets loading dialog
 class AssetsLoadingDialog extends StatefulWidget {
 
   final SamplerController controller;
@@ -956,7 +953,6 @@ class _AssetsLoadingDialogState extends State<AssetsLoadingDialog> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            //Padding(padding: EdgeInsets.symmetric(vertical: 2)),
             Text("Select an asset to Load", style: TextStyle(color: Colors.white, fontSize: 20),),
             Container(
               height: /*300*/ _screenHeight/2.27,
@@ -987,7 +983,7 @@ class _AssetsLoadingDialogState extends State<AssetsLoadingDialog> {
 }
 
 
-
+///Class representing Assets loading list item
 class AssetsLoadingDialogListItem extends StatefulWidget {
 
   final String itemName;
@@ -1034,7 +1030,7 @@ class _AssetsLoadingDialogListItemState extends State<AssetsLoadingDialogListIte
 }
 
 
-
+///Class representing loading from documents dialog
 class DocumentsLoadingDialog extends StatefulWidget {
 
   final SamplerController controller;
@@ -1064,7 +1060,6 @@ class _DocumentsLoadingDialogState extends State<DocumentsLoadingDialog> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            //Padding(padding: EdgeInsets.symmetric(vertical: 2)),
             Text("Select a file to Load", style: TextStyle(color: Colors.white, fontSize: 20),),
             Container(
               height: /*300*/ _screenHeight/2.27,
@@ -1091,52 +1086,11 @@ class _DocumentsLoadingDialogState extends State<DocumentsLoadingDialog> {
       ),
     );
 
-    /*return FutureBuilder(
-      future: widget.controller.loadDocumentsFile(),
-      builder: (context, snapshot) {
-        return AlertDialog(
-          backgroundColor: Color.fromRGBO(36, 59, 85, 1),
-          content: Container(
-            width: /*200*/ _screenWidth/2,
-            height: /*450*/ _screenHeight/1.51,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                //Padding(padding: EdgeInsets.symmetric(vertical: 2)),
-                Text("Select a file to Load", style: TextStyle(color: Colors.white, fontSize: 20),),
-                Container(
-                  height: /*300*/ _screenHeight/2.27,
-                  child: ListView.separated(
-                    itemBuilder: (BuildContext context, int index) {
-                      return DocumentsLoadingDialogListItem(
-                        itemName: widget.controller.getDocumentFileAt(index),
-                        index: index,
-                        key: Key(index.toString()),
-                        controller: widget.controller,
-                      );
-                    },
-                    separatorBuilder: (BuildContext context, int index) => const MyDivider(),
-                    itemCount: widget.controller.getDocumentsFileLength(),
-                  ),
-                ),
-                ElevatedButton(
-                  onPressed: () => Navigator.pop(context, "NO SELECTION"),
-                  child: Text(Languages.of(context)!.cancelName),
-                  style: ButtonStyle(backgroundColor: MaterialStateColor.resolveWith((states) => Colors.red),),),
-              ],
-            ),
-
-          ),
-        );
-      }
-    );*/
-
-
   }
 }
 
 
-
+///Class representing documents loading list item dialog
 class DocumentsLoadingDialogListItem extends StatefulWidget {
 
   final String itemName;
@@ -1181,28 +1135,3 @@ class _DocumentsLoadingDialogListItemState extends State<DocumentsLoadingDialogL
     );
   }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

@@ -3,12 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:simple_sample/Controllers/ExplorerController.dart';
 import 'package:simple_sample/Utils/Languages.dart';
 import '../Models/Record.dart';
-import '../Models/Model.dart';
 import '../Utils.dart';
-
-//const double elevationValue = 10;
-//const double buttonSizeX = 30;
-//const double buttonSizeY = 15;
 
 class Explorer extends StatefulWidget {
   const Explorer({Key? key}) : super(key: key);
@@ -25,10 +20,10 @@ class _ExplorerState extends State<Explorer> {
     super.initState();
   }
 
-
   ExplorerController _controller = ExplorerController();
   bool onFiltering = false;
 
+  ///Creates explorer list
   Widget makeListView() {
     return Expanded(
       child: ListView.separated(
@@ -46,17 +41,20 @@ class _ExplorerState extends State<Explorer> {
     );
   }
 
+  ///Creates a circular progress bar when page is loading
   Widget makeProgressBar() {
     return Center(
       child: CircularProgressIndicator(),
     );
   }
 
+  ///Auxiliar method when filter is active
   onSearch(String value) {
     setState(() {
       onFiltering = true;
     });
 
+    //Filtering using tags
     if (dropdownValue == "Tags") {
       setState(() {
         List<Record> selectedEntries = _controller.getEntries();
@@ -79,6 +77,8 @@ class _ExplorerState extends State<Explorer> {
           _controller.setSelectedEntries(selectedEntries);
         }
       });
+
+    //Filtering using filename
     } else if (dropdownValue == Languages.of(context)!.nameName) {
       setState(() {
         List<Record> selectedEntries = _controller.getSelectedEntries();
@@ -99,6 +99,7 @@ class _ExplorerState extends State<Explorer> {
 
   String? dropdownValue = "Tags";
 
+  ///Creates buttons row for every explorer list entry
   Widget makeCommands() {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 20),
@@ -144,18 +145,19 @@ class _ExplorerState extends State<Explorer> {
     );
   }
 
+  ///Auxiliar method in order to choose which widget to display depending on the system state
   Widget chooseBody() {
-    if (!_controller.checkIfUserLogged()) {
+    if (!_controller.checkIfUserLogged()) { //User is not logged in, displaying a string
       return Center(
         child: Text(Languages.of(context)!.userNotConnected, style: TextStyle(color: Colors.white),),
       );
-    } else {
+    } else { //user logged in
       return ValueListenableBuilder(
           valueListenable: _controller.loaded,
           builder: (context, value, _) {
             if (value == false) {
-              return makeProgressBar();
-            } else {
+              return makeProgressBar(); //records still not downloaded
+            } else { //records downloaded
               return Column(
                 children: [
                   Padding(padding: EdgeInsets.symmetric(vertical: 10)),
@@ -190,10 +192,11 @@ class _ExplorerState extends State<Explorer> {
   }
 }
 
+///Class representing list item
 class ExplorerListItem extends StatefulWidget {
 
   final Key key;
-  final Record item;
+  final Record item; //item to be displayed
   final ExplorerController controller;
 
   const ExplorerListItem({required this.item, required this.key, required this.controller}) : super(key: key);
@@ -223,6 +226,7 @@ class _ExplorerListItemState extends State<ExplorerListItem> {
     }
   }
 
+  ///Creates the first half of the row
   Widget makeFirstRow() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -276,7 +280,7 @@ class _ExplorerListItemState extends State<ExplorerListItem> {
     return res;
   }
 
-  ///Creates rows fro tags display
+  ///Creates rows for tags and diwnloads display
   Widget makeSecondRow() {
 
     int max = 40; //maximum number of characters for row
@@ -285,8 +289,7 @@ class _ExplorerListItemState extends State<ExplorerListItem> {
     int restLength = tagString.length;
     List<Widget> widgetList = [];
     if (tagString.length > max) { //tags must be placed in multiple rows
-      //Determining the number of tag rows
-      int nRows = tagString.length ~/ max;
+      int nRows = tagString.length ~/ max; //Determining the number of tag rows
       for (int i = 0; i < nRows; i ++) {
         if (i == 0) { //First Row
           Row first = Row(
@@ -304,7 +307,7 @@ class _ExplorerListItemState extends State<ExplorerListItem> {
           Row newRow = Row(children: [Text(rest, style: TextStyle(color: Colors.white))],);
           widgetList.add(newRow);
 
-        } else {
+        } else { //rows between the first and the last
           Text newText = Text(tagString.substring(i * max, (i+1) * max), style: TextStyle(color: Colors.white));
           Row newRow = Row(
             mainAxisAlignment: MainAxisAlignment.start,
@@ -350,6 +353,7 @@ class _ExplorerListItemState extends State<ExplorerListItem> {
   }
 }
 
+///Class representing list items divider
 class MyDivider extends StatelessWidget {
   const MyDivider({Key? key}) : super(key: key);
 

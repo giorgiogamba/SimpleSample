@@ -3,11 +3,13 @@ import 'AudioController.dart';
 import '../Models/Model.dart';
 import '../Models/Record.dart';
 
+///Class for Share Dialog management
+
 class ShareDialogController { ///TESTED
   static final ShareDialogController _instance = ShareDialogController._internal();
-  List<Record> _entries = [];
-  Record? _selectedEntry; //if null non si può procedere alla pagina successiva
-  List<String> _selectedTags = [];
+  List<Record> _entries = []; //list of records that can be shared
+  Record? _selectedEntry; //if null next page cannot be reached
+  List<String> _selectedTags = []; //list of tags to associated to the shared record
 
   ShareDialogController._internal() {}
 
@@ -37,6 +39,7 @@ class ShareDialogController { ///TESTED
     return this._entries.length;
   }
 
+  ///Plays record at the given index
   void playRecord(int itemIndex) { ///OK
     Record toPlayRecord = getEntryAt(itemIndex);
     String URL = toPlayRecord.getUrl();
@@ -44,12 +47,10 @@ class ShareDialogController { ///TESTED
   }
 
   Future<bool> share(String newName) async {
-    //_selectedEntry è l'elemento da cricare
     if (newName != "") {
       if (_selectedEntry != null) {
-        print("ShareDialogController -- share Method: uploadign record with name $newName");
         bool res = await CloudStorageController().shareRecord(_selectedEntry!, _selectedTags, newName);
-        _selectedTags = [];
+        _selectedTags = []; //resetting tags
         return res;
       } else {
         throw Exception ("ShareDialogController -- share method -- The element to be shared is null");

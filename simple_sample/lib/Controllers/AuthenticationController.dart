@@ -8,10 +8,12 @@ import 'CloudStorageController.dart';
 import '../Models/Model.dart';
 import 'GoogleDriveController.dart';
 
+///Manages user authentication
+
 class AuthenticationController {
 
   static final AuthenticationController _instance = AuthenticationController._internal();
-  String username = "username";
+  String username = "username"; //Default username
 
   AuthenticationController._internal() {
     print("Initializing AuthenticationController");
@@ -29,54 +31,60 @@ class AuthenticationController {
     return true;
   }
 
+  ///Called the first time controller is invoked
   void initAuthenticationController() async {
     FirebaseAuth authorizer = FirebaseAuth.instance;
 
-    //Checking f there already is a persistence connection to firebase
-    authorizer.userChanges().listen((User? user) async { //Questo listener rimane connesso su ogni cambiamento dello stato utente
+    ///Initializing listener connected to the "User" object
+    ///Executed different operations depending on the object state
+    authorizer.userChanges().listen((User? user) async {
       if (user == null) {
         print("User is currently signed out");
-      } else {
-        print("*** User logged in. Infos");
+      } else { //When the user logs in
+        print("*** User logged in. Printing infos... ***");
         print(user.toString());
 
+        //Writes the user into the model iff user has verified email address
+        //If "user" model field is null, user cannot access to user page
         if (user.emailVerified) {
-          Model().setUser(user); //Model gets initialized at every start so every time we have to write in it
+          Model().setUser(user);
         }
 
+        //Making google access in order to enable Google Drive Service
         if (user.providerData[0].providerId == "google.com") { //if the user registered to app using google
           final GoogleSignIn googleSignIn = GoogleSignIn.standard(scopes: [drive.DriveApi.driveScope]);
           await googleSignIn.signInSilently();
 
           GoogleSignInAccount? googleAccount = googleSignIn.currentUser;
-          print("*********** GOOGLE ACCOPUNT INFOS: ****************");
+          print("*** Google Account Infos: ***");
           print(googleAccount.toString());
           Model().setGoogleSignInAccount(googleAccount);
 
           //initializing Google Drive Controller
           if (googleAccount != null) {
             GoogleDriveController().initGoogleDriveController();
+          } else {
+            print ("Google Account is null");
           }
 
         }
       }
     });
 
-    print("End method authentication controller initialization");
+    print("Authentication Controller: End Authentication");
   }
 
   bool checkIfUseConnected() {
     if (FirebaseAuth.instance.currentUser != null) {
-      print("User is already connected");
+      print("Authentication Controller: User is already connected");
       return true;
     } else {
-      print("User is not connected");
+      print("Authentication Controller: User is not connected");
       return false;
     }
   }
 
   void tryGoogleSignIn() async {
-    print("******************* TRY *************");
     final GoogleSignIn googleSignIn = GoogleSignIn.standard(scopes: [drive.DriveApi.driveScope]);
     final GoogleSignInAccount? googleAccount = await googleSignIn.signIn();
 
@@ -84,6 +92,7 @@ class AuthenticationController {
   }
 
 
+  ///Completes Google Sign In / Registration making also access to Firebase
   void authenticateGoogleAccount(GoogleSignInAccount? googleAccount) async {
 
     Model().setGoogleSignInAccount(googleAccount);
@@ -101,54 +110,53 @@ class AuthenticationController {
         idToken: googleAuthentication.idToken,
       );
 
+      //Making Firebase Sign In using Google infos
       try {
         UserCredential _userCredential = await FirebaseAuth.instance.signInWithCredential(credential);
-        User? _user = _userCredential.user;
+        User? _user = _userCredential.user; //getting user
         Model().setUser(_user!);
-        print("Authentication Controller -- signInWithGoogle -- found User with infos: ");
-        print(_user.toString());
 
         //Downloading profile image
         String? imagePath = await CloudStorageController().downloadProfileImage();
         if (imagePath != null) {
           UserPageController().setProfileImagePath(imagePath);
         } else {
-          print("******* Profile image download not completed ********");
+          print("*** Profile image not downloaded ***");
         }
         firestoreAuthentication(_user);
 
       } on FirebaseAuthException catch (e) {
         if (e.code == "account-exists-woth-different-credential") {
-          print("linkGoogle: account exists with different credential");
+          throw("Authentication Controller: account exists with different credential");
         } else if (e.code == "invalid-credential") {
-          print("linkGooghle: invalid credential");
+          throw("Authentication Controller: invalid credential");
         }
       } catch (e) {
-        print("linkGoogle: not firebaseauth error");
+        throw("Authentication Controller: Firebase access using Google not completed");
       }
     } else {
-      print("User not connected to google");
+      print("Authentication Controller: Authenticate Google Account: googleAccount is null");
     }
 
   }
 
   Future<void> signInWithGoogle() async {
-
-    print("****************** Google sing in ******************");
     final GoogleSignIn googleSignIn = GoogleSignIn.standard(scopes: [drive.DriveApi.driveScope]);
     final GoogleSignInAccount? googleAccount = await googleSignIn.signIn();
 
     authenticateGoogleAccount(googleAccount);
   }
 
+  ///Completed Firebase Authentication writing support infos
   Future<void> firestoreAuthentication(User currentUser) async {
-    //Addition Users Info Management
+
+    //Getting user's document
     CollectionReference users = FirebaseFirestore.instance.collection("users");
     DocumentSnapshot snapshot = await users.doc(currentUser.uid).get();
+
     if (!snapshot.exists) {
 
-      //The document doesn't exist -> creating new user account
-      print("Document does not exist, creating a new one");
+      print("User's document does not exist, creating a new one");
       DocumentReference userDocRef = users.doc(currentUser.uid);
       userDocRef.set({
         "nDownloads": 0,
@@ -156,13 +164,10 @@ class AuthenticationController {
         "device_token" : Model().getDeviceToken(),
         "toUpdateExplorer" : false.toString(),
         "toUpdateUserPage" : false.toString(),
-      }).then((value) => print("+++ Created Firestore document for the User +++"));
+      }).then((value) => print("*** Created Firestore document for the User ***"));
 
     } else {
-
-      //THe document already exist -> accessing users data
-      print("+++ Authentication Controller -- signInWithGoogle: document already exists +++");
-
+      print("*** Authentication Controller -- Firebase document already exists ***");
     }
   }
 
@@ -171,14 +176,14 @@ class AuthenticationController {
     GoogleSignIn _googleSignIn = GoogleSignIn();
     await _googleSignIn.signOut();
     FirebaseAuth.instance.signOut();
-    print("End of signOutGoogle method");
+    print("*** User is correctly signed out from google ***");
   }
 
-  ///Signs out user not accessed with google
+  ///Signs out user accessed with email and password
   Future<void> signOut () async {
     await FirebaseAuth.instance.signOut();
     Model().clearUser();
-    print("End signOut method");
+    print("*** User is correctly signed out from Firebase ***");
   }
 
 
@@ -194,12 +199,11 @@ class AuthenticationController {
       User? user = credentials.user;
       if (user != null) { //ACCESS CORRECTLY EXECUTED
 
-        //Model().setUser(user);
         String? imagePath = await CloudStorageController().downloadProfileImage();
         if (imagePath != null) {
           UserPageController().setProfileImagePath(imagePath);
         } else {
-          print("******* Profile image download not completed ********");
+          print("*** Profile image not downaloaded ***");
         }
 
         //Sending verification email
@@ -209,9 +213,8 @@ class AuthenticationController {
           return "Verify your email";
         }
 
-        //firestoreAuthentication(user);
+        //Sign in Completed, writing user into model
         Model().setUser(user);
-        print("******************** POSSOOSOSOTOO **********");
         return "true";
 
       } else { //ACCESS NOT CORRECTLY EXECUTED
@@ -242,6 +245,8 @@ class AuthenticationController {
     return "unknown error during registration";
   }
 
+
+  ///Signs in user using Email and password
   Future<String> signInWithEmailAndPassword(String newEmail, String newPassword) async {
     try {
       UserCredential credentials = await FirebaseAuth.instance.signInWithEmailAndPassword(
@@ -274,7 +279,7 @@ class AuthenticationController {
         return "[firebase_auth/unknown] Given String is empty or null";
       }
     }
-    return "Sign-In: Unknown error";
+    return "Sign-In with email and password: Unknown error";
   }
 
 
