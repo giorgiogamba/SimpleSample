@@ -12,7 +12,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../Utils.dart';
 import 'Record.dart';
 
-class Model { ///TESTING COMPLETED
+class Model {
 
   static final Model _instance = Model.internal();
 
@@ -82,7 +82,7 @@ class Model { ///TESTING COMPLETED
   }
 
   ///Associates Record "newRecord" to the position "index"
-  void addRecord(Record newRecord, int index) { ///TESTED
+  void addRecord(Record newRecord, int index) {
     //Adding User's Unique ID
     User? currentUser = this.getUser();
     if (currentUser != null) {
@@ -91,47 +91,47 @@ class Model { ///TESTING COMPLETED
     _records[index] = newRecord;
   }
 
-  Record? getRecordAt(int index) { ///TESTED
+  Record? getRecordAt(int index) {
     if (index > 15) {
       return null;
     }
     return _records[index];
   }
 
-  String getExtDocPath() { ///OK
+  String getExtDocPath() {
     return this._extDocPath;
   }
 
-  String getDocPath() { ///OK
+  String getDocPath() {
     return this._docPath;
   }
 
-  int getBPM() { ///OK
+  int getBPM() {
     return this._bpm;
   }
 
-  void setBPM(int newBPM) { ///OK
+  void setBPM(int newBPM) {
     this._bpm = newBPM;
   }
 
-  User? getUser() { ///OK
+  User? getUser() {
     return _user;
   }
 
-  void setUser(User newUser) { ///OK
+  void setUser(User newUser) {
     this._user = newUser;
     this.auth.value = true;
     setOwnerID();
   }
 
   ///Cleans all user's info from model
-  void clearUser() { ///OK
+  void clearUser() {
     _user = null;
     this.auth.value = false;
     this._googleAccount = null;
   }
 
-  bool isUserConnected() { ///OK
+  bool isUserConnected() {
     if (_user == null) {
       return false;
     } else {
@@ -139,14 +139,14 @@ class Model { ///TESTING COMPLETED
     }
   }
 
-  void printUserInfos() {  ///OK
+  void printUserInfos() {
     print("USER IN MODEL INFOS:");
     print(_user?.email);
     print(_user?.displayName);
   }
 
   ///Returns a new path for tbe record to  be recorded
-  String getNewPath() { ///TESTED
+  String getNewPath() {
     this._counter ++;
     String path = "";
     if (Platform.isAndroid) {
@@ -161,12 +161,12 @@ class Model { ///TESTING COMPLETED
     return path;
   }
 
-  Future<String> getDocFilePath() async { ///TESTED
+  Future<String> getDocFilePath() async {
     Directory appDocumentsDirectory = await getApplicationDocumentsDirectory();
     return appDocumentsDirectory.absolute.path;
   }
 
-  Future<String> getExternalStorageDoc() async { ///TESTED
+  Future<String> getExternalStorageDoc() async {
     Directory? dir = await getExternalStorageDirectory();
     return dir!.absolute.path;
   }
@@ -186,7 +186,7 @@ class Model { ///TESTING COMPLETED
   }
 
   ///Returns a list of elements contained into external folder
-  List<String> getExtDirElementsList() { ///TESTED
+  List<String> getExtDirElementsList() {
     List<String> res = [];
     var dir = Directory(this._extDocPath);
     List temp = dir.listSync();
@@ -200,7 +200,7 @@ class Model { ///TESTING COMPLETED
   }
 
   ///Returns a list containing all the records currently into the sampler map
-  List<Record> getAllCurrentRecords() { ///TESTED
+  List<Record> getAllCurrentRecords() {
     List<Record> res = [];
     for (Record r in _records.values) {
       res.add(r);
@@ -208,25 +208,25 @@ class Model { ///TESTING COMPLETED
     return res;
   }
 
-  String getStorageUploadPath() { ///OK
+  String getStorageUploadPath() {
     return this._storageUploadPath;
   }
 
-  GoogleSignInAccount? getGoogleSignInAccount() { ///OK
+  GoogleSignInAccount? getGoogleSignInAccount() {
     return this._googleAccount;
   }
 
-  void setGoogleSignInAccount(GoogleSignInAccount? account) { ///OK
+  void setGoogleSignInAccount(GoogleSignInAccount? account) {
     this._googleAccount = account;
   }
 
   ///Returns a new cloud storage path
-  String createCloudStoragePath(String recordName) { ///TESTED
+  String createCloudStoragePath(String recordName) {
     return this.getStorageUploadPath() + "/" + this.getUser()!.uid.toString() + "/" + recordName;
   }
 
   ///Returns the record with the given path into records map
-  Record? getRecordWithPath(String path) { ///TESTED
+  Record? getRecordWithPath(String path) {
     for (Record r in _records.values) {
       print(r.getUrl());
       if (r.getUrl() == path) {
@@ -236,19 +236,19 @@ class Model { ///TESTING COMPLETED
     return null;
   }
 
-  String getFilesPath() { ///OK
+  String getFilesPath() {
     return this._extDocPath+"/files/";
   }
 
-  List<String> getTagsList() { ///OK
+  List<String> getTagsList() {
     return this._tagsList;
   }
 
-  String getTagAt(int index) { ///OK
+  String getTagAt(int index) {
     return this._tagsList[index];
   }
 
-  bool isButtonFull(int index) { ///TESTED
+  bool isButtonFull(int index) {
     Record? record = _records[index];
     if (record == null) {
       return false;
@@ -257,7 +257,7 @@ class Model { ///TESTING COMPLETED
     }
   }
 
-  Future<void> renameRecord (int index, String name) async { ///TESTED
+  Future<void> renameRecord (int index, String name) async {
     Record? toRename = getRecordAt(index);
     if (toRename != null) {
       File toRenameFile = File (toRename.getUrl());
@@ -272,22 +272,22 @@ class Model { ///TESTING COMPLETED
   }
 
   ///Changes filename of the given file
-  Future<File> changeFileNameOnly(File file, String newFileName) { ///TESTED
+  Future<File> changeFileNameOnly(File file, String newFileName) {
     var path = file.path;
     var lastSeparator = path.lastIndexOf(Platform.pathSeparator);
     var newPath = path.substring(0, lastSeparator + 1) + newFileName;
     return file.rename(newPath);
   }
 
-  void setDeviceToken(String token) { ///OK
+  void setDeviceToken(String token) {
     this._deviceToken = token;
   }
 
-  String getDeviceToken() { ///OK
+  String getDeviceToken() {
     return this._deviceToken;
   }
 
-  List<String> getAssets() { ///OK
+  List<String> getAssets() {
     return this._assets;
   }
 
@@ -308,11 +308,11 @@ class Model { ///TESTING COMPLETED
     }
   }
 
-  ValueNotifier getAuth() { ///OK
+  ValueNotifier getAuth() {
     return this.auth;
   }
 
-  int getCounter() { ///OK
+  int getCounter() {
     return this._counter;
   }
 
@@ -336,7 +336,7 @@ class Model { ///TESTING COMPLETED
   }
 
 
-  String getPersonalPath (String filename){ ///TESTED
+  String getPersonalPath (String filename){
     String newPath = "";
     if (Platform.isAndroid) {
       newPath = this._extDocPath + "/" + filename;
@@ -346,7 +346,7 @@ class Model { ///TESTING COMPLETED
     return newPath;
   }
 
-  List<String> getDocumentsFile() { ///OK
+  List<String> getDocumentsFile() {
     return this._documentsFile;
   }
 
@@ -372,7 +372,7 @@ class Model { ///TESTING COMPLETED
   }
 
   ///Sets the user ID to the records already present into the application
-  void setOwnerID() { ///OK
+  void setOwnerID() {
     for (Record r in this._records.values) {
       r.setRecordOwnerID(this._user!.uid);
     }

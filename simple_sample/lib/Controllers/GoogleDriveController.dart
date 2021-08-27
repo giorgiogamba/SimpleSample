@@ -38,7 +38,7 @@ class GoogleDriveController {
   }
 
   ///Returns a list of all the records urls saved into drive
-  Future<List<String>> listGoogleDriveFiles() async { ///TESTED
+  Future<List<String>> listGoogleDriveFiles() async {
 
     List<String> driveElems = [];
     drive.FileList? fileList = await driveApi?.files.list();
@@ -60,7 +60,7 @@ class GoogleDriveController {
     return driveElems;
   }
 
-  void upload(Record record) async { ///TESTED
+  void upload(Record record) async {
     File file = File(record.getUrl());
     var driveFile = new drive.File();
     driveFile.name = record.getFilename();

@@ -4,7 +4,7 @@ import 'package:simple_sample/Controllers/CloudStorageController.dart';
 import '../Models/Record.dart';
 import '../Models/Model.dart';
 
-class ExplorerController { ///TESTED
+class ExplorerController {
   static final ExplorerController _instance = ExplorerController._internal();
 
   ExplorerController._internal() {
@@ -30,60 +30,60 @@ class ExplorerController { ///TESTED
     loaded.value = true;
   }
 
-  bool checkIfUserLogged() { ///OK
+  bool checkIfUserLogged() {
     return Model().isUserConnected();
   }
 
-  void playRecord(Record record) { ///OK
+  void playRecord(Record record) {
     AudioController().playAtURL(record.getUrl());
   }
 
-  Future<void> addToFavorites(Record record) async { ///OK
+  Future<void> addToFavorites(Record record) async {
     await CloudStorageController().addToFavourites(record).then((value) => getFavourites(),);
   }
 
-  Future<void> removeFromFavourites(Record record) async { ///OK
+  Future<void> removeFromFavourites(Record record) async {
     await CloudStorageController().removeFromFavourites(record).then((value) => getFavourites(),);
   }
 
-  Future<void> downloadRecord(Record record) async { ///OK
+  Future<void> downloadRecord(Record record) async {
     CloudStorageController().downloadRecord(record);
   }
 
-  Record getEntryAt(int index) { ///OK
+  Record getEntryAt(int index) {
     return this._entries[index];
   }
 
-  int getEntriesLength() { ///OK
+  int getEntriesLength() {
     return this._entries.length;
   }
 
-  void addToSelectedEntries(int index) { ///TESTED
+  void addToSelectedEntries(int index) {
     Record toAdd = getEntryAt(index);
     this._selectedEntries.add(toAdd);
   }
 
-  List<Record> getSelectedEntries() { ///OK
+  List<Record> getSelectedEntries() {
     return this._selectedEntries;
   }
 
-  List<Record> getEntries() { ///OK
+  List<Record> getEntries() {
     return this._entries;
   }
 
-  Record getSelectedEntryAt(int index) { ///OK
+  Record getSelectedEntryAt(int index) {
     return this._selectedEntries[index];
   }
 
-  int getSelectedEntriesLength() { ///OK
+  int getSelectedEntriesLength() {
     return this._selectedEntries.length;
   }
 
-  void setSelectedEntries(List<Record> newEntries) { ///OK
+  void setSelectedEntries(List<Record> newEntries) {
     this._selectedEntries = newEntries;
   }
 
-  void getFavourites() async { ///OK
+  void getFavourites() async {
     this._favourites = []; //resetting favourites
     List<Record> temp = await CloudStorageController().getFavouritesFromDB();
     for (int i = 0; i < temp.length; i ++) {
@@ -94,7 +94,7 @@ class ExplorerController { ///TESTED
   }
 
   ///Manages "Favourites" action button depending on the state
-  Future<void> manageFavouritesButton(Record record) async { ///TESTED
+  Future<void> manageFavouritesButton(Record record) async {
     String url = record.getUrl();
     if (this._favourites.contains(url)) { //is the record is saved as "favourite"
       await removeFromFavourites(record);
@@ -104,7 +104,7 @@ class ExplorerController { ///TESTED
   }
 
   ///Changes favourites icon depending on the state
-  bool manageFavouritesIcon(Record record) { ///OK
+  bool manageFavouritesIcon(Record record) {
     String url = record.getUrl();
     if (this._favourites.contains(url)) {
       return true;
@@ -113,7 +113,7 @@ class ExplorerController { ///TESTED
     }
   }
 
-  void setEntries(List<Record> entries) { ///OK
+  void setEntries(List<Record> entries) {
     this._entries = entries;
   }
 

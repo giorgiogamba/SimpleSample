@@ -39,7 +39,7 @@ class _SequencerState extends State<Sequencer> {
   }
 
   Color? setContainerRowColor(int index) {
-    if (_sequencerController.isRecordAtPositionNull(index)) { //record is null
+    if (_sequencerController.isRecordAtPositionNull(index)) {
       return null;
     } else { //record is not null
       return Colors.red;

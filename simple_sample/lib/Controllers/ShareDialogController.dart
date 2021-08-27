@@ -5,7 +5,7 @@ import '../Models/Record.dart';
 
 ///Class for Share Dialog management
 
-class ShareDialogController { ///TESTED
+class ShareDialogController {
   static final ShareDialogController _instance = ShareDialogController._internal();
   List<Record> _entries = []; //list of records that can be shared
   Record? _selectedEntry; //if null next page cannot be reached
@@ -17,30 +17,30 @@ class ShareDialogController { ///TESTED
     return _instance;
   }
 
-  void initElements() { ///OK
+  void initElements() {
     _selectedEntry = null;
     _entries = Model().getAllCurrentRecords();
     _selectedTags = Model().getTagsList();
   }
 
-  Record getEntryAt(int position) { ///OK
+  Record getEntryAt(int position) {
     return _entries[position];
   }
 
-  Record? getSelectedEntry() { ///OK
+  Record? getSelectedEntry() {
     return this._selectedEntry;
   }
 
-  Record? setSelectedEntry(Record? record) { ///OK
+  Record? setSelectedEntry(Record? record) {
     this._selectedEntry = record;
   }
 
-  int getEntriesLength() { ///OK
+  int getEntriesLength() {
     return this._entries.length;
   }
 
   ///Plays record at the given index
-  void playRecord(int itemIndex) { ///OK
+  void playRecord(int itemIndex) {
     Record toPlayRecord = getEntryAt(itemIndex);
     String URL = toPlayRecord.getUrl();
     AudioController().playAtURL(URL);
@@ -60,29 +60,29 @@ class ShareDialogController { ///TESTED
     }
   }
 
-  int getTagsListLength() { ///OK
+  int getTagsListLength() {
     return Model().getTagsList().length;
   }
 
-  String getTagAt(int index) { ///OK
+  String getTagAt(int index) {
     return Model().getTagAt(index);
   }
 
-  void addToSelectedTags(int index) { ///TESTED
+  void addToSelectedTags(int index) {
     String selectedTag = getTagAt(index);
     _selectedTags.add(selectedTag);
   }
 
-  void removeFromSelectedTags(int index) { ///TESTED
+  void removeFromSelectedTags(int index) {
     String toRemove = getTagAt(index);
     _selectedTags.remove(toRemove);
   }
 
-  void resetSelectedTags() { ///OK
+  void resetSelectedTags() {
     this._selectedTags = [];
   }
 
-  List<String> getSelectedTags() { ///OK
+  List<String> getSelectedTags() {
     return this._selectedTags;
   }
 

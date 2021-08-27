@@ -294,7 +294,7 @@ class _SamplerState extends State<Sampler> {
               child: Center(
                 child: Text(
                   _samplerController.getOperationInformationText(),
-                  style: TextStyle(fontSize: 20, color: Colors.white), //todo provare a rimpicciolire
+                  style: TextStyle(fontSize: 20, color: Colors.white),
                 ),
               ),
             ),

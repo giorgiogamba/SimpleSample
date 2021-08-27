@@ -34,11 +34,11 @@ class UserPageController {
   List<String> _languagesList = ["English", "Italiano", "Francais"]; //selectedble languages
   List<String> _languagesCode = ["en", "it", "fr"];
 
-  String getElementAt(int index) { ///OK
+  String getElementAt(int index) {
     return this._elements[index];
   }
 
-  int getElementsLength() { ///OK
+  int getElementsLength() {
     return this._elements.length;
   }
 
@@ -65,7 +65,7 @@ class UserPageController {
   }
 
   ///Manages profile image source selection from setting menu
-  Future<PickedFile?> executeOperation(int index) async { ///OK
+  Future<PickedFile?> executeOperation(int index) async {
     if (index == 0) {
       PickedFile? image = await pickImageFromGallery();
       return image;
@@ -76,62 +76,62 @@ class UserPageController {
   }
 
   ///Gets all the records shared by the user in order to display them into user page
-  Future<void> getUserSharedRecords() async { ///OK
+  Future<void> getUserSharedRecords() async {
     await CloudStorageController().downloadUserSharedRecords().then((value) {
       _userSharedRecords = value;
     });
   }
 
-  int getUserSharedRecordsLength() { ///OK
+  int getUserSharedRecordsLength() {
     return this._userSharedRecords.length;
   }
 
-  Record getUserSharedRecordAt(int index) { ///OK
+  Record getUserSharedRecordAt(int index) {
     return this._userSharedRecords[index];
   }
 
-  void playRecordAt(int index) { ///OK
+  void playRecordAt(int index) {
     Record record = getUserSharedRecordAt(index);
     AudioController().playAtURL(record.getUrl());
   }
 
-  void setProfileImagePath(String path) { ///OK
+  void setProfileImagePath(String path) {
     profileImagePath.value = path;
   }
 
-  Future<void> disconnect() async { ///OK
+  Future<void> disconnect() async {
     await AuthenticationController().signOut();
     Model().clearUser();
   }
 
   ///Gets user's favourites from Cloud
-  Future<void> initFavourites() async { ///OK
+  Future<void> initFavourites() async {
     List<Record> favs = await CloudStorageController().getFavouritesFromDB();
     this._favourites = favs;
   }
 
-  List<Record> getFavourites() { ///OK
+  List<Record> getFavourites() {
     return this._favourites;
   }
 
-  Record getFavouriteAt(int index) { ///OK
+  Record getFavouriteAt(int index) {
     return this._favourites[index];
   }
 
-  int getFavouritesLength() { ///OK
+  int getFavouritesLength() {
     return this._favourites.length;
   }
 
-  Future<void> setUsername(String newUsername) async { ///OK
+  Future<void> setUsername(String newUsername) async {
     await CloudStorageController().setUsername(newUsername);
   }
 
-  Future<String> getUsername() async { ///OK
+  Future<String> getUsername() async {
     return await CloudStorageController().getUsername();
   }
 
   ///Deletes account
-  Future<void> deleteAccount() async { ///OK
+  Future<void> deleteAccount() async {
     AuthenticationController().signOutGoogle(); //signing out from google
     AuthenticationController().signOut(); //signing out from firebase
     await CloudStorageController().deleteUserDocument(); //Deleting user's document from firebase
@@ -139,54 +139,54 @@ class UserPageController {
     print("*** End of account deletion ***");
   }
 
-  Future<String> signInWithEmailAndPassword(String email, String password) async { ///OK
+  Future<String> signInWithEmailAndPassword(String email, String password) async {
     return await AuthenticationController().signInWithEmailAndPassword(email, password);
   }
 
-  Future<String> createUserWithEmailAndPassword(String email, String password) async { ///OK
+  Future<String> createUserWithEmailAndPassword(String email, String password) async {
     return await AuthenticationController().createUserWithEmailAndPassword(email, password);
   }
 
   ///Makes the User Page updated
-  void updateUserPage() async { ///OK
+  void updateUserPage() async {
     loaded.value = false;
     await getUserSharedRecords();
     await initFavourites();
     loaded.value = true;
   }
 
-  Future<int> getDownloadsNumber() async { ///OK
+  Future<int> getDownloadsNumber() async {
     int value = await CloudStorageController().getDownloadsNumber();
     return value;
   }
 
-  Future<void> handleRemoveFromFavourites(int index) async { ///OK
+  Future<void> handleRemoveFromFavourites(int index) async {
     Record record = this._favourites[index];
     await CloudStorageController().removeFromFavourites(record);
     this._favourites.remove(record);
   }
 
-  ValueNotifier getModelAuth () { ///OK
+  ValueNotifier getModelAuth () {
     return Model().getAuth();
   }
 
-  void handleChangeLanguage(BuildContext context, String key) { ///OK
+  void handleChangeLanguage(BuildContext context, String key) {
     changeLanguage(context, Utils.remove3(key));
   }
 
-  String getLanguageName(int index) { ///OK
+  String getLanguageName(int index) {
     return this._languagesList[index];
   }
 
-  String getLanguagesCode(int index) { ///OK
+  String getLanguagesCode(int index) {
     return this._languagesCode[index];
   }
 
-  int getLanguagesListLength() { ///OK
+  int getLanguagesListLength() {
     return this._languagesList.length;
   }
 
-  Future<bool> handleRemoveFromSharedSamples(int index) async { ///OK
+  Future<bool> handleRemoveFromSharedSamples(int index) async {
     Record toDelete = getUserSharedRecordAt(index);
     return await CloudStorageController().removeFromSharedSamples(toDelete);
   }

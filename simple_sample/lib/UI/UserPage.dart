@@ -51,8 +51,6 @@ class _UserPageState extends State<UserPage> {
   ///Creates user page for after login
   Widget makeUserPage() {
 
-    print(_userPageController.getFavouritesLength());
-
     return Column(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [

@@ -42,6 +42,7 @@ class Utils {
     );
   }
 
+  ///Removes 3 characters from start and end of the string
   static String remove3(String input) {
     String temp = input.substring(3);
     return temp.substring(0, temp.length-3);

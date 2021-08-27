@@ -33,7 +33,7 @@ class AudioController {
   }
 
   ///Creates and initializes the list of playersNumber players
-  List<AudioPlayer?> createPlayersList() { ///TESTED
+  List<AudioPlayer?> createPlayersList() {
     List<AudioPlayer?> players = List.generate(16, (index) => null);
     for (int i = 0; i < playersNumber; i ++) {
       players.insert(i, AudioPlayer(mode: PlayerMode.LOW_LATENCY));
@@ -43,27 +43,27 @@ class AudioController {
     return players;
   }
 
-  void initAudioController() { ///OK
+  void initAudioController() {
     _players = createPlayersList();
     print("*** AudioController Initialization Completed ***");
   }
 
-  Future<void> initRecorder() async { ///OK
+  Future<void> initRecorder() async {
     _recorder = FlutterSoundRecorder();
     await openRecorder();
   }
 
   ///Called to free the resources when the recorder is closed
-  void disposeRecorder() { ///OK
+  void disposeRecorder() {
     _recorder.closeAudioSession();
   }
 
-  FlutterSoundRecorder getRecorder() { ///OK
+  FlutterSoundRecorder getRecorder() {
     return this._recorder;
   }
 
 
-  Future<void> openRecorder() async { ///OK
+  Future<void> openRecorder() async {
     if (!kIsWeb) {
       var status = await Permission.microphone.request();
       if (status != PermissionStatus.granted) {
@@ -76,7 +76,7 @@ class AudioController {
   }
 
   ///Called to free device resources when the sampler is closed
-  void disposeSampler() { ///OK
+  void disposeSampler() {
     for (int i = 0; i < playersNumber-1; i ++) {
       _players[i]?.dispose();
       _isPlayerInited[i] = false;
@@ -87,7 +87,7 @@ class AudioController {
   }
 
   ///Method for audio registration
-  void record(int index) { ///TESTED
+  void record(int index) {
     this._playbackReady = false; //Disables playback so no other file can play
     String path = Model().getNewPath(); //Creates a new path for the audio file to be recorder
     if (_isRecorderInited == true) {
@@ -101,13 +101,13 @@ class AudioController {
   }
 
   ///Called when the recording button is not pressed anymore, enables playback
-  void stopRecorder() async { ///OK
+  void stopRecorder() async {
     await _recorder.stopRecorder().then((value) => {
       _playbackReady = true,
     });
   }
 
-  void enablePlayback() { ///OK
+  void enablePlayback() {
     this._playbackReady = true;
   }
 
@@ -136,7 +136,7 @@ class AudioController {
 
   ///Plays the audio file at the desired location URL
   ///Used to play network audio files
-  void playAtURL(String URL) { ///OK
+  void playAtURL(String URL) {
     AudioPlayer player = AudioPlayer();
     player.play(URL);
   }

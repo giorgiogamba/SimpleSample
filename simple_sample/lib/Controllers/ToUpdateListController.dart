@@ -19,19 +19,19 @@ class ToUpdateListController{
   }
 
   //Checks of user is logged in
-  bool checkIfLoggedIn() { ///OK
+  bool checkIfLoggedIn() {
     return Model().isUserConnected();
   }
 
-  void getElementsList() { ///OK
+  void getElementsList() {
     this._elements =  Model().getAllCurrentRecords();
   }
 
-  void addElement(int index) { ///OK
+  void addElement(int index) {
     this._selectedElements.add(this._elements[index]);
   }
 
-  void removeElement(int index) {  ///OK
+  void removeElement(int index) {
     this._selectedElements.remove(index);
   }
 
@@ -42,19 +42,19 @@ class ToUpdateListController{
     }
   }
 
-  int getElementsListLength() { ///OK
+  int getElementsListLength() {
     return this._elements.length;
   }
 
-  Record getElementAt(int index) { ///OK
+  Record getElementAt(int index) {
     return this._elements[index];
   }
 
-  int getSelectedElementsListLength() { ///OK
+  int getSelectedElementsListLength() {
     return this._selectedElements.length;
   }
 
-  void playRecord(String URL) { ///OK
+  void playRecord(String URL) {
     AudioController().playAtURL(URL);
   }
 

@@ -8,7 +8,7 @@ import '../Models/Record.dart';
 const int bpmBase = 60;
 const int maxBpm = 200;
 
-class SequencerController { ///TESTING COMPLETED
+class SequencerController {
 
   static final SequencerController _instance = SequencerController._internal();
 
@@ -37,7 +37,7 @@ class SequencerController { ///TESTING COMPLETED
 
 
   ///Sets to false all the map
-  void initSequencerMap() { ///TESTED
+  void initSequencerMap() {
     for (int i = 0; i < 8; i ++) {
       HashMap<int, bool>? newMap = HashMap();
       for (int j = 0; j < 16; j ++) {
@@ -63,7 +63,7 @@ class SequencerController { ///TESTING COMPLETED
   }
 
   ///Makes an action depending on the button state
-  void manageButtonPress(int row, int col) { ///TESTED
+  void manageButtonPress(int row, int col) {
     print("Managing row "+row.toString() + " on col "+col.toString());
     HashMap<int, bool>? tempMap = _sequencerMap?[col];
     if (tempMap?[row] == true) {
@@ -74,7 +74,7 @@ class SequencerController { ///TESTING COMPLETED
   }
 
   ///Plays all the files in the given row
-  void playPosition(int pos) { ///TESTED
+  void playPosition(int pos) {
     print("Playing position "+pos.toString());
     HashMap<int, bool>? posList = _sequencerMap?[pos];
     if (posList != null) {
@@ -87,13 +87,13 @@ class SequencerController { ///TESTING COMPLETED
   }
 
   ///Returns the current value in the map at position (row, col)
-  bool? getSequencerMapValue(int row, int col) { ///TESTED
+  bool? getSequencerMapValue(int row, int col) {
     HashMap<int, bool>? tempMap = _sequencerMap?[col];
     return tempMap?[row];
   }
 
   ///Calculates the duration between a column audio play and the next one
-  void calculateTick() { ///TESTED
+  void calculateTick() {
     int? currentBPM = getBPM();
     double value = bpmBase / currentBPM;
 
@@ -140,7 +140,7 @@ class SequencerController { ///TESTING COMPLETED
     setIsRunning(false);
   }
 
-  void resetCounter() { ///TESTED
+  void resetCounter() {
     counter.value = 0;
   }
 
@@ -151,7 +151,7 @@ class SequencerController { ///TESTING COMPLETED
   }
 
   ///Manipulates counter value between 0 and 7
-  void incrementCounter() { ///TESTED
+  void incrementCounter() {
     counter.value ++;
     if (counter.value > 7) {
       counter.value = 0;
@@ -159,7 +159,7 @@ class SequencerController { ///TESTING COMPLETED
   }
 
   ///Takes back sequencer map to default state (everything false)
-  void resetSequencer() { ///TESTED
+  void resetSequencer() {
     for (int i = 0; i < 8; i ++) {
       HashMap<int, bool>? newMap = _sequencerMap?[i];
       for (int j = 0; j < 16; j ++) {
@@ -185,7 +185,7 @@ class SequencerController { ///TESTING COMPLETED
     this._isRunning = value;
   }
 
-  bool isRecordAtPositionNull(int index) { ///TESTED
+  bool isRecordAtPositionNull(int index) {
     Record? record = Model().getRecordAt(index);
     if (record != null) {
       if (record.getFilename() == null) {

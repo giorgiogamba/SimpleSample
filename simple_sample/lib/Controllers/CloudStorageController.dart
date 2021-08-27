@@ -37,7 +37,7 @@ class CloudStorageController {
   }
 
   ///Returns a list of all the elements present into the Firebase Storage
-  Future<List<Record>> getOnlineRecords() async { ///TESTED
+  Future<List<Record>> getOnlineRecords() async {
     List<Record> records = [];
 
     //Getting reference to uploads folder
@@ -83,14 +83,14 @@ class CloudStorageController {
   }
 
   ///Returns owner's ID from "path"
-  String getOwnerID(String path) { ///TESTED
+  String getOwnerID(String path) {
     var splitted = path.split("/");
     //into the position we have: uploads, uniqueid, samplename
     return splitted[1];
   }
 
   ///Uploads record to the cloud storage
-  Future<void> uploadRecord(Record record) async { ///TESTED
+  Future<void> uploadRecord(Record record) async {
     String recURL = record.getUrl(); //absolute path
     var splitted = recURL.split("/");
 
@@ -110,7 +110,7 @@ class CloudStorageController {
 
 
   ///Downloads a record from the cloud storage creating a new file
-  void downloadRecord(Record record) async { ///TESTED
+  void downloadRecord(Record record) async {
 
     //Creating a new path
     var splitted = record.getFilename().split(".");
@@ -167,7 +167,7 @@ class CloudStorageController {
   }
 
   ///Upgrades +1 the number in the string as parameter
-  String updateDownloadNumber(String? oldNumber) { ///TESTED
+  String updateDownloadNumber(String? oldNumber) {
     if (oldNumber != null) {
       int parsed = int.parse(oldNumber);
       parsed ++;
@@ -215,7 +215,7 @@ class CloudStorageController {
   }
 
   ///Removes given record from shared group
-  Future<bool> removeFromSharedSamples(Record record) async { ///TESTED
+  Future<bool> removeFromSharedSamples(Record record) async {
 
     User? user = Model().getUser();
     String recordName = record.getFilename();
@@ -237,7 +237,7 @@ class CloudStorageController {
   }
 
   ///Given a list o tags, creates a unique string containing all of the them separated by a comma
-  String parseTags(List<String> tags) { ///TESTED
+  String parseTags(List<String> tags) {
     String res = "";
     if (tags.length > 0) {
       for (int i = 0; i <= tags.length - 2; i ++) {
@@ -249,7 +249,7 @@ class CloudStorageController {
   }
 
   ///RDownloads record shared from current user to the platform
-  Future<List<Record>> downloadUserSharedRecords() async { ///TESTED
+  Future<List<Record>> downloadUserSharedRecords() async {
     User? user = Model().getUser();
     if (user != null) {
       String sharedDirectoryPath = "shared/"+user.uid.toString()+"/";
@@ -263,7 +263,7 @@ class CloudStorageController {
   }
 
   ///Uploads to storage controller a new profile image
-  Future<void> uploadProfileImage(String imagePath) async { ///TESTED
+  Future<void> uploadProfileImage(String imagePath) async {
     User? user = Model().getUser();
     if (user != null) {
       File toUpload = File(imagePath); //Getting reference to the image to be uploaded
@@ -283,7 +283,7 @@ class CloudStorageController {
   }
 
   ///Downloads user's profile image
-  Future<String?> downloadProfileImage() async { ///TESTED
+  Future<String?> downloadProfileImage() async {
     User? user = Model().getUser();
     if (user != null) {
       String imageCloudPath = "profiles/"+user.uid+"/profile_picture.jpeg";
@@ -302,7 +302,7 @@ class CloudStorageController {
     return null;
   }
 
-  void getUserInfos() async { ///OK
+  void getUserInfos() async {
     User? currentUser = Model().getUser();
     if (currentUser != null) {
       String uid = currentUser.uid;
@@ -318,7 +318,7 @@ class CloudStorageController {
   }
 
   ///Adds record to user's favourites into firestore
-  Future<void> addToFavourites(Record record) async { ///TESTED
+  Future<void> addToFavourites(Record record) async {
     DocumentReference userDocRef = FirebaseFirestore.instance.collection("users").doc(Model().getUser()!.uid);
     CollectionReference favCollRef = userDocRef.collection("favourites");
     //Uploading favourites with the path "[filename - ownerID]"
@@ -341,7 +341,7 @@ class CloudStorageController {
   }
 
 
-  Future<void> removeFromFavourites(Record record) async { ///TESTED
+  Future<void> removeFromFavourites(Record record) async {
     DocumentReference userDocRef = FirebaseFirestore.instance.collection("users").doc(Model().getUser()!.uid);
     CollectionReference favCollRef = userDocRef.collection("favourites");
     String path = record.getFilename() + " - " + record.getRecordOwnerID();
@@ -349,7 +349,7 @@ class CloudStorageController {
   }
 
   ///Upgrades downalods number +1
-  Future<void> upgradeDownloads(String ownerID) async { ///TESTED
+  Future<void> upgradeDownloads(String ownerID) async {
     DocumentReference userDocRef = FirebaseFirestore.instance.collection("users").doc(ownerID);
     DocumentSnapshot snap = await userDocRef.get();
 
@@ -362,7 +362,7 @@ class CloudStorageController {
   }
 
   ///Return user's number of downloads taken from Cloud Storage for the given user's ID
-  Future<int> getDownloadsNumber() async { ///TESTED
+  Future<int> getDownloadsNumber() async {
     User? user = Model().getUser();
     if (user != null) {
       DocumentReference userDocRef = FirebaseFirestore.instance.collection("users").doc(user.uid);
@@ -377,7 +377,7 @@ class CloudStorageController {
   }
 
   ///Gets from the DB all the user's favourites and returns a list of all the queried urls
-  Future<List<Record>> getFavouritesFromDB() async { ///TESTED
+  Future<List<Record>> getFavouritesFromDB() async {
     List<Record> records = [];
 
     User? currentUser = Model().getUser();
@@ -406,7 +406,7 @@ class CloudStorageController {
   }
 
   ///Sets up new username in firebase
-  Future<void> setUsername(String newUsername) async { ///TESTED
+  Future<void> setUsername(String newUsername) async {
     User? user = Model().getUser();
     if (user != null) {
       CollectionReference usersDoc = FirebaseFirestore.instance.collection('users');
@@ -418,7 +418,7 @@ class CloudStorageController {
   }
 
   ///Gets personal username from firebase
-  Future<String> getUsername() async { ///TESTED
+  Future<String> getUsername() async {
     String res = "";
     User? user = Model().getUser();
     if (user != null) {

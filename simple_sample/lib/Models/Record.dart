@@ -1,5 +1,5 @@
 /// Class representing a record made with sampler or downloaded from cloud storage
-class Record { ///TESTING COMPLETED
+class Record {
 
   //Record URL can be local or external depending on the storage location (filesystem or firebase)
   String _url = "";
