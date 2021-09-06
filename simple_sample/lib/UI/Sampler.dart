@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:simple_sample/Controllers/AudioController.dart';
+import 'package:simple_sample/Controllers/AuthenticationController.dart';
 import 'package:simple_sample/Controllers/SamplerController.dart';
 import 'package:simple_sample/Controllers/ShareDialogController.dart';
 import 'package:simple_sample/Controllers/ToUpdateListController.dart';
@@ -51,6 +52,7 @@ class _SamplerState extends State<Sampler> {
 
     });
 
+    AuthenticationController(); //initializing
     _samplerController.disableItemSelection();
     super.initState();
   }
@@ -77,7 +79,7 @@ class _SamplerState extends State<Sampler> {
       shadowColor: MaterialStateProperty.resolveWith((states) => Colors.pinkAccent),
       enableFeedback: true,
       minimumSize: MaterialStateProperty.resolveWith((states) =>
-          /*Size(buttonSize, buttonSize))*/ Size(/*70*/ _screenWidth/5.85, /*70*/ _screenWidth/5.85)),
+           Size(/*70*/ _screenWidth/5.85, /*70*/ _screenWidth/5.85)),
     );
   }
 
@@ -446,7 +448,7 @@ class _SharingDialogState extends State<SharingDialog> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text("Insert Sample Infos:", style: TextStyle(color: Colors.white)),
+            Text(Languages.of(context)!.insertSampleInfo, style: TextStyle(color: Colors.white)),
             TextField(
               controller: _textFieldController,
               style: TextStyle(color: Colors.white),
@@ -457,11 +459,11 @@ class _SharingDialogState extends State<SharingDialog> {
                 focusedBorder: OutlineInputBorder(
                   borderSide: new BorderSide(color: Colors.white, width: 2),
                 ),
-                labelText: "New Sample Name",
+                labelText: Languages.of(context)!.newSampleName,
                 labelStyle: TextStyle(color: Colors.white),
               ),
             ),
-            Text("Choose one or more tags", style: TextStyle(color: Colors.white)),
+            Text(Languages.of(context)!.chooseTags, style: TextStyle(color: Colors.white)),
             makeTagList(),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -485,7 +487,7 @@ class _SharingDialogState extends State<SharingDialog> {
   }
 
 
-  ///Creates a list containing oll the listed tags
+  ///Creates a list containing all the listed tags
   Widget makeTagList() {
     return Container(
       width: /*200*/ _screenWidth/2,
@@ -609,7 +611,7 @@ class RenamePage extends StatelessWidget {
                 focusedBorder: OutlineInputBorder(
                   borderSide: new BorderSide(color: Colors.white, width: 2),
                 ),
-                labelText: "New Sample Name",
+                labelText: Languages.of(context)!.newSampleName,
                 labelStyle: TextStyle(color: Colors.white),
 
               ),
@@ -720,7 +722,7 @@ class _ToUploadListState extends State<ToUploadList> {
                     Navigator.pop(context);
                   };
                 },
-                child: Text("Upload Selected Elements"),
+                child: Text(Languages.of(context)!.uploadSelectedElements),
                 style: ButtonStyle(backgroundColor:  MaterialStateColor.resolveWith((states) => Colors.blueGrey),)
               ),
             ],
@@ -817,18 +819,18 @@ class LoadingDialog extends StatelessWidget {
 
   LoadingDialog({required this.controller, required this.key}) : super(key: key);
 
-  final List<String> titles = [
-    "Load elements from filesystem or Drive",
-    "Load built-in elements",
-    "Load from Documents folder",
-  ];
-
   @override
   Widget build(BuildContext context) {
 
     //Getting sceen's size
     double _screenHeight = MediaQuery.of(context).size.height;
     double _screenWidth = MediaQuery.of(context).size.width;
+
+    final List<String> titles = [
+      Languages.of(context)!.loadFromFilesystem,
+      Languages.of(context)!.loadBuiltIn,
+      Languages.of(context)!.loadFromDocuments,
+    ];
 
     return AlertDialog(
       backgroundColor: Color.fromRGBO(36, 59, 85, 1),
@@ -953,7 +955,10 @@ class _AssetsLoadingDialogState extends State<AssetsLoadingDialog> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text("Select an asset to Load", style: TextStyle(color: Colors.white, fontSize: 20),),
+            Text(
+              Languages.of(context)!.assetsLoading,
+              style: TextStyle(color: Colors.white, fontSize: 20,),
+              textAlign: TextAlign.center,),
             Container(
               height: /*300*/ _screenHeight/2.27,
               child: ListView.separated(
@@ -1060,7 +1065,7 @@ class _DocumentsLoadingDialogState extends State<DocumentsLoadingDialog> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text("Select a file to Load", style: TextStyle(color: Colors.white, fontSize: 20),),
+            Text(Languages.of(context)!.fileLoading, style: TextStyle(color: Colors.white, fontSize: 20),),
             Container(
               height: /*300*/ _screenHeight/2.27,
               child: ListView.separated(

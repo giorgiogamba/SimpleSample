@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:googleapis/drive/v3.dart' as drive;
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:simple_sample/Controllers/UserPageController.dart';
 
 import 'CloudStorageController.dart';
@@ -35,11 +36,14 @@ class AuthenticationController {
   void initAuthenticationController() async {
     FirebaseAuth authorizer = FirebaseAuth.instance;
 
+    signOut();
+    signOutGoogle();
+
     ///Initializing listener connected to the "User" object
     ///Executed different operations depending on the object state
-    authorizer.userChanges().listen((User? user) async {
+    authorizer.authStateChanges().listen((User? user) async { //userChanges
       if (user == null) {
-        print("User is currently signed out");
+        print("*** User is currently signed out ***");
       } else { //When the user logs in
         print("*** User logged in. Printing infos... ***");
         print(user.toString());
@@ -53,18 +57,13 @@ class AuthenticationController {
         //Making google access in order to enable Google Drive Service
         if (user.providerData[0].providerId == "google.com") { //if the user registered to app using google
           final GoogleSignIn googleSignIn = GoogleSignIn.standard(scopes: [drive.DriveApi.driveScope]);
-          await googleSignIn.signInSilently();
-
+          googleSignIn.signInSilently(); //todo problema qua che ritorna null
           GoogleSignInAccount? googleAccount = googleSignIn.currentUser;
-          print("*** Google Account Infos: ***");
-          print(googleAccount.toString());
-          Model().setGoogleSignInAccount(googleAccount);
 
           //initializing Google Drive Controller
           if (googleAccount != null) {
+            Model().setGoogleSignInAccount(googleAccount);
             GoogleDriveController().initGoogleDriveController();
-          } else {
-            print ("Google Account is null");
           }
 
         }
@@ -141,9 +140,9 @@ class AuthenticationController {
   }
 
   Future<void> signInWithGoogle() async {
+    print("*** Sign In with Google method");
     final GoogleSignIn googleSignIn = GoogleSignIn.standard(scopes: [drive.DriveApi.driveScope]);
     final GoogleSignInAccount? googleAccount = await googleSignIn.signIn();
-
     authenticateGoogleAccount(googleAccount);
   }
 

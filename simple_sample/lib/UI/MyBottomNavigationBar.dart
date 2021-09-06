@@ -3,6 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:simple_sample/UI/Sampler.dart';
 import 'package:simple_sample/UI/UserPage.dart';
+import 'package:simple_sample/Utils/Languages.dart';
 import 'Explorer.dart';
 import 'Sequencer.dart';
 
@@ -43,10 +44,10 @@ class _MyBottomNavigationBarState extends State<MyBottomNavigationBar> {
         showSelectedLabels: false, //for hiding BottonNavigationBarItem's labels
         showUnselectedLabels: false, //for hiding BottonNavigationBarItem's labels
         type: BottomNavigationBarType.fixed,
-        items: const <BottomNavigationBarItem>[
+        items: <BottomNavigationBarItem>[
           BottomNavigationBarItem(icon: Icon(Icons.apps_sharp,), label: "Sampler", ),
           BottomNavigationBarItem(icon: Icon(Icons.audiotrack,), label: "Sequencer"),
-          BottomNavigationBarItem(icon: Icon(Icons.accessibility,), label: "User"),
+          BottomNavigationBarItem(icon: Icon(Icons.accessibility,), label: Languages.of(context)!.user),
           BottomNavigationBarItem(icon: Icon(Icons.all_inbox,), label: "Explorer"),
         ],
         currentIndex: _selectedIndex,

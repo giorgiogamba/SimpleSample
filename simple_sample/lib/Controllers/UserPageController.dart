@@ -31,8 +31,8 @@ class UserPageController {
   ValueNotifier profileImagePath = ValueNotifier("assets/userlogo_white.png"); //!!! NON PRIVATIZZARE
   ValueNotifier<bool> loaded = ValueNotifier(false); //= false when page has to be reloaded
 
-  List<String> _languagesList = ["English", "Italiano", "Francais"]; //selectedble languages
-  List<String> _languagesCode = ["en", "it", "fr"];
+  List<String> _languagesList = ["English", "Italiano",]; //selectedble languages
+  List<String> _languagesCode = ["en", "it",];
 
   String getElementAt(int index) {
     return this._elements[index];

@@ -109,4 +109,46 @@ class LanguageEn extends Languages {
 
   @override
   String get cannotSelect => "This item cannot be selected. First record something";
+
+  @override
+  String get sampleCorrectlyRemoved => "Sample correctly removed from Shared Samples";
+
+  @override
+  String get sampleNotCorrectlyRemoved => "Unable to remove sample from Shared";
+
+  @override
+  String get name => "Name";
+
+  @override
+  String get filterValue => "Filter Value";
+
+  @override
+  String get user => "User";
+
+  @override
+  String get insertSampleInfo => "Insert Sample Info";
+
+  @override
+  String get newSampleName => "New Sample Name";
+
+  @override
+  String get chooseTags => "Choose one or more tags";
+
+  @override
+  String get uploadSelectedElements => "Upload selected elements";
+
+  @override
+  String get loadFromFilesystem => "Load Sample from filesystem or Cloud";
+
+  @override
+  String get loadBuiltIn => "Load Built-In Sample";
+
+  @override
+  String get loadFromDocuments => "Load from Documents folder";
+
+  @override
+  String get assetsLoading => "Select a Sample to Load";
+
+  @override
+  String get fileLoading => "Seleziona un file da caricare";
 }

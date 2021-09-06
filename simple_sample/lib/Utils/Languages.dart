@@ -78,4 +78,32 @@ abstract class Languages {
 
   String get cannotSelect;
 
+  String get sampleCorrectlyRemoved;
+
+  String get sampleNotCorrectlyRemoved;
+
+  String get name;
+
+  String get filterValue;
+
+  String get user;
+
+  String get insertSampleInfo;
+
+  String get newSampleName;
+
+  String get chooseTags;
+
+  String get uploadSelectedElements;
+
+  String get loadFromFilesystem;
+
+  String get loadBuiltIn;
+
+  String get loadFromDocuments;
+
+  String get assetsLoading;
+
+  String get fileLoading;
+
 }

@@ -108,4 +108,46 @@ class LanguageIT extends Languages {
 
   @override
   String get cannotSelect => "Questo bottone non può essere selezionato, prima registra qualcosa";
+
+  @override
+  String get sampleCorrectlyRemoved => "Sample correttamente rimosso dai condivisi";
+
+  @override
+  String get sampleNotCorrectlyRemoved => "Impossibile rimuovere il Sample dai Condivisi";
+
+  @override
+  String get name => "Nome";
+
+  @override
+  String get filterValue => "Valore filtro";
+
+  @override
+  String get user => "Utente";
+
+  @override
+  String get insertSampleInfo => "Inserisci informazioni";
+
+  @override
+  String get newSampleName => "Nuovo nome Sample";
+
+  @override
+  String get chooseTags => "Scegli uno o più tag";
+
+  @override
+  String get uploadSelectedElements => "Carica elementi selezionati";
+
+  @override
+  String get loadFromFilesystem => "Carica Sample da filesystem o Cloud";
+
+  @override
+  String get loadBuiltIn => "Carica Sample Built-In";
+
+  @override
+  String get loadFromDocuments => "Carica Sample da cartella Documenti";
+
+  @override
+  String get assetsLoading => "Scegli un Sample da caricare";
+
+  @override
+  String get fileLoading => "Seleziona un file da caricare";
 }

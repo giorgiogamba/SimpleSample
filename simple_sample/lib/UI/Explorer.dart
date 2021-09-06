@@ -133,7 +133,7 @@ class _ExplorerState extends State<Explorer> {
                     focusedBorder: OutlineInputBorder(
                       borderSide: new BorderSide(color: Colors.white, width: 2),
                     ),
-                    labelText: 'Filter Value',
+                    labelText: Languages.of(context)!.filterValue,
                     labelStyle: TextStyle(color: Colors.white),
                   ),
                 ),

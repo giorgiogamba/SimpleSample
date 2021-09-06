@@ -66,7 +66,7 @@ class _MyAppState extends State<MyApp> {
             builder: (context, snapshot) {
               if (snapshot.hasError) {
                 print("Error: ${snapshot.error.toString()}");
-                return Text("Something ent wrong");
+                return Text("Something went wrong");
               } else if (snapshot.hasData) {
                 return Scaffold(
                   body:

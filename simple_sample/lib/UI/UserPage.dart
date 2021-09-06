@@ -4,6 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:simple_sample/UI/Explorer.dart';
+import 'package:simple_sample/Models/Model.dart';
 import 'package:simple_sample/Controllers/UserPageController.dart';
 import 'package:simple_sample/Utils.dart';
 import 'package:simple_sample/Utils/Languages.dart';
@@ -330,6 +331,8 @@ class _UserPageState extends State<UserPage> {
         if (_userPageController.getModelAuth().value == true) {
           _userPageController.updateUserPage(); //updating user's datas
 
+          print("******* GOOGLE ACCOUNT NULLO? ${Model().getGoogleSignInAccount() == null}");
+
           return Container(
             child: ValueListenableBuilder(
               valueListenable: _userPageController.loaded,
@@ -412,9 +415,9 @@ class _SquareListItemState extends State<SquareListItem> {
             icon: Icon(Icons.delete, color: Colors.white),
             onPressed: () => widget.controller.handleRemoveFromSharedSamples(widget.itemIndex).then((value) {
               if (value) {
-                Utils.showToast(context, "Sample correctly removed from Shared");
+                Utils.showToast(context, Languages.of(context)!.sampleCorrectlyRemoved);
               } else {
-                Utils.showToast(context, "Unable to remove sample from Shared");
+                Utils.showToast(context, Languages.of(context)!.sampleNotCorrectlyRemoved);
               }
               widget.callback();
             }),
@@ -699,7 +702,7 @@ class SetUsernameDialog extends StatelessWidget {
                 focusedBorder: OutlineInputBorder(
                   borderSide: new BorderSide(color: Colors.white, width: 2),
                 ),
-                labelText: "New Username",
+                labelText: Languages.of(context)!.newUsername,
                 labelStyle: TextStyle(color: Colors.white),
               ),
             ),
