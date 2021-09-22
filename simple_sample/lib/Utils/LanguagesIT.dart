@@ -134,7 +134,7 @@ class LanguageIT extends Languages {
   String get chooseTags => "Scegli uno o più tag";
 
   @override
-  String get uploadSelectedElements => "Carica elementi selezionati";
+  String get uploadSelectedElements => "Carica";
 
   @override
   String get loadFromFilesystem => "Carica Sample da filesystem o Cloud";
