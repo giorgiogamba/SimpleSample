@@ -95,6 +95,11 @@ class UserPageController {
     AudioController().playAtURL(record.getUrl());
   }
 
+  void playFavouriteRecordAt(int index) {
+    Record record = getFavouriteAt(index);
+    AudioController().playAtURL(record.getUrl());
+  }
+
   void setProfileImagePath(String path) {
     profileImagePath.value = path;
   }
@@ -188,7 +193,19 @@ class UserPageController {
 
   Future<bool> handleRemoveFromSharedSamples(int index) async {
     Record toDelete = getUserSharedRecordAt(index);
-    return await CloudStorageController().removeFromSharedSamples(toDelete);
+    bool res = await CloudStorageController().removeFromSharedSamples(toDelete);
+    if (res == true) {
+      //Removing this Shared Sample from Favourites if present
+      int index = 0;
+      for (Record fav in this._favourites) {
+        if (fav.getFilename() == toDelete.getFilename() && fav.getUrl() == toDelete.getUrl()) {
+          await handleRemoveFromFavourites(index);
+          break;
+        }
+        index ++;
+      }
+    }
+    return res;
   }
 
 }

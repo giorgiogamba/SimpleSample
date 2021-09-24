@@ -143,7 +143,7 @@ class _UserPageState extends State<UserPage> {
                 itemBuilder:  (BuildContext context, int index) {
                   return SquareListItem(
                     itemIndex: index,
-                    key: Key(0.toString()),
+                    key: Key(_userPageController.getFavouritesLength().toString()),
                     controller: _userPageController,
                     isFavourite: true,
                     callback: () { setState(() {});},
@@ -394,7 +394,7 @@ class _SquareListItemState extends State<SquareListItem> {
         children: [
           IconButton(
             icon: Icon(Icons.play_arrow, color: Colors.white,),
-            onPressed: () => widget.controller.playRecordAt(widget.itemIndex),
+            onPressed: () => widget.controller.playFavouriteRecordAt(widget.itemIndex),
           ),
           IconButton(
             icon: Icon( Icons.star, color: Colors.white,),
@@ -404,7 +404,7 @@ class _SquareListItemState extends State<SquareListItem> {
           ),
         ],
       );
-    } else {
+    } else { //this widget will be used to display a shared record
       return Row(
         children: [
           IconButton(
