@@ -1,5 +1,4 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:simple_sample/Models/Model.dart';
 import '../Models/Record.dart';
@@ -305,7 +304,6 @@ class CloudStorageController {
   void getUserInfos() async {
     User? currentUser = Model().getUser();
     if (currentUser != null) {
-      String uid = currentUser.uid;
       CollectionReference usersDoc = FirebaseFirestore.instance.collection('users');
       DocumentSnapshot currentUserDoc = await usersDoc.doc("uid").get();
 

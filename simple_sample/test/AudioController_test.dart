@@ -1,7 +1,5 @@
-
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:simple_sample/Controllers/AudioController.dart';
@@ -12,10 +10,8 @@ void main() {
   setUpAll(() {
     WidgetsFlutterBinding.ensureInitialized();
     SharedPreferences.setMockInitialValues({});
-    const MethodChannel channel = MethodChannel('plugins.flutter.io/path_provider');
-    channel.setMockMethodCallHandler((MethodCall methodCall) async {
-      return '.';
-    });
+    // const MethodChannel channel = MethodChannel('plugins.flutter.io/path_provider');
+    // channel.setMockMethodCallHandler((MethodCall methodCall) async { return '.'; });
   });
 
   test("record_test", () async {

@@ -1,6 +1,4 @@
-import 'dart:ui';
 import 'dart:io';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:simple_sample/UI/Explorer.dart';
@@ -236,7 +234,7 @@ class _UserPageState extends State<UserPage> {
                           });
                         },
                         child: Text(Languages.of(context)!.register),
-                        style: ButtonStyle(backgroundColor:  MaterialStateColor.resolveWith((states) => Colors.blueGrey),),
+                        style: ButtonStyle(backgroundColor: WidgetStateProperty.resolveWith((states) => Colors.blueGrey),),
                       ),
                       ElevatedButton(
                         onPressed: () {
@@ -254,7 +252,7 @@ class _UserPageState extends State<UserPage> {
                           });
                         },
                         child: Text(Languages.of(context)!.login),
-                        style: ButtonStyle(backgroundColor:  MaterialStateColor.resolveWith((states) => Colors.blueGrey),),
+                        style: ButtonStyle(backgroundColor:  WidgetStateProperty.resolveWith((states) => Colors.blueGrey),),
                       ),
                     ],
                   ),
@@ -608,7 +606,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   ),
                 ),
                   child: Text(Languages.of(context)!.setProfileImageName),
-                  style: ButtonStyle(backgroundColor:  MaterialStateColor.resolveWith((states) => Colors.blueGrey),),
+                  style: ButtonStyle(backgroundColor:  WidgetStateProperty.resolveWith((states) => Colors.blueGrey),),
                 ),
                 ElevatedButton(
                   onPressed: () {
@@ -618,7 +616,7 @@ class _SettingsPageState extends State<SettingsPage> {
                     );
                   },
                   child: Text(Languages.of(context)!.setUsernameName),
-                  style: ButtonStyle(backgroundColor:  MaterialStateColor.resolveWith((states) => Colors.blueGrey),),
+                  style: ButtonStyle(backgroundColor:  WidgetStateProperty.resolveWith((states) => Colors.blueGrey),),
                 ),
                 ElevatedButton(onPressed: () {
                   showDialog(
@@ -626,7 +624,7 @@ class _SettingsPageState extends State<SettingsPage> {
                     builder: (context) => ChangeLanguageDialog(controller: widget.controller,),
                   );},
                   child: Text(Languages.of(context)!.changeLanguageName),
-                  style: ButtonStyle(backgroundColor: MaterialStateColor.resolveWith((states) => Colors.blueGrey),),
+                  style: ButtonStyle(backgroundColor: WidgetStateProperty.resolveWith((states) => Colors.blueGrey),),
                 ),
                 MyDivider(),
                 ElevatedButton(
@@ -634,7 +632,7 @@ class _SettingsPageState extends State<SettingsPage> {
                     Navigator.pop(context);
                   }),
                   child: Text(Languages.of(context)!.logoutName),
-                  style: ButtonStyle(backgroundColor:  MaterialStateColor.resolveWith((states) => Colors.red),),
+                  style: ButtonStyle(backgroundColor:  WidgetStateProperty.resolveWith((states) => Colors.red),),
                 ),
                 ElevatedButton(
                   onPressed: () {
@@ -647,13 +645,13 @@ class _SettingsPageState extends State<SettingsPage> {
                     );
                   },
                   child: Text(Languages.of(context)!.deleteUserName),
-                  style: ButtonStyle(backgroundColor:  MaterialStateColor.resolveWith((states) => Colors.red),),
+                  style: ButtonStyle(backgroundColor: WidgetStateProperty.resolveWith((states) => Colors.red),),
                 ),
                 MyDivider(),
                 ElevatedButton(
                   onPressed: () => Navigator.pop(context),
                   child: Text(Languages.of(context)!.backName),
-                  style: ButtonStyle(backgroundColor:  MaterialStateColor.resolveWith((states) => Colors.blueGrey),),
+                  style: ButtonStyle(backgroundColor: WidgetStateProperty.resolveWith((states) => Colors.blueGrey),),
                 ),
                 Padding(padding: EdgeInsets.symmetric(vertical: 20)),
               ],
@@ -714,7 +712,7 @@ class SetUsernameDialog extends StatelessWidget {
                   Navigator.pop(context);
                 },
                   child: Text(Languages.of(context)!.cancelName),
-                  style: ButtonStyle(backgroundColor: MaterialStateColor.resolveWith((states) => Colors.blueGrey),)
+                  style: ButtonStyle(backgroundColor: WidgetStateProperty.resolveWith((states) => Colors.blueGrey),)
                 ),
                 ElevatedButton(onPressed: () {
                   UserPageController().setUsername(_textEditingController.text).then((value) {
@@ -724,7 +722,7 @@ class SetUsernameDialog extends StatelessWidget {
                   });
                   },
                   child: Text(Languages.of(context)!.submitName),
-                  style: ButtonStyle(backgroundColor: MaterialStateColor.resolveWith((states) => Colors.blueGrey),),
+                  style: ButtonStyle(backgroundColor: WidgetStateProperty.resolveWith((states) => Colors.blueGrey),),
                 ),
               ],
             ),
@@ -776,7 +774,7 @@ class _DeleteAccountWidgetState extends State<DeleteAccountWidget> {
                   Navigator.pop(context);
                 },
                   child: Text("No"),
-                  style: ButtonStyle(backgroundColor: MaterialStateColor.resolveWith((states) => Colors.blueGrey),),
+                  style: ButtonStyle(backgroundColor: WidgetStateProperty.resolveWith((states) => Colors.blueGrey),),
                 ),
                 ElevatedButton(onPressed: () {
                   widget.controller.deleteAccount().then((value) {
@@ -785,7 +783,7 @@ class _DeleteAccountWidgetState extends State<DeleteAccountWidget> {
                   });
                 },
                   child: Text(Languages.of(context)!.yes),
-                  style: ButtonStyle(backgroundColor: MaterialStateColor.resolveWith((states) => Colors.blueGrey),),
+                  style: ButtonStyle(backgroundColor: WidgetStateProperty.resolveWith((states) => Colors.blueGrey),),
                 ),
               ],
             ),
@@ -832,7 +830,7 @@ class AccessErrorPage extends StatelessWidget {
             ElevatedButton(
               onPressed: () {Navigator.pop(context);},
               child: Text(Languages.of(context)!.backName),
-              style: ButtonStyle(backgroundColor: MaterialStateColor.resolveWith((states) => Colors.blueGrey),),
+              style: ButtonStyle(backgroundColor: WidgetStateProperty.resolveWith((states) => Colors.blueGrey),),
             ),
           ],
         ),
@@ -881,7 +879,7 @@ class ChangeLanguageDialog extends StatelessWidget {
             ),
             ElevatedButton(
               onPressed: () => Navigator.pop(context), child: Text(Languages.of(context)!.cancelName),
-              style: ButtonStyle(backgroundColor: MaterialStateColor.resolveWith((states) => Colors.red),),
+              style: ButtonStyle(backgroundColor: WidgetStateProperty.resolveWith((states) => Colors.red),),
             ),
           ],
         ),

@@ -1,5 +1,3 @@
-import 'dart:async';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:simple_sample/Controllers/AudioController.dart';
 import 'package:simple_sample/Controllers/AuthenticationController.dart';
@@ -31,7 +29,6 @@ class _SamplerState extends State<Sampler> {
 
   AudioController _audioController = AudioController();
   SamplerController _samplerController = SamplerController();
-  StreamSubscription? _recorderSubscription;
   double _screenHeight = 0;
   double _screenWidth = 0;
 
@@ -75,19 +72,19 @@ class _SamplerState extends State<Sampler> {
   ButtonStyle getSamplerButtonStyle(int index) {
     return ButtonStyle(
       backgroundColor: getSamplerColor(index),
-      elevation: MaterialStateProperty.resolveWith((states) => elevationValue),
-      shadowColor: MaterialStateProperty.resolveWith((states) => Colors.pinkAccent),
+      elevation: WidgetStateProperty.resolveWith((states) => elevationValue),
+      shadowColor: WidgetStateProperty.resolveWith((states) => Colors.pinkAccent),
       enableFeedback: true,
-      minimumSize: MaterialStateProperty.resolveWith((states) =>
+      minimumSize: WidgetStateProperty.resolveWith((states) =>
            Size(/*70*/ _screenWidth/5.85, /*70*/ _screenWidth/5.85)),
     );
   }
 
-  MaterialStateProperty<Color?>? getSamplerColor(int index) {
+  WidgetStateProperty<Color?>? getSamplerColor(int index) {
     if (_samplerController.checkIsButtonIsFull(index)) { //there is a record on this button
-      return MaterialStateColor.resolveWith((states) => Colors.pink);
+      return WidgetStateProperty.resolveWith((states) => Colors.pink);
     } else {
-      return MaterialStateColor.resolveWith((states) => Colors.teal);
+      return WidgetStateProperty.resolveWith((states) => Colors.teal);
     }
   }
 
@@ -218,25 +215,25 @@ class _SamplerState extends State<Sampler> {
 
   ButtonStyle getRenameButtonStyle() {
     if (_samplerController.isRenameRunning()) {
-      return ButtonStyle(backgroundColor: MaterialStateColor.resolveWith((states) => Colors.red),);
+      return ButtonStyle(backgroundColor: WidgetStateProperty.resolveWith((states) => Colors.red),);
     } else {
-      return ButtonStyle(backgroundColor: MaterialStateColor.resolveWith((states) => Colors.blueGrey),);
+      return ButtonStyle(backgroundColor: WidgetStateProperty.resolveWith((states) => Colors.blueGrey),);
     }
   }
 
   ButtonStyle getSharingButtonStyle() {
     if (_samplerController.isSharingRunning()) {
-      return ButtonStyle(backgroundColor: MaterialStateColor.resolveWith((states) => Colors.red),);
+      return ButtonStyle(backgroundColor: WidgetStateProperty.resolveWith((states) => Colors.red),);
     } else {
-      return ButtonStyle(backgroundColor: MaterialStateColor.resolveWith((states) => Colors.blueGrey),);
+      return ButtonStyle(backgroundColor: WidgetStateProperty.resolveWith((states) => Colors.blueGrey),);
     }
   }
 
   ButtonStyle getLoadingButtonStyle() {
     if (_samplerController.isLoadingRunning()) {
-      return ButtonStyle(backgroundColor: MaterialStateColor.resolveWith((states) => Colors.red),);
+      return ButtonStyle(backgroundColor: WidgetStateProperty.resolveWith((states) => Colors.red),);
     } else {
-      return ButtonStyle(backgroundColor: MaterialStateColor.resolveWith((states) => Colors.blueGrey),);
+      return ButtonStyle(backgroundColor: WidgetStateProperty.resolveWith((states) => Colors.blueGrey),);
     }
   }
 
@@ -359,7 +356,7 @@ class _SamplerState extends State<Sampler> {
                   }
                 },
                   child: Icon(Icons.add_to_drive),
-                  style: ButtonStyle(backgroundColor:  MaterialStateColor.resolveWith((states) => Colors.blueGrey),),
+                  style: ButtonStyle(backgroundColor:  WidgetStateProperty.resolveWith((states) => Colors.blueGrey),),
                 ),
                 Padding(padding: EdgeInsets.symmetric(horizontal: /*10*/ _screenWidth/41)),
                 ElevatedButton( onPressed: () { //SHARE BUTTON
@@ -467,12 +464,12 @@ class _SharingDialogState extends State<SharingDialog> {
                 ElevatedButton(
                   onPressed: () => Navigator.pop(context),
                   child: Text(Languages.of(context)!.cancelName),
-                  style: ButtonStyle(backgroundColor: MaterialStateColor.resolveWith((states) => Colors.red),),
+                  style: ButtonStyle(backgroundColor: WidgetStateProperty.resolveWith((states) => Colors.red),),
                 ),
                 ElevatedButton(
                   onPressed: () => _controller.share(_textFieldController.text).then((value) => Navigator.pop(context)),
                   child: Text(Languages.of(context)!.shareName),
-                  style: ButtonStyle(backgroundColor: MaterialStateColor.resolveWith((states) => Colors.blueGrey),),
+                  style: ButtonStyle(backgroundColor: WidgetStateProperty.resolveWith((states) => Colors.blueGrey),),
                 ),
               ],
             ),
@@ -619,14 +616,14 @@ class RenamePage extends StatelessWidget {
                   Navigator.pop(context);
                 },
                   child: Text(Languages.of(context)!.cancelName),
-                  style: ButtonStyle(backgroundColor: MaterialStateColor.resolveWith((states) => Colors.red),),
+                  style: ButtonStyle(backgroundColor: WidgetStateProperty.resolveWith((states) => Colors.red),),
                 ),
                 ElevatedButton(onPressed: () {
                   samplerController.setRenameSubmitted(true);
                   Navigator.pop(context);
                 },
                   child: Text(Languages.of(context)!.submitName),
-                  style: ButtonStyle(backgroundColor: MaterialStateColor.resolveWith((states) => Colors.blueGrey),),),
+                  style: ButtonStyle(backgroundColor: WidgetStateProperty.resolveWith((states) => Colors.blueGrey),),),
               ],
             ),
           ],
@@ -708,7 +705,7 @@ class _ToUploadListState extends State<ToUploadList> {
                   Navigator.pop(context);
                 },
                 child: Text(Languages.of(context)!.cancelName),
-                style: ButtonStyle(backgroundColor:  MaterialStateColor.resolveWith((states) => Colors.red),),
+                style: ButtonStyle(backgroundColor:  WidgetStateProperty.resolveWith((states) => Colors.red),),
               ),
               Padding(padding: EdgeInsets.all(_screenWidth/82)),
               ElevatedButton(
@@ -719,7 +716,7 @@ class _ToUploadListState extends State<ToUploadList> {
                   };
                 },
                 child: Text(Languages.of(context)!.uploadSelectedElements),
-                style: ButtonStyle(backgroundColor:  MaterialStateColor.resolveWith((states) => Colors.blueGrey),)
+                style: ButtonStyle(backgroundColor:  WidgetStateProperty.resolveWith((states) => Colors.blueGrey),)
               ),
             ],
           ),
@@ -746,8 +743,6 @@ class ToUploadItem extends StatefulWidget {
 class _ToUploadItemState extends State<ToUploadItem> {
 
   bool isSelected = false;
-  double _screenWidth = 0;
-  double _screenHeight = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -777,8 +772,8 @@ class _ToUploadItemState extends State<ToUploadItem> {
             onPressed: () => widget.controller.playRecord(widget.controller.getElementAt(widget.itemIndex).getUrl()),
             child: Icon(Icons.play_arrow),
             style: ButtonStyle(
-              minimumSize:MaterialStateProperty.resolveWith((states) => Size(/*20*/ _screenWidth/20.5, /*20*/ _screenWidth/20.5)),
-              backgroundColor:  MaterialStateColor.resolveWith((states) => Colors.blueGrey),
+              minimumSize:WidgetStateProperty.resolveWith((states) => Size(/*20*/ _screenWidth/20.5, /*20*/ _screenWidth/20.5)),
+              backgroundColor:  WidgetStateProperty.resolveWith((states) => Colors.blueGrey),
             ),
           ),
           Stack(
@@ -855,7 +850,7 @@ class LoadingDialog extends StatelessWidget {
             ElevatedButton(
               onPressed: () => Navigator.pop(context, "NO SELECTION"),
               child: Text(Languages.of(context)!.cancelName),
-              style: ButtonStyle(backgroundColor: MaterialStateProperty.resolveWith((states) => Colors.red),),
+              style: ButtonStyle(backgroundColor: WidgetStateProperty.resolveWith((states) => Colors.red),),
             ),
           ],
         ),
@@ -973,7 +968,7 @@ class _AssetsLoadingDialogState extends State<AssetsLoadingDialog> {
             ElevatedButton(
               onPressed: () => Navigator.pop(context, "NO SELECTION"),
               child: Text(Languages.of(context)!.cancelName),
-              style: ButtonStyle(backgroundColor: MaterialStateColor.resolveWith((states) => Colors.red),),),
+              style: ButtonStyle(backgroundColor: WidgetStateProperty.resolveWith((states) => Colors.red),),),
           ],
         ),
 
@@ -1020,8 +1015,8 @@ class _AssetsLoadingDialogListItemState extends State<AssetsLoadingDialogListIte
             onPressed: () => AudioController().playAtURL(widget.controller.getAssetAt(widget.index)),
             child: Icon(Icons.play_arrow),
             style: ButtonStyle(
-              minimumSize:MaterialStateProperty.resolveWith((states) => Size(/*20*/ _screenWidth/20.5, /*20*/ _screenWidth/20.5)),
-              backgroundColor:  MaterialStateColor.resolveWith((states) => Colors.blueGrey),
+              minimumSize:WidgetStateProperty.resolveWith((states) => Size(/*20*/ _screenWidth/20.5, /*20*/ _screenWidth/20.5)),
+              backgroundColor:  WidgetStateProperty.resolveWith((states) => Colors.blueGrey),
             ),
           ),
         ],
@@ -1080,7 +1075,7 @@ class _DocumentsLoadingDialogState extends State<DocumentsLoadingDialog> {
             ElevatedButton(
               onPressed: () => Navigator.pop(context, "NO SELECTION"),
               child: Text(Languages.of(context)!.cancelName),
-              style: ButtonStyle(backgroundColor: MaterialStateColor.resolveWith((states) => Colors.red),),),
+              style: ButtonStyle(backgroundColor: WidgetStateProperty.resolveWith((states) => Colors.red),),),
           ],
         ),
 
@@ -1127,8 +1122,8 @@ class _DocumentsLoadingDialogListItemState extends State<DocumentsLoadingDialogL
             onPressed: () => AudioController().playAtURL(widget.controller.getDocumentFileAt(widget.index)),
             child: Icon(Icons.play_arrow),
             style: ButtonStyle(
-              minimumSize:MaterialStateProperty.resolveWith((states) => Size(/*20*/ _screenWidth/20.5, /*20*/ _screenWidth/20.5)),
-              backgroundColor:  MaterialStateColor.resolveWith((states) => Colors.blueGrey),
+              minimumSize:WidgetStateProperty.resolveWith((states) => Size(/*20*/ _screenWidth/20.5, /*20*/ _screenWidth/20.5)),
+              backgroundColor:  WidgetStateProperty.resolveWith((states) => Colors.blueGrey),
             ),
           ),
         ],

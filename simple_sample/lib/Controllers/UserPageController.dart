@@ -1,5 +1,4 @@
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/foundation.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:simple_sample/Controllers/AuthenticationController.dart';
 import 'package:simple_sample/Models/Record.dart';
@@ -46,10 +45,10 @@ class UserPageController {
   Future<PickedFile?> pickImageFromCamera() async {
     ImagePicker picker = ImagePicker();
     PickedFile? pickedImage = await picker.getImage(source: ImageSource.camera, imageQuality: 100);
-    if (pickedImage != null) {
-      setProfileImagePath(pickedImage.path);
-      CloudStorageController().uploadProfileImage(pickedImage.path);
-    }
+
+    setProfileImagePath(pickedImage.path);
+    CloudStorageController().uploadProfileImage(pickedImage.path);
+    
     return pickedImage;
   }
 
@@ -57,22 +56,25 @@ class UserPageController {
   Future<PickedFile?> pickImageFromGallery() async {
     ImagePicker picker = ImagePicker();
     PickedFile? pickedImage = await picker.getImage(source: ImageSource.gallery, imageQuality: 100);
-    if (pickedImage != null) {
-      setProfileImagePath(pickedImage.path);
-      CloudStorageController().uploadProfileImage(pickedImage.path);
-    }
+    
+    setProfileImagePath(pickedImage.path);
+    CloudStorageController().uploadProfileImage(pickedImage.path);
+    
     return pickedImage;
   }
 
   ///Manages profile image source selection from setting menu
   Future<PickedFile?> executeOperation(int index) async {
+
+    PickedFile? file;
+
     if (index == 0) {
-      PickedFile? image = await pickImageFromGallery();
-      return image;
+      file = await pickImageFromGallery();
     } else if (index == 1) {
-      PickedFile? image = await pickImageFromCamera();
-      return image;
+      file = await pickImageFromCamera();
     }
+
+    return file;
   }
 
   ///Gets all the records shared by the user in order to display them into user page

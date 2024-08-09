@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:simple_sample/Controllers/SequencerController.dart';
@@ -33,8 +32,8 @@ class _SequencerState extends State<Sequencer> {
     }
 
     return ButtonStyle(
-      backgroundColor: MaterialStateColor.resolveWith((states) => colorToFill),
-      minimumSize: MaterialStateProperty.resolveWith((states) => Size(/*25*/_screenWidth/16.44, /*25*/_screenWidth/16.44)),
+      backgroundColor: WidgetStateProperty.resolveWith((states) => colorToFill),
+      minimumSize: WidgetStateProperty.resolveWith((states) => Size(/*25*/_screenWidth/16.44, /*25*/_screenWidth/16.44)),
     );
   }
 
@@ -121,19 +120,19 @@ class _SequencerState extends State<Sequencer> {
                 onPressed: () => _sequencerController.handlePlay(),
                 child: Icon(Icons.play_arrow),
                 style: ButtonStyle(
-                  backgroundColor: MaterialStateColor.resolveWith((states) => Colors.blueGrey),),
+                  backgroundColor: WidgetStateProperty.resolveWith((states) => Colors.blueGrey),),
               ),
               Padding(padding: EdgeInsets.symmetric(horizontal: 3),),
               ElevatedButton(
                 onPressed:() => _sequencerController.handleStop(),
                 child: Icon(Icons.stop),
-                style: ButtonStyle(backgroundColor: MaterialStateColor.resolveWith((states) => Colors.blueGrey),),
+                style: ButtonStyle(backgroundColor: WidgetStateProperty.resolveWith((states) => Colors.blueGrey),),
               ),
               Padding(padding: EdgeInsets.symmetric(horizontal: 3),),
               ElevatedButton(
                 onPressed: _sequencerController.handlePause,
                 child: Icon(Icons.pause),
-                style: ButtonStyle(backgroundColor: MaterialStateColor.resolveWith((states) => Colors.blueGrey),),
+                style: ButtonStyle(backgroundColor: WidgetStateProperty.resolveWith((states) => Colors.blueGrey),),
               ),
               Padding(padding: EdgeInsets.symmetric(horizontal: 3),),
               ElevatedButton(
@@ -142,7 +141,7 @@ class _SequencerState extends State<Sequencer> {
                   setState(() {});
                 },
                 child: Text("Reset"),
-                style: ButtonStyle(backgroundColor: MaterialStateColor.resolveWith((states) => Colors.blueGrey),),
+                style: ButtonStyle(backgroundColor: WidgetStateProperty.resolveWith((states) => Colors.blueGrey),),
               ),
               Padding(padding: EdgeInsets.symmetric(horizontal: 3),),
               BPMSelector(controller: _sequencerController),
@@ -194,8 +193,8 @@ class SequencerPointer extends StatelessWidget {
 
   ButtonStyle getSequencerButtonStyle(int index, double screenWidth) {
     return ButtonStyle(
-      backgroundColor: MaterialStateColor.resolveWith((states) => takeColor(index)),
-      minimumSize: MaterialStateProperty.resolveWith((states) => Size(/*25*/screenWidth/16.44, /*25*/screenWidth/16.44)),
+      backgroundColor: WidgetStateProperty.resolveWith((states) => takeColor(index)),
+      minimumSize: WidgetStateProperty.resolveWith((states) => Size(/*25*/screenWidth/16.44, /*25*/screenWidth/16.44)),
     );
   }
 

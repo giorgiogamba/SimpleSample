@@ -1,5 +1,4 @@
 import 'dart:typed_data';
-import 'package:file_picker/file_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import '../Utils/Languages.dart';
@@ -25,7 +24,6 @@ class SamplerController {
   bool _renameSubmitted = false;
   bool _isSharingRunning = false;
   bool _isLoadingRunning = false;
-  int? _selectedItemForSharing;
   String _operationInformationText = "";
   List<String> _assets = [];
 
@@ -144,7 +142,6 @@ class SamplerController {
     Record? record = Model().getRecordAt(index);
     if (record != null) {
       return true;
-          return false;
     }
     return false;
   }
