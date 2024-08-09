@@ -8,7 +8,7 @@
             "name": "Run",
             "type": "lightcode",
             "request": "launch",
-            "program": "${workspaceFolder}/build/Debug-iphoneos/simple_sample.app",
+            "program": "${workspaceFolder}/simple_sample/build/Debug-iphoneos/simple_sample.app",
             "buildCommand": "xcodebuild -configuration Debug -sdk iphoneos -allowProvisioningUpdates",
             "appBundleId": "com.example.simple_sample"
         },

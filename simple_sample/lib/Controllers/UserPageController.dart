@@ -43,24 +43,35 @@ class UserPageController {
 
   ///Takes image from camera, sets it as a profile image and uploads it on the cloud
   Future<PickedFile?> pickImageFromCamera() async {
-    ImagePicker picker = ImagePicker();
+    /*ImagePicker picker = ImagePicker();
     PickedFile? pickedImage = await picker.getImage(source: ImageSource.camera, imageQuality: 100);
 
     setProfileImagePath(pickedImage.path);
     CloudStorageController().uploadProfileImage(pickedImage.path);
     
     return pickedImage;
+    */
+
+    ImagePicker picker = ImagePicker();
+    Future<XFile?> pickedImage = picker.pickImage(source: ImageSource.camera);
+    
+    setProfileImagePath(pickedImage.toString());
+    CloudStorageController().uploadProfileImage(pickedImage.toString());
+    
+    //return pickedImage;
+    return null;
   }
 
   ///Takes image from gallery and sets it as profile image and uploads it on the cloud
   Future<PickedFile?> pickImageFromGallery() async {
     ImagePicker picker = ImagePicker();
-    PickedFile? pickedImage = await picker.getImage(source: ImageSource.gallery, imageQuality: 100);
+    Future<XFile?> pickedImage = picker.pickImage(source: ImageSource.gallery);
     
-    setProfileImagePath(pickedImage.path);
-    CloudStorageController().uploadProfileImage(pickedImage.path);
+    setProfileImagePath(pickedImage.toString());
+    CloudStorageController().uploadProfileImage(pickedImage.toString());
     
-    return pickedImage;
+    //return pickedImage;
+    return null;
   }
 
   ///Manages profile image source selection from setting menu

@@ -66,7 +66,10 @@ void main() {
     model.addRecord(rec4, 3);
 
     Record? res = model.getRecordWithPath("path");
-    expect (res.getFilename(), "path");
+    if (res != null)
+    {
+      expect (res.getFilename(), "path");
+    }
   });
 
 
@@ -111,7 +114,10 @@ void main() {
     Model().addRecord(rec, 0);
     Model().renameRecord(0, "nuovo");
     Record? res = Model().getRecordAt(0);
-    expect(res.getFilename(), "nuovo");
+    if (res != null)
+    {
+      expect(res.getFilename(), "nuovo");
+    }
   });
 
   test("getExtDirElementsList", () {

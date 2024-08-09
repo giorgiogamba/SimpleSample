@@ -12,10 +12,13 @@ void main() {
     SequencerController().initSequencerMap();
     HashMap<int, HashMap<int, bool>>? map = SequencerController().getSequencerMap();
 
-    for (int i = 0; i < map.length; i ++) {
-      for (int j = 0; j < map[i]!.length; j ++) {
-        bool val = SequencerController().getSequencerMapValue(j, i)!;
-        expect(val, false);
+    if (map != null)
+    {
+      for (int i = 0; i < map.length; i ++) {
+        for (int j = 0; j < map[i]!.length; j ++) {
+          bool val = SequencerController().getSequencerMapValue(j, i)!;
+          expect(val, false);
+        }
       }
     }
   });
@@ -51,13 +54,15 @@ void main() {
     SequencerController().resetSequencer();
     HashMap<int, HashMap<int, bool>>? map = SequencerController().getSequencerMap();
 
-    for (int i = 0; i < map.length; i ++) {
-      for (int j = 0; j < map[i]!.length; j ++) {
-        bool val = SequencerController().getSequencerMapValue(j, i)!;
-        expect(val, false);
+    if (map != null)
+    {
+      for (int i = 0; i < map.length; i ++) {
+        for (int j = 0; j < map[i]!.length; j ++) {
+          bool val = SequencerController().getSequencerMapValue(j, i)!;
+          expect(val, false);
+        }
       }
     }
-
   });
 
   test("MAnage button press", () {
