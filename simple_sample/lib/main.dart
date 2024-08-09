@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:simple_sample/Controllers/SequencerController.dart';
 import 'package:simple_sample/Models/Model.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:overlay_support/overlay_support.dart';

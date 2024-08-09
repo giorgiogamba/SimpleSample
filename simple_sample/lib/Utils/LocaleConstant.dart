@@ -1,11 +1,7 @@
-import 'dart:ui';
-
 import 'package:flutter/cupertino.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../main.dart';
-
-
 
 const String prefSelectedLanguageCode = "SelectedLanguageCode";
 

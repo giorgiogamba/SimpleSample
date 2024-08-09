@@ -5,7 +5,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:simple_sample/Models/Model.dart';
 import 'package:simple_sample/Models/Record.dart';
 import 'package:simple_sample/Controllers/SequencerController.dart';
-import 'package:simple_sample/UI/Sequencer.dart';
 
 void main() {
 

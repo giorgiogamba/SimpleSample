@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:simple_sample/Controllers/ExplorerController.dart';
 import 'package:simple_sample/Utils/Languages.dart';
@@ -212,9 +211,9 @@ class _ExplorerListItemState extends State<ExplorerListItem> {
 
   ButtonStyle getButtonStyle() {
     return ButtonStyle(
-      backgroundColor: MaterialStateColor.resolveWith((states) => Colors.teal),
-      elevation: MaterialStateProperty.resolveWith((states) => /*10*/ _screenWidth/41),
-      minimumSize: MaterialStateProperty.resolveWith((states) => Size(/*30*/ _screenWidth/13.7, /*15*/ _screenHeight/45.53)),
+      backgroundColor: WidgetStateProperty.resolveWith((states) => Colors.teal),
+      elevation: WidgetStateProperty.resolveWith((states) => /*10*/ _screenWidth/41),
+      minimumSize: WidgetStateProperty.resolveWith((states) => Size(/*30*/ _screenWidth/13.7, /*15*/ _screenHeight/45.53)),
     );
   }
 
