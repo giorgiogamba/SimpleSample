@@ -143,10 +143,8 @@ class SamplerController {
   bool isRenamePossible(int index) {
     Record? record = Model().getRecordAt(index);
     if (record != null) {
-      if(record.getFilename() != null) {
-        return true;
-      }
-      return false;
+      return true;
+          return false;
     }
     return false;
   }

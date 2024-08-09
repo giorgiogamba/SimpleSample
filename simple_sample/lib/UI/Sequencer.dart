@@ -28,7 +28,7 @@ class _SequencerState extends State<Sequencer> {
 
     bool? value = _sequencerController.getSequencerMapValue(row, col);
     Color colorToFill = Colors.teal;
-    if (value != null && value) {
+    if (value) {
       colorToFill = Colors.pink;
     }
 

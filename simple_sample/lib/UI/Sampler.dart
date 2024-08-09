@@ -154,23 +154,19 @@ class _SamplerState extends State<Sampler> {
                   setState(() {});
 
                   Record? toShare = _samplerController.getSelectedItemForSharing(index);
-                  if (toShare != null) {
-                    _samplerController.disableItemSelection();
-                    showDialog(
-                      barrierDismissible: false,
-                      context: context,
-                      builder: (context) => SharingDialog(record: toShare, key: Key(toShare.getFilename())),
-                    ).then((value) {
-                      setState(() {
-                        _samplerController.disableSharing();
-                        _samplerController.setOperationInformationTxt("");
-                      });
+                  _samplerController.disableItemSelection();
+                  showDialog(
+                    barrierDismissible: false,
+                    context: context,
+                    builder: (context) => SharingDialog(record: toShare, key: Key(toShare.getFilename())),
+                  ).then((value) {
+                    setState(() {
+                      _samplerController.disableSharing();
+                      _samplerController.setOperationInformationTxt("");
                     });
+                  });
 
-                  } else {
-                    Utils.showToast(context, Languages.of(context)!.cannotSelect);
-                  }
-                }
+                                }
               }
             },
             style: getSamplerButtonStyle(index),

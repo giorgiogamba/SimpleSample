@@ -207,7 +207,7 @@ class CloudStorageController {
         //Uploading file with given metadats
         await FirebaseStorage.instance.ref('shared/'+user.uid.toString()+"/"+newName+".wav").putFile(file, metadata);
         return true;
-      } on FirebaseException catch (e) {
+      } on FirebaseException {
         throw ("Share Record: expection during record upload on cloud storage");
       }
     }
@@ -226,7 +226,7 @@ class CloudStorageController {
         String path = 'shared/'+user.uid.toString()+"/"+recordName;
         await FirebaseStorage.instance.ref(path).delete(); //Deleting file from cloud storage
         return true;
-      } on FirebaseException catch (e) {
+      } on FirebaseException {
         throw("Remove from Shared Samples: error during record delete from shared group");
       }
 

@@ -13,7 +13,7 @@ void main() {
     SequencerController().initSequencerMap();
     HashMap<int, HashMap<int, bool>>? map = SequencerController().getSequencerMap();
 
-    for (int i = 0; i < map!.length; i ++) {
+    for (int i = 0; i < map.length; i ++) {
       for (int j = 0; j < map[i]!.length; j ++) {
         bool val = SequencerController().getSequencerMapValue(j, i)!;
         expect(val, false);
@@ -52,7 +52,7 @@ void main() {
     SequencerController().resetSequencer();
     HashMap<int, HashMap<int, bool>>? map = SequencerController().getSequencerMap();
 
-    for (int i = 0; i < map!.length; i ++) {
+    for (int i = 0; i < map.length; i ++) {
       for (int j = 0; j < map[i]!.length; j ++) {
         bool val = SequencerController().getSequencerMapValue(j, i)!;
         expect(val, false);
@@ -65,7 +65,7 @@ void main() {
     SequencerController();
     SequencerController().manageButtonPress(5, 5); //random position
     bool? val = SequencerController().getSequencerMapValue(5, 5);
-    expect(val!, true);
+    expect(val, true);
   });
 
 

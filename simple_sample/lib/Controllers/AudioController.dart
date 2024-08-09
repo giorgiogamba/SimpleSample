@@ -117,12 +117,10 @@ class AudioController {
       if (_playbackReady) {
         if (_recorder.isStopped) {
           Record? toPlay = Model().getRecordAt(index);
-          if (toPlay != null) {
-            File file = new File(toPlay.getUrl());
-            print("*** Play path: "+file.path);
-            _players[index]?.play(toPlay.getUrl());
-          }
-        } else {
+          File file = new File(toPlay.getUrl());
+          print("*** Play path: "+file.path);
+          _players[index]?.play(toPlay.getUrl());
+                } else {
           throw Exception("AudioController: Recorder not stopped");
         }
       } else {

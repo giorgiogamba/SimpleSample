@@ -188,12 +188,8 @@ class SequencerController {
   bool isRecordAtPositionNull(int index) {
     Record? record = Model().getRecordAt(index);
     if (record != null) {
-      if (record.getFilename() == null) {
-        return true;
-      } else {
-        return false;
-      }
-    } else {
+      return false;
+        } else {
       return true;
     }
   }

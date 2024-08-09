@@ -22,7 +22,7 @@ const String prefSelectedLanguageCode = "SelectedLanguageCode";
   }
 
   Locale _locale(String languageCode) {
-    return languageCode != null && languageCode.isNotEmpty
+    return languageCode.isNotEmpty
         ? Locale(languageCode, '')
         : Locale('en', '');
   }
