@@ -36,7 +36,7 @@ class AudioController {
   List<AudioPlayer?> createPlayersList() {
     List<AudioPlayer?> players = List.generate(16, (index) => null);
     for (int i = 0; i < playersNumber; i ++) {
-      players.insert(i, AudioPlayer(mode: PlayerMode.LOW_LATENCY));
+      players.insert(i, AudioPlayer(/*PlayerMode.lowLatency*/));
       _isPlayerInited[i] = true;
       print("Player " +i.toString()+" initialized");
     }
@@ -55,7 +55,7 @@ class AudioController {
 
   ///Called to free the resources when the recorder is closed
   void disposeRecorder() {
-    _recorder.closeAudioSession();
+    //_recorder.closeAudioSession();
   }
 
   FlutterSoundRecorder getRecorder() {
@@ -71,7 +71,7 @@ class AudioController {
         throw RecordingPermissionException("No microphone permission granted");
       }
     }
-    await _recorder.openAudioSession().then((value) => _isRecorderInited = true);
+    //await _recorder.openAudioSession().then((value) => _isRecorderInited = true);
     print("*** Recorder opened ***");
   }
 
@@ -82,7 +82,7 @@ class AudioController {
       _isPlayerInited[i] = false;
     }
 
-    _recorder.closeAudioSession();
+    //_recorder.closeAudioSession();
     _isRecorderInited = false;
   }
 
@@ -117,9 +117,12 @@ class AudioController {
       if (_playbackReady) {
         if (_recorder.isStopped) {
           Record? toPlay = Model().getRecordAt(index);
-          File file = new File(toPlay.getUrl());
-          print("*** Play path: "+file.path);
-          _players[index]?.play(toPlay.getUrl());
+          if (toPlay != null)
+          {
+            File file = new File(toPlay.getUrl());
+            print("*** Play path: "+file.path);
+            //_players[index]?.play(toPlay.getUrl());
+          }
                 } else {
           throw Exception("AudioController: Recorder not stopped");
         }
@@ -135,8 +138,8 @@ class AudioController {
   ///Plays the audio file at the desired location URL
   ///Used to play network audio files
   void playAtURL(String URL) {
-    AudioPlayer player = AudioPlayer();
-    player.play(URL);
+    //AudioPlayer player = AudioPlayer();
+    //player.play(URL);
   }
 
   List<AudioPlayer?> getPlayersList() {

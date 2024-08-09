@@ -38,7 +38,7 @@ class _SamplerState extends State<Sampler> {
     _audioController.initRecorder().then((value) {
       //Recording time initialization
       initializeDateFormatting();
-      _recorderSubscription = _audioController.getRecorder().onProgress!.listen((e) { //NOT EXECUTED ON IOS
+      /*_recorderSubscription =*/ _audioController.getRecorder().onProgress!.listen((e) { //NOT EXECUTED ON IOS
         var date = DateTime.fromMillisecondsSinceEpoch(e.duration.inMilliseconds, isUtc: true);
         var txt = DateFormat('mm:ss:SS', 'en_GB').format(date);
 
@@ -155,7 +155,7 @@ class _SamplerState extends State<Sampler> {
                   showDialog(
                     barrierDismissible: false,
                     context: context,
-                    builder: (context) => SharingDialog(record: toShare, key: Key(toShare.getFilename())),
+                    builder: (context) => SharingDialog(record: toShare!, key: Key(toShare.getFilename())),
                   ).then((value) {
                     setState(() {
                       _samplerController.disableSharing();
@@ -743,13 +743,16 @@ class ToUploadItem extends StatefulWidget {
 class _ToUploadItemState extends State<ToUploadItem> {
 
   bool isSelected = false;
+  // ignore: unused_field
+  double _screenHeight = 0.0;
+  double _screenWidth = 0.0;
 
   @override
   Widget build(BuildContext context) {
 
     //Getting sceen's size
-    _screenHeight = MediaQuery.of(context).size.height;
-    _screenWidth = MediaQuery.of(context).size.width;
+    this._screenHeight = MediaQuery.of(context).size.height;
+    this._screenWidth = MediaQuery.of(context).size.width;
 
     return InkWell(
       onTap: () {

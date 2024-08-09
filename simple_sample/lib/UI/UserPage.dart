@@ -92,8 +92,8 @@ class _UserPageState extends State<UserPage> {
               child: Icon(Icons.settings),
               style: ElevatedButton.styleFrom(
                 shape: CircleBorder(),
-                padding: EdgeInsets.all(13),
-                primary: Colors.blueGrey,
+                padding: EdgeInsets.all(13)/*,
+                primary: Colors.blueGrey,*/
               ),
             ),
             FutureBuilder(

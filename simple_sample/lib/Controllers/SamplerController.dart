@@ -5,6 +5,7 @@ import '../Utils/Languages.dart';
 import '../Models/Model.dart';
 import '../Models/Record.dart';
 import 'dart:io';
+import 'package:file_picker/file_picker.dart';
 
 class SamplerController {
 
@@ -23,6 +24,8 @@ class SamplerController {
   int? _selectedItemForRename;
   bool _renameSubmitted = false;
   bool _isSharingRunning = false;
+  // ignore: unused_field
+  int _selectedItemForSharing = -1;
   bool _isLoadingRunning = false;
   String _operationInformationText = "";
   List<String> _assets = [];

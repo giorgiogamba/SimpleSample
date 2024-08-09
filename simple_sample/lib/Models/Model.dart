@@ -165,7 +165,7 @@ class Model {
 
   Future<String> getExternalStorageDoc() async {
     Directory? dir = await getExternalStorageDirectory();
-    return dir.absolute.path;
+    return dir!.absolute.path;
   }
 
   ///Returns a list of elements contained into "Documents" folder
