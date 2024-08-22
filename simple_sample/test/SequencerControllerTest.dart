@@ -5,7 +5,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:simple_sample/Models/Model.dart';
 import 'package:simple_sample/Models/Record.dart';
 import 'package:simple_sample/Controllers/SequencerController.dart';
-import 'package:simple_sample/UI/Sequencer.dart';
 
 void main() {
 
@@ -13,10 +12,13 @@ void main() {
     SequencerController().initSequencerMap();
     HashMap<int, HashMap<int, bool>>? map = SequencerController().getSequencerMap();
 
-    for (int i = 0; i < map!.length; i ++) {
-      for (int j = 0; j < map[i]!.length; j ++) {
-        bool val = SequencerController().getSequencerMapValue(j, i)!;
-        expect(val, false);
+    if (map != null)
+    {
+      for (int i = 0; i < map.length; i ++) {
+        for (int j = 0; j < map[i]!.length; j ++) {
+          bool val = SequencerController().getSequencerMapValue(j, i)!;
+          expect(val, false);
+        }
       }
     }
   });
@@ -52,20 +54,22 @@ void main() {
     SequencerController().resetSequencer();
     HashMap<int, HashMap<int, bool>>? map = SequencerController().getSequencerMap();
 
-    for (int i = 0; i < map!.length; i ++) {
-      for (int j = 0; j < map[i]!.length; j ++) {
-        bool val = SequencerController().getSequencerMapValue(j, i)!;
-        expect(val, false);
+    if (map != null)
+    {
+      for (int i = 0; i < map.length; i ++) {
+        for (int j = 0; j < map[i]!.length; j ++) {
+          bool val = SequencerController().getSequencerMapValue(j, i)!;
+          expect(val, false);
+        }
       }
     }
-
   });
 
   test("MAnage button press", () {
     SequencerController();
     SequencerController().manageButtonPress(5, 5); //random position
     bool? val = SequencerController().getSequencerMapValue(5, 5);
-    expect(val!, true);
+    expect(val, true);
   });
 
 

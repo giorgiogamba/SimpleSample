@@ -1,5 +1,4 @@
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/foundation.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:simple_sample/Controllers/AuthenticationController.dart';
 import 'package:simple_sample/Models/Record.dart';
@@ -44,35 +43,49 @@ class UserPageController {
 
   ///Takes image from camera, sets it as a profile image and uploads it on the cloud
   Future<PickedFile?> pickImageFromCamera() async {
-    ImagePicker picker = ImagePicker();
+    /*ImagePicker picker = ImagePicker();
     PickedFile? pickedImage = await picker.getImage(source: ImageSource.camera, imageQuality: 100);
-    if (pickedImage != null) {
-      setProfileImagePath(pickedImage.path);
-      CloudStorageController().uploadProfileImage(pickedImage.path);
-    }
+
+    setProfileImagePath(pickedImage.path);
+    CloudStorageController().uploadProfileImage(pickedImage.path);
+    
     return pickedImage;
+    */
+
+    ImagePicker picker = ImagePicker();
+    Future<XFile?> pickedImage = picker.pickImage(source: ImageSource.camera);
+    
+    setProfileImagePath(pickedImage.toString());
+    CloudStorageController().uploadProfileImage(pickedImage.toString());
+    
+    //return pickedImage;
+    return null;
   }
 
   ///Takes image from gallery and sets it as profile image and uploads it on the cloud
   Future<PickedFile?> pickImageFromGallery() async {
     ImagePicker picker = ImagePicker();
-    PickedFile? pickedImage = await picker.getImage(source: ImageSource.gallery, imageQuality: 100);
-    if (pickedImage != null) {
-      setProfileImagePath(pickedImage.path);
-      CloudStorageController().uploadProfileImage(pickedImage.path);
-    }
-    return pickedImage;
+    Future<XFile?> pickedImage = picker.pickImage(source: ImageSource.gallery);
+    
+    setProfileImagePath(pickedImage.toString());
+    CloudStorageController().uploadProfileImage(pickedImage.toString());
+    
+    //return pickedImage;
+    return null;
   }
 
   ///Manages profile image source selection from setting menu
   Future<PickedFile?> executeOperation(int index) async {
+
+    PickedFile? file;
+
     if (index == 0) {
-      PickedFile? image = await pickImageFromGallery();
-      return image;
+      file = await pickImageFromGallery();
     } else if (index == 1) {
-      PickedFile? image = await pickImageFromCamera();
-      return image;
+      file = await pickImageFromCamera();
     }
+
+    return file;
   }
 
   ///Gets all the records shared by the user in order to display them into user page

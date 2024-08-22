@@ -33,6 +33,7 @@ class ShareDialogController {
 
   Record? setSelectedEntry(Record? record) {
     this._selectedEntry = record;
+    return null;
   }
 
   int getEntriesLength() {

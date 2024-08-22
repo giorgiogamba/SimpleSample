@@ -1,5 +1,4 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:simple_sample/Models/Model.dart';
 import '../Models/Record.dart';
@@ -207,7 +206,7 @@ class CloudStorageController {
         //Uploading file with given metadats
         await FirebaseStorage.instance.ref('shared/'+user.uid.toString()+"/"+newName+".wav").putFile(file, metadata);
         return true;
-      } on FirebaseException catch (e) {
+      } on FirebaseException {
         throw ("Share Record: expection during record upload on cloud storage");
       }
     }
@@ -226,7 +225,7 @@ class CloudStorageController {
         String path = 'shared/'+user.uid.toString()+"/"+recordName;
         await FirebaseStorage.instance.ref(path).delete(); //Deleting file from cloud storage
         return true;
-      } on FirebaseException catch (e) {
+      } on FirebaseException {
         throw("Remove from Shared Samples: error during record delete from shared group");
       }
 
@@ -305,7 +304,6 @@ class CloudStorageController {
   void getUserInfos() async {
     User? currentUser = Model().getUser();
     if (currentUser != null) {
-      String uid = currentUser.uid;
       CollectionReference usersDoc = FirebaseFirestore.instance.collection('users');
       DocumentSnapshot currentUserDoc = await usersDoc.doc("uid").get();
 
