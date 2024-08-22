@@ -21,7 +21,6 @@ void main() {
   });
 
   test("getButtonName2", () {
-    final model = Model();
     String name = SamplerController().getButtonName(0);
     expect(name, "Bt0");
   });

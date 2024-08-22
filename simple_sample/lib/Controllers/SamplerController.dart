@@ -1,11 +1,11 @@
 import 'dart:typed_data';
-import 'package:file_picker/file_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import '../Utils/Languages.dart';
 import '../Models/Model.dart';
 import '../Models/Record.dart';
 import 'dart:io';
+import 'package:file_picker/file_picker.dart';
 
 class SamplerController {
 
@@ -24,8 +24,9 @@ class SamplerController {
   int? _selectedItemForRename;
   bool _renameSubmitted = false;
   bool _isSharingRunning = false;
+  // ignore: unused_field
+  int _selectedItemForSharing = -1;
   bool _isLoadingRunning = false;
-  int? _selectedItemForSharing;
   String _operationInformationText = "";
   List<String> _assets = [];
 
@@ -143,10 +144,7 @@ class SamplerController {
   bool isRenamePossible(int index) {
     Record? record = Model().getRecordAt(index);
     if (record != null) {
-      if(record.getFilename() != null) {
-        return true;
-      }
-      return false;
+      return true;
     }
     return false;
   }

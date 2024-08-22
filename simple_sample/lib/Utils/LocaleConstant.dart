@@ -1,11 +1,7 @@
-import 'dart:ui';
-
 import 'package:flutter/cupertino.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../main.dart';
-
-
 
 const String prefSelectedLanguageCode = "SelectedLanguageCode";
 
@@ -22,7 +18,7 @@ const String prefSelectedLanguageCode = "SelectedLanguageCode";
   }
 
   Locale _locale(String languageCode) {
-    return languageCode != null && languageCode.isNotEmpty
+    return languageCode.isNotEmpty
         ? Locale(languageCode, '')
         : Locale('en', '');
   }
