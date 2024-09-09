@@ -1,0 +1,129 @@
+name: CI_DEPLOY_ANDROID
+
+on:
+  push:
+    branches: [stable]
+
+  # eventually possible to add pull_request in the same way
+
+jobs:
+  build:
+    # Only run this job if the branch name starts with 'release/'
+    name: android release
+    runs-on: ubuntu-latest
+    
+    env:
+      # Setup env variables that will be used throughout the workflow
+      JAVA_VERSION: 12.0
+      FLUTTER_VERSION: 3.13.1
+      AAB_PATH: build/app/outputs/bundle/release/app-release.aab
+      KEYSTORE_PATH: android/upload-keystore.jks
+      KEY_PROPS_PATH: android/key.properties
+      SERVICE_ACCOUNT_PATH: store_credentials.json
+    steps:
+      # Checkout repository codebase
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      # Setup Java in the VM
+      - name: Setup Java
+        uses: actions/setup-java@v3.12.0
+        with:
+          distribution: 'oracle'
+          java-version: '17'
+      
+      # Setup Flutter in the VM
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.22.2'
+          channel: 'stable'
+
+      # Decode Android env variables
+      # - name: Decode Android keystore
+      #  run: echo "${{ secrets.ANDROID_KEYSTORE }}" | base64 --decode > ${{ env.KEYSTORE_PATH }}
+
+      # - name: Decode Android key properties
+      #  run: echo "${{ secrets.ANDROID_KEY_PROPERTIES }}" | base64 --decode > ${{ env.KEY_PROPS_PATH }}
+
+      # Decode Android release Service Account
+      # - name: Decode Android Service Account
+      #  run: echo "${{ secrets.PRODUCTION_CREDENTIAL_FILE }}" | base64 --decode > ${{ env.SERVICE_ACCOUNT_PATH }}
+
+      # Run flutter commands
+      - name: Install Flutter
+        run: flutter pub get
+
+      - name: Build APK
+        run: flutter build apk --release
+
+      - name: Build appBundle
+        run: flutter build appbundle
+
+      - name: Build IPA for iOS
+        run: flutter build ipa --no-codesign
+
+      - name: Compress archives and IPAs
+        run: |
+          cd build
+          tar -czf ios_build.tar.gz ios
+
+      # Build Android Bundle release file
+      # - name: Build aab
+      #  run: |
+      #    flutter build appbundle 
+      #    --release
+
+      # Upload generated aab to project artifacts
+      # - name: Upload generated aab to the artifacts
+      #  uses: actions/upload-artifact@master
+      #  with:
+      #    name: aab-stores
+      #    path: {{ env.AAB_PATH }}
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: Release
+          path: |
+            build/app/outputs/flutter-apk/app-release.apk
+            build/app/outputs/bundle/release/app-release.aab
+            build/ios_build.tar/g
+
+      - name: Extract version from pubspec.yaml
+        id: extract_version
+        run: |
+          version=$(grep '^version: ' pubspec.yaml | cut -d ' ' -f 2 | tr -d '\r')
+          echo "VERSION=$version" >> $GITHUB_ENV
+
+      - name: Check if tag exists
+        id: check_tag
+        run: |
+          if git rev-parse "v${{ env.VERSION }}" >/dev/null 2>&1; then
+            echo "TAG_EXISTS=true" >> $GITHUB_ENV
+          else
+            echo "TAG_EXISTS=false" >> $GITHUB_ENV
+          fi
+
+      - name: Modify Tag
+        if: env.TAG_EXISTS == 'true'
+        id: modify_tag
+        run: |
+          new_version="${{ env.VERSION }}-build-${{ github.run_number }}"
+          echo "VERSION=$new_version" >> $GITHUB_ENV
+
+      - name: Create Release
+        uses: ncipollo/release-action@v1
+        with:
+          artifacts: "build/app/outputs/flutter-apk.app-release.apk, build/app/outputs/bundle/release/app-release.aab, build/ios_build.tar.gz"
+          tag: v${{ github.run_number }}
+          token: ${{ secrets.TOKEN }}
+
+      # Deploy bundle to Google Play internal testing
+      #- name: Deploy to Play Store (Internal testing)
+      #  uses: r0adkll/upload-google-play@v1
+      #  with:
+      #    serviceAccountJson: {{ env.SERVICE_ACCOUNT_PATH }}
+      #    packageName: com.yourapp.package
+      #    releaseFiles: {{ env.AAB_PATH }}
+      #    track: internal
