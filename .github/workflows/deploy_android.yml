@@ -52,7 +52,9 @@ jobs:
 
       # Run flutter commands
       - name: Install Flutter
-        run: flutter pub get
+        run: |
+          cd simple_sample
+          flutter pub get
 
       - name: Build APK
         run: flutter build apk --release
