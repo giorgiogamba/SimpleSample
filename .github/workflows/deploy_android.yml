@@ -58,10 +58,14 @@ jobs:
           flutter pub get
 
       - name: Build APK
-        run: flutter build apk --release
+        run: |
+          cd simple_sample
+          flutter build apk --release
 
       - name: Build appBundle
-        run: flutter build appbundle
+        run: |
+          cd simple_sample
+          flutter build appbundle
 
       - name: Build IPA for iOS
         run: flutter build ipa --no-codesign
