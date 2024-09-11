@@ -82,7 +82,7 @@ jobs:
       #    path: {{ env.AAB_PATH }}
 
       - name: Upload Artifacts
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: Release
           path: |
