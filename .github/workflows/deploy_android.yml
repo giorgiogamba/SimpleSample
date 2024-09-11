@@ -54,6 +54,7 @@ jobs:
       - name: Install Flutter
         run: |
           cd simple_sample
+          flutter pub cache clean
           flutter pub get
 
       - name: Build APK
