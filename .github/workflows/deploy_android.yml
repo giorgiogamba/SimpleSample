@@ -2,7 +2,7 @@ name: CI_DEPLOY_ANDROID
 
 on:
   push:
-    branches: [stable]
+    branches: [stable, test_ContinuousIntegration]
 
   # eventually possible to add pull_request in the same way
 
